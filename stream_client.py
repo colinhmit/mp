@@ -5,7 +5,7 @@ Created on Mon Aug 29 21:28:46 2016
 @author: colinh
 """
 
-import json, sys
+import json, sys,time
 from stream.twitch_stream import *
 from stream.config.universal_config import *
 import socket
@@ -65,18 +65,13 @@ class StreamClient:
         return json.loads(''.join(total_data))
         
 #        
-#        while receiving:
-#            print data
-#            jsondata += data
-#            data = sock.recv(config['socket_buffer_size']).rstrip()
-#            
-#            if len(data) == 0:
-#                print 'Done'
-#                receiving = False
-#            
-#        return json.loads(jsondata)
-#        
 if __name__ == '__main__':
     client = StreamClient(client_config)
     client.connect_to_server()
+    
+    if client_config['demo_mode']:
+        stream = raw_input('Enter the stream ID: ')
+        while True:
+            pp('# messages received: '+str(len(client.get_chat_from_stream(stream))))
+            time.sleep(3)
     

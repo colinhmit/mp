@@ -57,11 +57,11 @@ class StreamServer:
             data = client_sock.recv(config['socket_buffer_size']).rstrip()
      
             if len(data) == 0:
-                pp('Connection was lost, hanging #FIX.')
+                pp(('Connection lost by: ' + str(client_address)))
                 connected = False
             
             if config['debug']:
-                print data
+                pp(data)
                 
             if self.check_for_roger(data):
                 client_sock.send('Roger')
@@ -72,15 +72,15 @@ class StreamServer:
                 
                 if stream_id in self.streams.keys():
                     if config['debug']:
-                        print 'Found stream!'
+                        pp('Found stream!')
                     output = json.dumps(self.streams[stream_id].get_chat())
                     
                     if config['debug']:
-                        print 'Sending: '+ output+config['end_of_chat_data']
+                        pp('Sending: '+ output+config['end_of_chat_data'])
                     client_sock.sendall(output+config['end_of_chat_data'])
                 else:
                     if config['debug']:
-                        print 'Stream not found.'
+                        pp('Stream not found.')
                     self.create_stream(stream_id)
                     
                     stream_exists = False
@@ -88,16 +88,18 @@ class StreamServer:
                         stream_exists = stream_id in self.streams.keys()
                         
                     if config['debug']:
-                        print 'Stream created!'
+                        pp('Stream created!')
                         
                     output = json.dumps(self.streams[stream_id].get_chat())
                     if config['debug']:
-                        print 'Sending: '+ output+config['end_of_chat_data']
+                        pp('Sending: '+ output+config['end_of_chat_data'])
+                        
                     client_sock.sendall(output+config['end_of_chat_data'])
     
     def run(self):
         sock = self.socket
         config = self.config
+        pp(('Server initialized'))
         
         while True:
             (client_sock, client_address) = sock.accept()

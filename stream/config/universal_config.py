@@ -63,6 +63,8 @@ client_config = {
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096,
  
-      'end_of_chat_data': '//data_sent//'
+      'end_of_chat_data': '//data_sent//',
+      
+      'demo_mode': True
  
 }
