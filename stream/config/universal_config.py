@@ -6,7 +6,6 @@ Created on Wed Aug 24 18:48:45 2016
 """
 
 global twitch_config
-global master_config
 
 twitch_config = {
 	
@@ -17,7 +16,7 @@ twitch_config = {
 	'oauth_password': 'oauth:3chiev6dslmp2t4f07ndd7znqm1ygf', # get this from http://twitchapps.com/tmi/
 	
 	# if set to true will display any data received
-	'debug': False,
+	'debug': True,
 
 	# if set to true will log all messages from all channels
 	# TODO
@@ -27,10 +26,14 @@ twitch_config = {
 	'socket_buffer_size': 4096
 }
 
+global server_config
+
 server_config = {
 	
 	# details required to host the server
-	'host': 'localhost',
+     'host': '127.0.0.1',
+    	#'host': 'localhost',
+     #'host': '192.168.0.19',
 	'port': 4808,
       'listeners' : 10,
 	
@@ -44,13 +47,15 @@ server_config = {
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096,
  
-      'end_of_chat_data': '//data_sent//'
+      'end_of_data': '//data_sent//'
 }
+
+global client_config
 
 client_config = {
 	
 	# details required to host the server
-	'server': 'localhost',
+	'default_server': '127.0.0.1',
 	'port': 4808,
 	
 	# if set to true will display any data received
@@ -63,7 +68,7 @@ client_config = {
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096,
  
-      'end_of_chat_data': '//data_sent//',
+      'end_of_data': '//data_sent//',
       
       'demo_mode': True
  

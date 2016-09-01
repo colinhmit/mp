@@ -16,15 +16,18 @@ class StreamClient:
         #self.config must be set before calling create_socket!
         self.config = config
         
-    def connect_to_server(self):
+    def connect_to_server(self, server=None):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(10)
         
+        if server == None:
+            server = self.config['default_server']
+        
         try:
-            sock.connect((self.config['server'], self.config['port']))
+            sock.connect((server, self.config['port']))
             sock.send('roger')
         except:
-            pp('Cannot connect to server (%s:%s).' % (self.config['server'], self.config['port']), 'error')
+            pp('Cannot connect to server (%s:%s).' % (server, self.config['port']), 'error')
             sys.exit()        
         
         sock.settimeout(None)
@@ -41,7 +44,7 @@ class StreamClient:
         if data[:5] == 'Roger': 
             return True
     
-    def get_chat_from_stream(self, stream):
+    def get_from_stream(self, stream):
         sock = self.socket
         config = self.config
 
@@ -51,14 +54,14 @@ class StreamClient:
         
         while True:
                 data = sock.recv(config['socket_buffer_size']).rstrip()
-                if config['end_of_chat_data'] in data:
-                    total_data.append(data[:data.find(config['end_of_chat_data'])])
+                if config['end_of_data'] in data:
+                    total_data.append(data[:data.find(config['end_of_data'])])
                     break
                 total_data.append(data)
                 if len(total_data)>1:
                     #check if end_of_data was split
                     last_pair=total_data[-2]+total_data[-1]
-                    if config['end_of_chat_data'] in last_pair:
+                    if config['end_of_data'] in last_pair:
                         total_data[-2]=last_pair[:last_pair.find(End)]
                         total_data.pop()
                         break
@@ -66,12 +69,20 @@ class StreamClient:
         
 #        
 if __name__ == '__main__':
+    pp('Initializing Client...')
+    server = raw_input('Enter the server: ')
     client = StreamClient(client_config)
-    client.connect_to_server()
+    client.connect_to_server(server)
     
     if client_config['demo_mode']:
         stream = raw_input('Enter the stream ID: ')
         while True:
-            pp('# messages received: '+str(len(client.get_chat_from_stream(stream))))
-            time.sleep(3)
+            #pp('# messages received: '+str(len(client.get_from_stream(stream))))
+            pp(client.get_from_stream(stream))
+            pp("********")
+            pp("********")
+            pp("********")
+            pp("********")
+            pp("********")
+            time.sleep(5)
     

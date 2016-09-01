@@ -73,11 +73,15 @@ class StreamServer:
                 if stream_id in self.streams.keys():
                     if config['debug']:
                         pp('Found stream!')
-                    output = json.dumps(self.streams[stream_id].get_chat())
+                        
+                    #output = json.dumps(self.streams[stream_id].get_chat())
+                    output = json.dumps(self.streams[stream_id].get_trending())
                     
                     if config['debug']:
-                        pp('Sending: '+ output+config['end_of_chat_data'])
-                    client_sock.sendall(output+config['end_of_chat_data'])
+                        pp('Sending: '+ output+config['end_of_data'])
+                        
+                    client_sock.sendall(output+config['end_of_data'])
+                    
                 else:
                     if config['debug']:
                         pp('Stream not found.')
@@ -90,11 +94,12 @@ class StreamServer:
                     if config['debug']:
                         pp('Stream created!')
                         
-                    output = json.dumps(self.streams[stream_id].get_chat())
+                    #output = json.dumps(self.streams[stream_id].get_chat())
+                    output = json.dumps(self.streams[stream_id].get_trending())
                     if config['debug']:
-                        pp('Sending: '+ output+config['end_of_chat_data'])
+                        pp('Sending: '+ output+config['end_of_data'])
                         
-                    client_sock.sendall(output+config['end_of_chat_data'])
+                    client_sock.sendall(output+config['end_of_data'])
     
     def run(self):
         sock = self.socket
