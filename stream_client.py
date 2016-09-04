@@ -70,19 +70,17 @@ class StreamClient:
 #        
 if __name__ == '__main__':
     pp('Initializing Client...')
-    server = raw_input('Enter the server: ')
+    server = raw_input('Enter the host: ')
     client = StreamClient(client_config)
     client.connect_to_server(server)
     
-    if client_config['demo_mode']:
+    if client_config['mode'] == 'demo':
         stream = raw_input('Enter the stream ID: ')
         while True:
             #pp('# messages received: '+str(len(client.get_from_stream(stream))))
-            pp(client.get_from_stream(stream))
-            pp("********")
-            pp("********")
-            pp("********")
-            pp("********")
-            pp("********")
+            pp("****************************")
+            trending = client.get_from_stream(stream)
+            for key in trending.keys():
+                pp(key+" : "+str(trending[key][0]))
+            pp("****************************")
             time.sleep(5)
-    

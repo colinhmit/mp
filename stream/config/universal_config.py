@@ -22,6 +22,40 @@ twitch_config = {
 	# TODO
 	'log_messages': False,
 
+      #fw_eo output from funcions_matching threshold 
+      'fw_eo_threshold': 65,
+      
+      #twitch_stream trending params
+      'matched_init_base': 20,
+      'matched_add_base': 20,
+      
+      'decay_msg_base': 1,
+      'decay_time_base': 1,
+                       
+	# maximum amount of bytes to receive from socket - 1024-4096 recommended
+	'socket_buffer_size': 4096
+}
+
+
+global twitch_scraper_config
+
+twitch_scraper_config = {
+	
+	# details required to login to twitch IRC server
+	'server': 'irc.twitch.tv',
+	'port': 6667,
+	'username': 'stepthirtytwo',
+	'oauth_password': 'oauth:3chiev6dslmp2t4f07ndd7znqm1ygf', # get this from http://twitchapps.com/tmi/
+	
+	# if set to true will display any data received
+	'debug': True,
+
+	# if set to true will log all messages from all channels
+	# TODO
+	'log_messages': False,
+
+      'log_path': '/Users/colinh/Repositories/mp/stream/backtest/',
+                       
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096
 }
@@ -70,6 +104,7 @@ client_config = {
  
       'end_of_data': '//data_sent//',
       
-      'demo_mode': True
+      #modes: backtest, demo
+      'mode': 'demo'
  
 }

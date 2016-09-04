@@ -9,22 +9,14 @@ import lib.irc as irc_
 from lib.functions_general import *
 from lib.functions_matching import *
 
-class TwitchStream:
+class TwitchReader:
 
     def __init__(self, config, channel):
         self.config = config
         self.channel = channel
-        self.irc = irc_.irc(config)
-        self.socket = self.irc.get_irc_socket_object(channel)
         self.chat = {}
         self.trending = {}
-
-    def get_chat(self):
-        return self.chat
         
-    def get_trending(self):
-        return self.trending
-
     def process_message(self, msg, msgtime):
         if len(self.trending)>0:
             (matched_msg, score) = fweo_compare(msg,self.trending.keys())
@@ -52,36 +44,42 @@ class TwitchStream:
                 del self.trending[key]
             else:
                 self.trending[key] = (curr_score, last_rcv_time)
-    
+
     def run(self):
-        irc = self.irc
-        sock = self.socket
         config = self.config
-        ts_start = time.time() 
+        f = open(config['log_path']+self.channel+'_stream.txt', 'r')
         
-        while True:
-            data = sock.recv(config['socket_buffer_size']).rstrip()
+        strmdict = {}
+        for line in f:
+            pp(line)
+            mssg = line.split("_")
+            strmdict[float(mssg[0])] = (mssg[1],mssg[2])
             
-            if len(data) == 0:
-                pp('Connection was lost, reconnecting.')
-                sock = self.irc.get_irc_socket_object(self.channel)
+        ts_start = time.time()
+        timekeys = sorted(strmdict.iterkeys())
 
-            #if config['debug']:
-            #    pp(data)
+        last_printed = 0
+        while len(timekeys) > 0:
+            
+            mod_time, extra = divmod(time.time()-ts_start,config['output_freq'])
+            if mod_time>last_printed:
+                pp("****************************")
+                for key in self.trending.keys():
+                    pp(key+" : "+str(self.trending[key][0]))
+                pp("****************************")
+                
+                last_printed = mod_time
+            
+            timekey = timekeys[0]
+            #pp("~~~ "+str(timekey)+" | "+str(time.time() - ts_start))
+            if (time.time() - ts_start) > timekey:
+                self.chat[timekey] = {'channel': self.channel, 'message':strmdict[timekey][1], 'username': strmdict[timekey][0]}
+            
+                self.process_message(strmdict[timekey][1], timekey)   
+            
+                timekeys.pop(0)
 
-            # check for ping, reply with pong
-            irc.check_for_ping(data)
 
-            if irc.check_for_message(data):
-                #print 'Processing message'
-                message_dict = irc.get_message(data)
-                
-                channel = message_dict['channel']
-                message = message_dict['message']
-                username = message_dict['username']
-                messagetime = time.time() - ts_start
-                
-                self.chat[messagetime] = {'channel':channel, 'message':message, 'username':username}
-                
-                self.process_message(message, messagetime)                
-                
+
+    
+ 

@@ -12,8 +12,6 @@ from fuzzywuzzy import process
 
 def fwts_compare(msg1, msg2):
     return fuzz.token_set_ratio(msg1,msg2)
- 
-
 
 def fweo_compare(msg, msgs):
     return process.extractOne(msg, msgs, scorer=fuzz.token_set_ratio)
