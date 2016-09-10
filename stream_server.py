@@ -40,9 +40,27 @@ class StreamServer:
 
 
     def get_stream_trending(self, stream):
-        return self.streams[stream].get_trending()        
-        
-    
+        if stream in self.streams.keys():
+            if self.config['debug']:
+                pp('Found stream!')
+                
+            return self.streams[stream_id].get_trending()
+            
+        else:
+            if config['debug']:
+                pp('Stream not found.')
+            self.create_stream(stream_id)
+            
+            stream_exists = False
+            
+            while not stream_exists:
+                stream_exists = stream in self.streams.keys()
+                
+            if config['debug']:
+                pp('Stream created!')
+                
+            return self.streams[stream_id].get_trending()
+
     #comm helpers
     def check_for_roger(self, data):
         if data[:5] == 'roger': 
