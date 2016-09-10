@@ -38,6 +38,11 @@ class StreamServer:
         self.streams[stream] = TwitchStream(twitch_config,stream)
         self.streams[stream].run()
 
+
+    def get_stream_trending(self, stream):
+        return self.streams[stream].get_trending()        
+        
+    
     #comm helpers
     def check_for_roger(self, data):
         if data[:5] == 'roger': 
