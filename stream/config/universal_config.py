@@ -65,9 +65,9 @@ global server_config
 server_config = {
 	
 	# details required to host the server
-     'host': '127.0.0.1',
+     #'host': '127.0.0.1',
     	#'host': 'localhost',
-     #'host': '192.168.0.19',
+     'host': '192.168.0.19',
 	'port': 4808,
       'listeners' : 10,
 	
