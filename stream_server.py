@@ -26,12 +26,14 @@ class StreamServer:
         self.streams = {}
         self.threads = {}
 
+    #for python client testing
     def init_socket(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if self.config['mode'] == 'python':
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        # sock.bind((self.config['host'], self.config['port']))
-        # sock.listen(self.config['listeners'])
-        self.socket = sock
+            sock.bind((self.config['host'], self.config['port']))
+            sock.listen(self.config['listeners'])
+            self.socket = sock
 
     #stream control
     def create_stream(self, stream):
@@ -42,12 +44,13 @@ class StreamServer:
         self.streams[stream] = TwitchStream(twitch_config,stream)
         self.streams[stream].run()
 
-
+    #js invoked stream call
     def get_stream_trending(self, stream):
         if stream in self.streams.keys():
             if self.config['debug']:
                 pp('Found stream!')
             return self.streams[stream].get_trending()
+
         else:
             if self.config['debug']:
                 pp('Stream not found.')
@@ -62,7 +65,8 @@ class StreamServer:
 
             return self.streams[stream].get_trending()
 
-    #comm helpers
+    #python client testing
+    #////////////////////
     def check_for_roger(self, data):
         if data[:5] == 'roger':
             return True
@@ -138,6 +142,7 @@ class StreamServer:
             pp(('Connection initiated by: ' + str(client_address)))
             client_sock.settimeout(60)
             threading.Thread(target = self.listen_to_client,args = (client_sock,client_address)).start()
+    #////////////////////
 
 if __name__ == '__main__':
     server = StreamServer(server_config)
