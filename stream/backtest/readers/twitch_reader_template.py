@@ -4,10 +4,13 @@ Created on Wed Aug 24 18:42:42 2016
 
 @author: colinh
 """
+import sys
+# Add the ptdraft folder path to the sys.path list
+sys.path.append('/Users/colinh/Repositories/mp')
 
-import lib.irc as irc_
-from lib.functions_general import *
-from lib.functions_matching import *
+from stream.lib import irc as irc_
+from stream.lib.functions_general import *
+from stream.lib.functions_matching import *
 
 class TwitchReader:
 

@@ -6,13 +6,13 @@ Created on Sun Sep  4 17:39:04 2016
 """
 
 import json, sys,time
-from stream.twitch_reader import *
+from stream.backtest.readers.twitch_reader_template import *
 import socket
 
 test_twitch_config = {
 	
 	# details required to read Twitch log
-	'log_path': '/Users/colinh/Repositories/mp/stream/backtest/',
+	'log_path': '/Users/colinh/Repositories/mp/stream/backtest/logs/',
  
 	# if set to true will display any data received
 	'debug': False,

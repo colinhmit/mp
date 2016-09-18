@@ -54,7 +54,7 @@ twitch_scraper_config = {
 	# TODO
 	'log_messages': False,
 
-      'log_path': '/Users/colinh/Repositories/mp/stream/backtest/',
+      'log_path': '/Users/colinh/Repositories/mp/stream/backtest/logs/',
                        
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096
