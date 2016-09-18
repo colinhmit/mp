@@ -20,7 +20,7 @@ class TwitchReader:
     def process_message(self, msg, msgtime):
         if len(self.trending)>0:
             (matched_msg, score) = fweo_compare(msg,self.trending.keys())
-            
+        
             if score > self.config['fw_eo_threshold']:
                 if self.config['debug']:
                     pp("!!! "+matched_msg+" + "+msg+" = "+str(score)+" !!!")
@@ -53,7 +53,7 @@ class TwitchReader:
         for line in f:
             pp(line)
             mssg = line.split("_")
-            strmdict[float(mssg[0])] = (mssg[1],mssg[2])
+            strmdict[float(mssg[0])] = (mssg[1],mssg[2].decode('utf-8'))
             
         ts_start = time.time()
         timekeys = sorted(strmdict.iterkeys())

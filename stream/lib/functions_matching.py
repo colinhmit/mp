@@ -15,3 +15,6 @@ def fwts_compare(msg1, msg2):
 
 def fweo_compare(msg, msgs):
     return process.extractOne(msg, msgs, scorer=fuzz.token_set_ratio)
+
+def fweo_check(msg, msgs):
+	return process.extract(msg, msgs, scorer=fuzz.token_set_ratio, limit=1)

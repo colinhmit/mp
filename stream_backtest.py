@@ -32,7 +32,7 @@ test_twitch_config = {
       'decay_time_base': 1,
       
       #output frequency
-      'output_freq': 5
+      'output_freq': 1
                        
 }
 
