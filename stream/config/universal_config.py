@@ -16,7 +16,7 @@ twitch_config = {
 	'oauth_password': 'oauth:3chiev6dslmp2t4f07ndd7znqm1ygf', # get this from http://twitchapps.com/tmi/
 	
 	# if set to true will display any data received
-	'debug': True,
+	'debug': False,
 
 	# if set to true will log all messages from all channels
 	# TODO
