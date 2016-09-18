@@ -12,7 +12,7 @@ import socket
 test_twitch_config = {
 	
 	# details required to read Twitch log
-	'log_path': '/Users/colinh/Repositories/mp/stream/backtest/logs/',
+	'log_path': '/Users/AndrewBusse/mp/stream/backtest/logs/',
  
 	# if set to true will display any data received
 	'debug': False,

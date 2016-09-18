@@ -43,15 +43,20 @@ class TwitchStream:
                     pp("Init trending")
             self.trending[msg] = (self.config['matched_init_base'], msgtime)
         
+        if len(self.chat)>0:
+            prev_msgtime = max(self.chat.keys())
+        else:
+            prev_msgtime = msgtime
+            
         for key in self.trending.keys():
-            curr_score, last_rcv_time = self.trending[key]
+            curr_score, last_mtch_time = self.trending[key]
             curr_score -= self.config['decay_msg_base']
-            curr_score -= round(msgtime - last_rcv_time,0) * self.config['decay_time_base']
+            curr_score -= (msgtime - last_mtch_time)/(max(1,msgtime-prev_msgtime)) * self.config['decay_time_base']
                         
-            if curr_score<1:
+            if curr_score<=0.0:
                 del self.trending[key]
             else:
-                self.trending[key] = (curr_score, last_rcv_time)
+                self.trending[key] = (curr_score, last_mtch_time)
     
     def run(self):
         irc = self.irc
@@ -81,7 +86,7 @@ class TwitchStream:
                 username = message_dict['username']
                 messagetime = time.time() - ts_start
                 
-                self.chat[messagetime] = {'channel':channel, 'message':message, 'username':username}
-                
-                self.process_message(message, messagetime)                
+                self.process_message(message, messagetime)   
+
+                self.chat[messagetime] = {'channel':channel, 'message':message, 'username':username}             
                 

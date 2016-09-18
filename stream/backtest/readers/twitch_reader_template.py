@@ -6,7 +6,7 @@ Created on Wed Aug 24 18:42:42 2016
 """
 import sys
 # Add the ptdraft folder path to the sys.path list
-sys.path.append('/Users/colinh/Repositories/mp')
+sys.path.append('/Users/AndrewBusse/mp')
 
 from stream.lib import irc as irc_
 from stream.lib.functions_general import *
@@ -23,7 +23,7 @@ class TwitchReader:
     def process_message(self, msg, msgtime):
         if len(self.trending)>0:
             (matched_msg, score) = fweo_compare(msg,self.trending.keys())
-        
+            
             if score > self.config['fw_eo_threshold']:
                 if self.config['debug']:
                     pp("!!! "+matched_msg+" + "+msg+" = "+str(score)+" !!!")
@@ -38,16 +38,21 @@ class TwitchReader:
                     pp("Init trending")
             self.trending[msg] = (self.config['matched_init_base'], msgtime)
         
+        if len(self.chat)>0:
+            prev_msgtime = max(self.chat.keys())
+        else:
+            prev_msgtime = msgtime
+            
         for key in self.trending.keys():
-            curr_score, last_rcv_time = self.trending[key]
+            curr_score, last_mtch_time = self.trending[key]
             curr_score -= self.config['decay_msg_base']
-            curr_score -= round(msgtime - last_rcv_time,0) * self.config['decay_time_base']
+            curr_score -= (msgtime - last_mtch_time)/(max(1,msgtime-prev_msgtime)) * self.config['decay_time_base']
                         
-            if curr_score<1:
+            if curr_score<=0.0:
                 del self.trending[key]
             else:
-                self.trending[key] = (curr_score, last_rcv_time)
-
+                self.trending[key] = (curr_score, last_mtch_time)
+    
     def run(self):
         config = self.config
         f = open(config['log_path']+self.channel+'_stream.txt', 'r')
@@ -76,9 +81,9 @@ class TwitchReader:
             timekey = timekeys[0]
             #pp("~~~ "+str(timekey)+" | "+str(time.time() - ts_start))
             if (time.time() - ts_start) > timekey:
-                self.chat[timekey] = {'channel': self.channel, 'message':strmdict[timekey][1], 'username': strmdict[timekey][0]}
-            
+                
                 self.process_message(strmdict[timekey][1], timekey)   
+                self.chat[timekey] = {'channel': self.channel, 'message':strmdict[timekey][1], 'username': strmdict[timekey][0]}
             
                 timekeys.pop(0)
 
