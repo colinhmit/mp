@@ -22,8 +22,9 @@ twitch_config = {
 	# TODO
 	'log_messages': False,
 
-      #fw_eo output from funcions_matching threshold 
-      'fw_eo_threshold': 65,
+	  #fw_eo output from funcions_matching threshold 
+	  'fo_compare_threshold': 65,
+  	'so_compare_threshold': 80,
       
       #twitch_stream trending params
       'matched_init_base': 20,
