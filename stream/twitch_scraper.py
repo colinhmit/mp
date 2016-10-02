@@ -12,9 +12,10 @@ from config.universal_config import *
 
 class TwitchScraper:
 
-    def __init__(self, config, channel):
+    def __init__(self, config, channel, filename):
         self.config = config
         self.channel = channel
+        self.filename = filename
         self.irc = irc_.irc(config)
         self.socket = self.irc.get_irc_socket_object(channel)
         self.chat = {}
@@ -24,7 +25,7 @@ class TwitchScraper:
         sock = self.socket
         config = self.config
         ts_start = time.time()
-        f = open(config['log_path']+self.channel+'_stream.txt', 'w')
+        f = open(config['log_path']+self.filename+'_stream.txt', 'w')
         
         while True:
             data = sock.recv(config['socket_buffer_size']).rstrip()
@@ -59,7 +60,8 @@ class TwitchScraper:
 
 if __name__ == '__main__':
     stream = raw_input('Enter the stream ID: ')
-    server = TwitchScraper(twitch_scraper_config,stream)
+    savefile = raw_input('Enter the file name: ')
+    server = TwitchScraper(twitch_scraper_config,stream,savefile)
     server.run()
 
     

@@ -16,11 +16,12 @@ class TwitchStream:
         self.channel = channel
         self.irc = irc_.irc(config)
         self.socket = self.irc.get_irc_socket_object(channel)
-        self.chat = {}
+        # self.chat = {}
+        self.last_rcv_time = None
         self.trending = {}
 
-    def get_chat(self):
-        return self.chat
+    # def get_chat(self):
+    #     return self.chat
         
     def get_trending(self):
         return self.trending
@@ -138,15 +139,17 @@ class TwitchStream:
                 'msgs' : {msg: 1.0}
             }
 
-        if len(self.chat)>0:
-            prev_msgtime = max(self.chat.keys())
+        # if (len(self.chat)>0):
+            # prev_msgtime = max(self.chat.keys())
+        if (self.last_rcv_time!=None):
+            prev_msgtime = self.last_rcv_time
         else:
             prev_msgtime = msgtime
             
         for key in self.trending.keys():
             curr_score = self.trending[key]['score']
             curr_score -= self.config['decay_msg_base']
-            curr_score -= (msgtime - self.trending[key]['last_mtch_time'])/(max(1,msgtime-prev_msgtime)) * self.config['decay_time_base']
+            curr_score -= (msgtime - self.trending[key]['last_mtch_time'])/(max(1,msgtime-prev_msgtime)) * max(1, msgtime - self.trending[key]['first_rcv_time']) * self.config['decay_time_base']
                         
             if curr_score<=0.0:
                 del self.trending[key]
@@ -181,7 +184,8 @@ class TwitchStream:
                 username = message_dict['username']
                 messagetime = time.time() - ts_start
                 
-                self.process_message(message, messagetime, username)   
+                self.process_message(message, messagetime, username)  
 
-                self.chat[messagetime] = {'channel':channel, 'message':message, 'username':username}             
+                self.last_rcv_time = messagetime
+                #self.chat[messagetime] = {'channel':channel, 'message':message, 'username':username}             
                 
