@@ -12,6 +12,7 @@ from stream.config.universal_config import *
 import socket, threading
 import zerorpc
 import logging
+import boto3
 
 logging.basicConfig()
 
@@ -25,6 +26,7 @@ class StreamServer:
 
         self.streams = {}
         self.threads = {}
+        self.urls = {}
 
     #for python client testing
     def init_socket(self):
@@ -35,6 +37,14 @@ class StreamServer:
             sock.listen(self.config['listeners'])
             self.socket = sock
 
+        if self.config['mode'] == 'sqs':
+            session = boto3.Session(
+                aws_access_key_id='AKIAJJYQ67ESV5S4YVHQ',
+                aws_secret_access_key='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',
+                region_name='us-west-2',
+            )
+            self.client = session.client('sqs')
+
     #stream control
     def create_stream(self, stream):
         self.threads[stream] = threading.Thread(target=self.add_stream, args=(stream,))
@@ -42,9 +52,16 @@ class StreamServer:
 
     def add_stream(self, stream):
         self.streams[stream] = TwitchStream(twitch_config,stream)
+
+        if self.config['mode'] == 'sqs':
+            queue_name = 'mpq-' + stream
+            response = self.client.create_queue(QueueName=queue_name)
+            self.urls[stream] = response['QueueUrl']
+
         self.streams[stream].run()
 
-    #js invoked stream call
+    #nodejs invoked stream call
+    #DECO////////////////////////////
     def get_stream_trending(self, stream):
         if stream in self.streams.keys():
             if self.config['debug']:
@@ -64,9 +81,10 @@ class StreamServer:
                 pp('Stream created!')
 
             return self.streams[stream].get_trending()
+    #////////////////////////////
 
     #python client testing
-    #////////////////////
+    #DECO////////////////////
     def check_for_roger(self, data):
         if data[:5] == 'roger':
             return True
@@ -132,7 +150,7 @@ class StreamServer:
 
                     client_sock.sendall(output+config['end_of_data'])
 
-    def run(self):
+    def oldrun(self):
         sock = self.socket
         config = self.config
         pp(('Server initialized'))
@@ -144,9 +162,81 @@ class StreamServer:
             threading.Thread(target = self.listen_to_client,args = (client_sock,client_address)).start()
     #////////////////////
 
+    #SQS messaging
+    def listen_to_reqs(self, queuename):
+        response = self.client.get_queue_url(QueueName=queuename)
+        url = response['QueueUrl']
+
+        while True:
+            messages = self.client.receive_message(
+                QueueUrl=url,
+                AttributeNames=['All'],
+                MaxNumberOfMessages=1,
+                VisibilityTimeout=60,
+                WaitTimeSeconds=5
+            )
+
+            if messages.get('Messages'):
+                m = messages.get('Messages')[0]
+                body = json.loads(m['Body'])
+                receipt_handle = m['ReceiptHandle']
+
+                stream_id = body['stream']
+
+                if stream_id in self.streams.keys():
+                    if self.config['debug']:
+                        pp('Found stream already.')
+                    pass
+                else:
+                    if self.config['debug']:
+                        pp('Creating stream...')
+                    self.create_stream(stream_id)
+
+                response = self.client.delete_message(
+                    QueueUrl=url,
+                    ReceiptHandle=receipt_handle
+                )
+
+    def multicast_trending(self):
+        while True:
+            if len(self.urls.keys()) > 0:
+                for stream_key in self.urls.keys():
+                    stream_url = self.urls[stream_key]
+                    stream_dict = json.dumps(self.streams[stream_key].get_trending())
+                    response = self.client.send_message(
+                        QueueUrl=stream_url,
+                        MessageBody=stream_dict,
+                        DelaySeconds=0,
+                    )
+            else:
+                pass
+
+            time.sleep(0.5)
+
+
 if __name__ == '__main__':
     server = StreamServer(server_config)
-    s = zerorpc.Server(server)
-    s.bind('tcp://0.0.0.0:4242')
-    s.run()
+    listen_thread = threading.Thread(target = server.listen_to_reqs, args = ('mpq',)).start()
+    multicast_thread = threading.Thread(target = server.multicast_trending).start()
+
+    # client = boto3.client('sqs')
+    # response = client.get_queue_url(QueueName='mpq')
+    # url = response['QueueUrl']
+
+
+    # messages = client.receive_message(
+    # QueueUrl=url,
+    # AttributeNames=['All'],
+    # MaxNumberOfMessages=1,
+    # VisibilityTimeout=60,
+    # WaitTimeSeconds=5
+    # )
+    # if messages.get('Messages'):
+    #     m = messages.get('Messages')[0]
+    #     body = m['Body']
+    #     receipt_handle = m['ReceiptHandle']
+    #     pp(body)
+    #s = zerorpc.Server(server)
+    #s.bind('tcp://0.0.0.0:4242')
+    #s.run()
 

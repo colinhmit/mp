@@ -83,7 +83,7 @@ server_config = {
 	'socket_buffer_size': 4096,
 
 	#'mode' : 'python'
-	'mode': 'nodejs',
+	'mode': 'sqs',
  
     'end_of_data': '//data_sent//'
 }
