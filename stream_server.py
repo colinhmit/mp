@@ -10,7 +10,6 @@ import json
 from stream.twitch_stream import *
 from stream.config.universal_config import *
 import socket, threading
-import zerorpc
 import logging
 import boto3
 
@@ -203,6 +202,8 @@ class StreamServer:
                 for stream_key in self.urls.keys():
                     stream_url = self.urls[stream_key]
                     stream_dict = json.dumps(self.streams[stream_key].get_trending())
+                    if self.config['debug']:
+                        pp(stream_dict)
                     response = self.client.send_message(
                         QueueUrl=stream_url,
                         MessageBody=stream_dict,

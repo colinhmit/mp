@@ -19,11 +19,13 @@ class TwitchReader:
     def __init__(self, config, channel):
         self.config = config
         self.channel = channel
-        self.chat = {}
+        #self.chat = {}
         self.trending = {}
+        self.last_rcv_time = None
+
     
-    def get_chat(self):
-        return self.chat
+    # def get_chat(self):
+    #     return self.chat
         
     def get_trending(self):
         pp('//////////SENDING TRENDING/////////////')
@@ -73,9 +75,6 @@ class TwitchReader:
 
                         #if enough to branch
                         if self.trending[matched_msg]['msgs'][submatched_msg] > self.trending[matched_msg]['msgs'][matched_msg]:
-                            pp('Branching!!')
-                            pp(submatched_msg)
-                            pp(matched_msg)
                             self.trending[submatched_msg] = {
                                 'score': (self.trending[matched_msg]['score'] * self.trending[matched_msg]['msgs'][submatched_msg] / sum(self.trending[matched_msg]['msgs'].values())) + self.config['matched_add_base'], 
                                 'last_mtch_time': msgtime,
@@ -147,21 +146,23 @@ class TwitchReader:
                 'msgs' : {msg: 1.0}
             }
 
-        if len(self.chat)>0:
-            prev_msgtime = max(self.chat.keys())
+        # if (len(self.chat)>0):
+            # prev_msgtime = max(self.chat.keys())
+        if (self.last_rcv_time!=None):
+            prev_msgtime = self.last_rcv_time
         else:
             prev_msgtime = msgtime
             
         for key in self.trending.keys():
             curr_score = self.trending[key]['score']
             curr_score -= self.config['decay_msg_base']
-            curr_score -= (msgtime - self.trending[key]['last_mtch_time'])/(max(1,msgtime-prev_msgtime)) * self.config['decay_time_base']
+            curr_score -= (msgtime - self.trending[key]['last_mtch_time'])/(max(1,msgtime-prev_msgtime)) * max(1, msgtime - self.trending[key]['first_rcv_time']) * self.config['decay_time_base']
                         
             if curr_score<=0.0:
                 del self.trending[key]
             else:
                 self.trending[key]['score'] = curr_score
-
+    
 
     def process_message2(self, msg, msgtime, user):
         if len(self.trending)>0:
@@ -292,11 +293,12 @@ class TwitchReader:
             timekey = timekeys[0]
             if (time.time() - ts_start) > timekey:
                 
-                timecheck = datetime.now()
+                #timecheck = datetime.now()
                 self.process_message3(strmdict[timekey][1], timekey, strmdict[timekey][0])   
-                print (datetime.now()-timecheck)
+                #print (datetime.now()-timecheck)
 
-                self.chat[timekey] = {'channel': self.channel, 'message':strmdict[timekey][1], 'username': strmdict[timekey][0]}
+                self.last_rcv_time = timekey
+                #self.chat[timekey] = {'channel': self.channel, 'message':strmdict[timekey][1], 'username': strmdict[timekey][0]}
             
                 print self.trending
                 timekeys.pop(0)

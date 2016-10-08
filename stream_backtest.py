@@ -11,6 +11,7 @@ import socket, threading
 from sys import argv
 import zerorpc
 import logging
+import boto3
 
 logging.basicConfig()
 
@@ -51,28 +52,54 @@ test_server_config = {
   'log_messages': False,
 
   #'mode' : 'python'
-  'mode': 'nodejs'
+  #'mode': 'nodejs'
+  'mode': 'sqs'
 }
 
 
 class BacktestServer:
 
-    def __init__(self, config, twitch_config, stream):
+    def __init__(self, config, twitch_config, log, stream):
         #self.config must be set before calling create_socket!
         self.config = config
+        self.init_socket()
 
         self.streams = {}
         self.threads = {}
-        self.create_stream(twitch_config, stream)
+        self.urls = {}
+        self.create_stream(twitch_config, log, stream)
+
+    def init_socket(self):
+        if self.config['mode'] == 'python':
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+            sock.bind((self.config['host'], self.config['port']))
+            sock.listen(self.config['listeners'])
+            self.socket = sock
+
+        if self.config['mode'] == 'sqs':
+            session = boto3.Session(
+                aws_access_key_id='AKIAJJYQ67ESV5S4YVHQ',
+                aws_secret_access_key='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',
+                region_name='us-west-2',
+            )
+            self.client = session.client('sqs')
 
     #stream control
-    def create_stream(self, twitch_config, stream):
-        self.threads[stream] = threading.Thread(target=self.add_reader, args=(twitch_config,stream))
+    def create_stream(self, twitch_config, log, stream):
+        self.threads[stream] = threading.Thread(target=self.add_reader, args=(twitch_config,log, stream))
         self.threads[stream].start()
 
-    def add_reader(self, twitch_config, stream):
-        self.streams[stream] = TwitchReader(twitch_config,stream)
+    def add_reader(self, twitch_config, log, stream):
+        self.streams[stream] = TwitchReader(twitch_config,log)
+
+        if self.config['mode'] == 'sqs':
+            queue_name = 'mpq-' + stream
+            response = self.client.create_queue(QueueName=queue_name)
+            self.urls[stream] = response['QueueUrl']
+
         self.streams[stream].run()
+
 
     #js invoked stream call
     def get_stream_trending(self, stream):
@@ -85,9 +112,28 @@ class BacktestServer:
             if self.config['debug']:
                 pp('Invalid stream: stream not found.')
 
+    #sqs msging
+    def multicast_trending(self):
+        while True:
+            if len(self.urls.keys()) > 0:
+                for stream_key in self.urls.keys():
+                    stream_url = self.urls[stream_key]
+                    stream_dict = json.dumps(self.streams[stream_key].get_trending())
+                    if self.config['debug']:
+                        pp(stream_dict)
+                    response = self.client.send_message(
+                        QueueUrl=stream_url,
+                        MessageBody=stream_dict,
+                        DelaySeconds=0,
+                    )
+            else:
+                pass
+
+            time.sleep(0.5)
+
+
 if __name__ == '__main__':
-    stream = raw_input('Enter the stream ID: ')
-    server = BacktestServer(test_server_config,test_twitch_config,stream)
-    s = zerorpc.Server(server)
-    s.bind('tcp://0.0.0.0:4242')
-    s.run()
+    log = raw_input('Enter the stream log ID: ')
+    stream = raw_input('Enter the stream test ID: ')
+    server = BacktestServer(test_server_config,test_twitch_config,log,stream)
+    multicast_thread = threading.Thread(target = server.multicast_trending).start()
