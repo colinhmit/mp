@@ -69,8 +69,14 @@ server_config = {
     'host': '127.0.0.1',
     #'host': 'localhost',
     #'host': '192.168.0.19',
-	'port': 4808,
+	'listen_port': 4808,
     'listeners' : 10,
+
+    # multicast settings
+    'multicast_server': '239.192.1.100',
+    'init_port': 6000,
+    'ttl': 32,
+
 	
 	# if set to true will display any data received
 	'debug': True,
@@ -82,8 +88,10 @@ server_config = {
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096,
 
+	#messaging mode
 	#'mode' : 'python'
-	'mode': 'sqs',
+	#'mode': 'sqs',
+	'mode': 'multicast',
  
     'end_of_data': '//data_sent//'
 }
@@ -94,7 +102,9 @@ client_config = {
 	
 	# details required to host the server
 	'default_server': '127.0.0.1',
+	'multicast_server': '239.192.1.100',
 	'port': 4808,
+    'ttl': 32,
 	
 	# if set to true will display any data received
 	'debug': False,
