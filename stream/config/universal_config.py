@@ -67,17 +67,10 @@ server_config = {
 	
 	# details required to host the server
     'host': '127.0.0.1',
+    'port': 4808,
     #'host': 'localhost',
     #'host': '192.168.0.19',
-	'listen_port': 4808,
-    'listeners' : 10,
 
-    # multicast settings
-    'multicast_server': '239.192.1.100',
-    'init_port': 6000,
-    'ttl': 32,
-
-	
 	# if set to true will display any data received
 	'debug': True,
 
