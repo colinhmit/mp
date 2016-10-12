@@ -20,7 +20,13 @@ logging.basicConfig()
 class WebServer(BaseHTTPRequestHandler):
     stream_server = None
 
+    def _set_headers(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+
     def do_GET(self):
+        self._set_headers()
         output = self.handle_GET(self.path)
         self.wfile.write(output)
 
