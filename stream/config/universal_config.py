@@ -66,8 +66,8 @@ global server_config
 server_config = {
 	
 	# details required to host the server
-    'host': '127.0.0.1',
-    'port': 4808,
+    'host': 'ec2-54-149-158-169.us-west-2.compute.amazonaws.com',
+    'port': 80,
     #'host': 'localhost',
     #'host': '192.168.0.19',
 
