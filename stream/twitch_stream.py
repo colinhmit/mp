@@ -26,14 +26,13 @@ class TwitchStream:
 
     def filter_trending(self):
         if len(self.trending)>0:
-            self.clean_trending = {msg_k: {inner_k: inner_v for inner_k, inner_v in msg_v.items() if ((inner_k == 'score') | (inner_k == 'first_rcv_time') | (inner_k == 'users'))} for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {inner_k: inner_v for inner_k, inner_v in msg_v.items() if ((inner_k == 'score') | (inner_k == 'first_rcv_time'))} for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
         else:
             pass
 
     def preprocess_trending(self):
         if len(self.trending)>0:
             max_key = max(self.trending, key=lambda x: self.trending[x]['score'] if self.trending[x]['visible']==0 else 0)
-            pp(max_key)
             self.trending[max_key]['visible'] = 1
             self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
         else:
