@@ -16,15 +16,29 @@ class TwitchStream:
         self.channel = channel
         self.irc = irc_.irc(config)
         self.socket = self.irc.get_irc_socket_object(channel)
-        # self.chat = {}
+
         self.last_rcv_time = None
         self.trending = {}
+        self.clean_trending = {}
 
-    # def get_chat(self):
-    #     return self.chat
-        
     def get_trending(self):
-        return self.trending
+        return self.clean_trending
+
+    def filter_trending(self):
+        if len(self.trending)>0:
+            self.clean_trending = {msg_k: {inner_k: inner_v for inner_k, inner_v in msg_v.items() if ((inner_k == 'score') | (inner_k == 'first_rcv_time') | (inner_k == 'users'))} for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
+        else:
+            pass
+
+    def preprocess_trending(self):
+        if len(self.trending)>0:
+            max_key = max(self.trending, key=lambda x: self.trending[x]['score'] if self.trending[x]['visible']==0 else 0)
+            pp(max_key)
+            self.trending[max_key]['visible'] = 1
+            self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
+        else:
+            pass
+
 
     def process_message(self, msg, msgtime, user):
         if len(self.trending)>0:
@@ -38,7 +52,8 @@ class TwitchStream:
                     'last_mtch_time': msgtime,
                     'first_rcv_time': msgtime,
                     'users' : [user],
-                    'msgs' : {msg: 1.0}
+                    'msgs' : {msg: 1.0},
+                    'visible' : 0
                 }
 
             elif len(matched) == 1:
@@ -73,7 +88,8 @@ class TwitchStream:
                                 'last_mtch_time': msgtime,
                                 'first_rcv_time': msgtime,
                                 'users' : [user],
-                                'msgs' : dict(self.trending[matched_msg]['msgs'])
+                                'msgs' : dict(self.trending[matched_msg]['msgs']),
+                                'visible' : 1
                             }
                             self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
                             del self.trending[matched_msg]['msgs'][submatched_msg]
@@ -136,7 +152,8 @@ class TwitchStream:
                 'last_mtch_time': msgtime,
                 'first_rcv_time': msgtime,
                 'users' : [user],
-                'msgs' : {msg: 1.0}
+                'msgs' : {msg: 1.0},
+                'visible' : 0
             }
 
         # if (len(self.chat)>0):

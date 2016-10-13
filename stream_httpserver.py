@@ -90,13 +90,30 @@ class StreamServer():
 
             return output
 
+    def filter_clean(self):
+        self.filter_clean_loop = True
+
+        while self.filter_clean_loop:
+            if len(self.streams.keys()) > 0:
+                for stream_key in self.streams.keys():
+                    self.streams[stream_key].preprocess_trending()
+                    self.streams[stream_key].filter_trending()
+                    
+            else:
+                pass
+
+            time.sleep(0.4)
+
     def run(self):
         pp('Initializing Web Server...')
         WebServer.stream_server = self
         server = HTTPServer((self.config['host'], self.config['port']), WebServer)
+        
         pp('Starting Web Server...')
         server.serve_forever()
 
 if __name__ == '__main__':
     pythonserver = StreamServer(server_config)
+    filter_thread = threading.Thread(target = pythonserver.filter_clean).start()
+
     pythonserver.run()
