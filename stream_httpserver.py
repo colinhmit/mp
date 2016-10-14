@@ -107,8 +107,11 @@ class StreamServer():
     def run(self):
         pp('Initializing Web Server...')
         WebServer.stream_server = self
+        #prod aws
         server = HTTPServer((self.config['host'], self.config['port']), WebServer)
-        
+        #local testing
+        #server = HTTPServer(('127.0.0.1', 4808), WebServer)
+
         pp('Starting Web Server...')
         server.serve_forever()
 

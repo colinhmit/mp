@@ -132,7 +132,8 @@ class TwitchStream:
                                 'last_mtch_time': msgtime,
                                 'first_rcv_time': msgtime,
                                 'users' : [user],
-                                'msgs' : dict(self.trending[matched_msg]['msgs'])
+                                'msgs' : dict(self.trending[matched_msg]['msgs']),
+                                'visible' : 1
                             }
                             self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
                             del self.trending[matched_msg]['msgs'][submatched_msg]
