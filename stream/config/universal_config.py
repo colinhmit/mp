@@ -73,7 +73,7 @@ server_config = {
     #'host': '192.168.0.19',
 
 	# if set to true will display any data received
-	'debug': True,
+	'debug': False,
 
 	# if set to true will log all messages from all channels
 	# TODO
