@@ -6,6 +6,7 @@ Created on Wed Aug 24 18:42:42 2016
 """
 
 import lib.irc as irc_
+import datetime
 from lib.functions_general import *
 from lib.functions_matching import *
 
@@ -26,7 +27,7 @@ class TwitchStream:
 
     def filter_trending(self):
         if len(self.trending)>0:
-            self.clean_trending = {msg_k: {inner_k: inner_v for inner_k, inner_v in msg_v.items() if ((inner_k == 'score') | (inner_k == 'first_rcv_time'))} for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat() } for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
         else:
             pass
 
@@ -166,7 +167,7 @@ class TwitchStream:
         for key in self.trending.keys():
             curr_score = self.trending[key]['score']
             curr_score -= self.config['decay_msg_base']
-            curr_score -= (msgtime - self.trending[key]['last_mtch_time'])/(max(1,msgtime-prev_msgtime)) * max(1, msgtime - self.trending[key]['first_rcv_time']) * self.config['decay_time_base']
+            curr_score -= ((msgtime - self.trending[key]['last_mtch_time']).total_seconds())/(max(1,(msgtime-prev_msgtime).total_seconds())) * max(1, (msgtime - self.trending[key]['first_rcv_time']).total_seconds()) * self.config['decay_time_base']
                         
             if curr_score<=0.0:
                 del self.trending[key]
@@ -177,7 +178,6 @@ class TwitchStream:
         irc = self.irc
         sock = self.socket
         config = self.config
-        ts_start = time.time() 
         
         while True:
             data = sock.recv(config['socket_buffer_size']).rstrip()
@@ -199,7 +199,7 @@ class TwitchStream:
                 channel = message_dict['channel']
                 message = message_dict['message']
                 username = message_dict['username']
-                messagetime = time.time() - ts_start
+                messagetime = datetime.datetime.now()
                 
                 self.process_message(message, messagetime, username)  
 

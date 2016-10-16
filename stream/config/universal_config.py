@@ -16,7 +16,7 @@ twitch_config = {
 	'oauth_password': 'oauth:1a6qgh8wz0b0lb2ue5zenht2lrkcdx', # get this from http://twitchapps.com/tmi/
 	
 	# if set to true will display any data received
-	'debug': False,
+	'debug': True,
 
 	# if set to true will log all messages from all channels
 	# TODO
@@ -66,7 +66,8 @@ global server_config
 server_config = {
 	
 	# details required to host the server
-    'host': 'ec2-54-149-158-169.us-west-2.compute.amazonaws.com',
+
+    'host': 'ec2-54-70-35-189.us-west-2.compute.amazonaws.com',
     'port': 80,
     #'host': 'localhost',
     #'host': '192.168.0.19',
