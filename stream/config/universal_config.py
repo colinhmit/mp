@@ -67,7 +67,7 @@ server_config = {
 	
 	# details required to host the server
 
-    'host': '35.160.176.189',
+    'host': '172.31.4.69',
     'port': 80,
     #'host': 'localhost',
     #'host': '192.168.0.19',
