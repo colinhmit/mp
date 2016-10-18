@@ -67,7 +67,7 @@ server_config = {
 	
 	# details required to host the server
 
-    'host': 'ec2-54-70-35-189.us-west-2.compute.amazonaws.com',
+    'host': '35.160.176.189',
     'port': 80,
     #'host': 'localhost',
     #'host': '192.168.0.19',
