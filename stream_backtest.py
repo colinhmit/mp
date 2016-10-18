@@ -9,9 +9,10 @@ import json, sys,time
 from stream.backtest.readers.twitch_reader_template import *
 import socket, threading
 from sys import argv
-import zerorpc
 import logging
-import boto3
+import sys
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import json
 
 logging.basicConfig()
 
@@ -43,7 +44,8 @@ test_twitch_config = {
 }
 
 test_server_config = {
-  
+  'host': '127.0.0.1',
+  'port': 5000,
   # if set to true will display any data received
   'debug': False,
 
@@ -56,84 +58,89 @@ test_server_config = {
   'mode': 'sqs'
 }
 
+class WebServer(BaseHTTPRequestHandler):
+    stream_server = None
 
-class BacktestServer:
+    def _set_headers(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
 
-    def __init__(self, config, twitch_config, log, stream):
+    def do_GET(self):
+        self._set_headers()
+        output = self.handle_GET(self.path)
+        self.wfile.write(output)
+
+    #get control
+    def handle_GET(self, path):
+        #stream request
+        if path[0:8] == '/stream/':
+            return self.stream_server.get_stream(path[8:])
+        else:
+            return json.dumps('Invalid path! Valid paths: /stream/')
+
+class BacktestServer():
+
+    def __init__(self, config, twitch_config, log, stream, ts):
+        pp('Initializing Stream Server...')
         #self.config must be set before calling create_socket!
         self.config = config
-        self.init_socket()
-
+        
         self.streams = {}
         self.threads = {}
-        self.urls = {}
-        self.create_stream(twitch_config, log, stream)
-
-    def init_socket(self):
-        if self.config['mode'] == 'python':
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-            sock.bind((self.config['host'], self.config['port']))
-            sock.listen(self.config['listeners'])
-            self.socket = sock
-
-        if self.config['mode'] == 'sqs':
-            session = boto3.Session(
-                aws_access_key_id='AKIAJJYQ67ESV5S4YVHQ',
-                aws_secret_access_key='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',
-                region_name='us-west-2',
-            )
-            self.client = session.client('sqs')
+        self.create_stream(twitch_config, log, stream, ts)
 
     #stream control
-    def create_stream(self, twitch_config, log, stream):
-        self.threads[stream] = threading.Thread(target=self.add_reader, args=(twitch_config,log, stream))
+    def create_stream(self, twitch_config, log, stream, ts):
+        self.threads[stream] = threading.Thread(target=self.add_reader, args=(twitch_config, log, stream, ts))
         self.threads[stream].start()
 
-    def add_reader(self, twitch_config, log, stream):
+    def add_reader(self, twitch_config, log, stream, ts):
         self.streams[stream] = TwitchReader(twitch_config,log)
+        self.streams[stream].run(ts)
 
-        if self.config['mode'] == 'sqs':
-            queue_name = 'mpq-' + stream
-            response = self.client.create_queue(QueueName=queue_name)
-            self.urls[stream] = response['QueueUrl']
-
-        self.streams[stream].run()
-
-
-    #js invoked stream call
-    def get_stream_trending(self, stream):
+    def get_stream(self, stream_id):
+        config = self.config
         if stream in self.streams.keys():
             if self.config['debug']:
                 pp('Found stream!')
-            return self.streams[stream].get_trending()
+            output = json.dumps(self.streams[stream_id].get_trending())
 
         else:
             if self.config['debug']:
                 pp('Invalid stream: stream not found.')
+            output = json.dumps({})
+        return output
 
-    #sqs msging
-    def multicast_trending(self):
-        while True:
-            if len(self.urls.keys()) > 0:
-                for stream_key in self.urls.keys():
-                    stream_url = self.urls[stream_key]
-                    stream_dict = json.dumps(self.streams[stream_key].get_trending())
-                    if self.config['debug']:
-                        pp(stream_dict)
-                    response = self.client.send_message(
-                        QueueUrl=stream_url,
-                        MessageBody=stream_dict,
-                        DelaySeconds=0,
-                    )
+    def filter_clean(self):
+        self.filter_clean_loop = True
+
+        while self.filter_clean_loop:
+            if len(self.streams.keys()) > 0:
+                for stream_key in self.streams.keys():
+                    self.streams[stream_key].preprocess_trending()
+                    self.streams[stream_key].filter_trending()
+                    
             else:
                 pass
 
-            time.sleep(0.5)
+            time.sleep(0.4)
 
+    def run(self):
+        pp('Initializing Web Server...')
+        WebServer.stream_server = self
+        #prod aws
+        server = HTTPServer((self.config['host'], self.config['port']), WebServer)
+        #local testing
+        #server = HTTPServer(('127.0.0.1', 4808), WebServer)
+
+        pp('Starting Web Server...')
+        server.serve_forever()
 
 if __name__ == '__main__':
     log = raw_input('Enter the stream log ID: ')
     stream = raw_input('Enter the stream test ID: ')
-    server = BacktestServer(test_server_config,test_twitch_config,log,stream)
-    multicast_thread = threading.Thread(target = server.multicast_trending).start()
+    ts = float(raw_input('Enter the start time (s): '))
+    pythonserver = BacktestServer(test_server_config,test_twitch_config,log,stream, ts)
+    filter_thread = threading.Thread(target = pythonserver.filter_clean).start()
+    pythonserver.run()

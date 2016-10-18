@@ -12,8 +12,6 @@ from stream.lib import irc as irc_
 from stream.lib.functions_general import *
 from stream.lib.functions_matching import *
 
-from datetime import datetime
-
 class TwitchReader:
 
     def __init__(self, config, channel):
@@ -22,18 +20,26 @@ class TwitchReader:
         #self.chat = {}
         self.trending = {}
         self.last_rcv_time = None
-
+        self.clean_trending = {}
     
-    # def get_chat(self):
-    #     return self.chat
-        
     def get_trending(self):
-        pp('//////////SENDING TRENDING/////////////')
-        pp(self.trending)
-        pp('///////////////////////////////////////')
-        return self.trending
+        return self.clean_trending
 
-    def process_message3(self, msg, msgtime, user):
+    def filter_trending(self):
+        if len(self.trending)>0:
+            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time']} for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
+        else:
+            pass
+
+    def preprocess_trending(self):
+        if len(self.trending)>0:
+            max_key = max(self.trending, key=lambda x: self.trending[x]['score'] if self.trending[x]['visible']==0 else 0)
+            self.trending[max_key]['visible'] = 1
+            self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
+        else:
+            pass
+
+    def process_message(self, msg, msgtime, user):
         if len(self.trending)>0:
             matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
@@ -45,7 +51,8 @@ class TwitchReader:
                     'last_mtch_time': msgtime,
                     'first_rcv_time': msgtime,
                     'users' : [user],
-                    'msgs' : {msg: 1.0}
+                    'msgs' : {msg: 1.0},
+                    'visible' : 0
                 }
 
             elif len(matched) == 1:
@@ -80,7 +87,8 @@ class TwitchReader:
                                 'last_mtch_time': msgtime,
                                 'first_rcv_time': msgtime,
                                 'users' : [user],
-                                'msgs' : dict(self.trending[matched_msg]['msgs'])
+                                'msgs' : dict(self.trending[matched_msg]['msgs']),
+                                'visible' : 1
                             }
                             self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
                             del self.trending[matched_msg]['msgs'][submatched_msg]
@@ -124,7 +132,8 @@ class TwitchReader:
                                 'last_mtch_time': msgtime,
                                 'first_rcv_time': msgtime,
                                 'users' : [user],
-                                'msgs' : dict(self.trending[matched_msg]['msgs'])
+                                'msgs' : dict(self.trending[matched_msg]['msgs']),
+                                'visible' : 1
                             }
                             self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
                             del self.trending[matched_msg]['msgs'][submatched_msg]
@@ -143,7 +152,8 @@ class TwitchReader:
                 'last_mtch_time': msgtime,
                 'first_rcv_time': msgtime,
                 'users' : [user],
-                'msgs' : {msg: 1.0}
+                'msgs' : {msg: 1.0},
+                'visible' : 0
             }
 
         # if (len(self.chat)>0):
@@ -156,7 +166,7 @@ class TwitchReader:
         for key in self.trending.keys():
             curr_score = self.trending[key]['score']
             curr_score -= self.config['decay_msg_base']
-            curr_score -= (msgtime - self.trending[key]['last_mtch_time'])/(max(1,msgtime-prev_msgtime)) * max(1, msgtime - self.trending[key]['first_rcv_time']) * self.config['decay_time_base']
+            curr_score -= ((msgtime - self.trending[key]['last_mtch_time'])/max(1,msgtime-prev_msgtime)) * max(1, msgtime - self.trending[key]['first_rcv_time']) * self.config['decay_time_base']
                         
             if curr_score<=0.0:
                 del self.trending[key]
@@ -164,108 +174,7 @@ class TwitchReader:
                 self.trending[key]['score'] = curr_score
     
 
-    def process_message2(self, msg, msgtime, user):
-        if len(self.trending)>0:
-            (matched_msg, score) = fweo_compare(msg,self.trending.keys())
-
-            if score > self.config['fw_eo_threshold']:
-                if user in self.trending[matched_msg]['users']:
-                    if self.config['debug']:
-                        pp("&&& DUPLICATE"+matched_msg+" + "+msg+" = "+str(score)+" &&&")
-                else:
-                    if self.config['debug']:
-                        pp("!!! "+matched_msg+" + "+msg+" = "+str(score)+" !!!")
-                    self.trending[matched_msg]['score'] = self.trending[matched_msg]['score']+self.config['matched_add_base']
-                    self.trending[matched_msg]['last_mtch_time'] = msgtime
-                    self.trending[matched_msg]['users'].append(user)
-                    
-            else:
-                if self.config['debug']:
-                    pp("??? "+matched_msg+" + "+msg+" = "+str(score)+" ???")
-                self.trending[msg] = { 
-                    'score': self.config['matched_init_base'], 
-                    'last_mtch_time': msgtime,
-                    'first_rcv_time': msgtime,
-                    'users' : [user]
-                }
-        else:
-            if self.config['debug']:
-                    pp("Init trending")
-            self.trending[msg] = { 
-                'score': self.config['matched_init_base'], 
-                'last_mtch_time': msgtime,
-                'first_rcv_time': msgtime,
-                'users' : [user]
-            }
-        
-        if len(self.chat)>0:
-            prev_msgtime = max(self.chat.keys())
-        else:
-            prev_msgtime = msgtime
-            
-        for key in self.trending.keys():
-            curr_score = self.trending[key]['score']
-            curr_score -= self.config['decay_msg_base']
-            curr_score -= (msgtime - self.trending[key]['last_mtch_time'])/(max(1,msgtime-prev_msgtime)) * self.config['decay_time_base']
-                        
-            if curr_score<=0.0:
-                del self.trending[key]
-            else:
-                self.trending[key]['score'] = curr_score
-
-    def process_message(self, msg, msgtime,user):
-        if len(self.trending)>0:
-            (matched_msg, score) = fweb_compare_all(msg,self.trending.keys(),)
-            
-            if score > self.config['fw_eo_threshold']:
-                if self.config['debug']:
-                    pp("!!! "+matched_msg+" + "+msg+" = "+str(score)+" !!!")
-                self.trending[matched_msg] = { 
-                    'score': self.trending[matched_msg]['score']+self.config['matched_add_base'], 
-                    'last_mtch_time': msgtime,
-                    'first_rcv_time': self.trending[matched_msg]['first_rcv_time']
-                }
-                
-            else:
-                if self.config['debug']:
-                    pp("??? "+matched_msg+" + "+msg+" = "+str(score)+" ???")
-                self.trending[msg] = { 
-                    'score': self.config['matched_init_base'], 
-                    'last_mtch_time': msgtime,
-                    'first_rcv_time': msgtime
-                }
-        else:
-            if self.config['debug']:
-                    pp("Init trending")
-            self.trending[msg] = { 
-                'score': self.config['matched_init_base'], 
-                'last_mtch_time': msgtime,
-                'first_rcv_time': msgtime
-            }
-        
-        if len(self.chat)>0:
-            prev_msgtime = max(self.chat.keys())
-        else:
-            prev_msgtime = msgtime
-            
-        for key in self.trending.keys():
-            curr_score = self.trending[key]['score']
-            last_mtch_time = self.trending[key]['last_mtch_time']
-            curr_score -= self.config['decay_msg_base']
-            curr_score -= (msgtime - last_mtch_time)/(max(1,msgtime-prev_msgtime)) * self.config['decay_time_base']
-                        
-            if curr_score<=0.0:
-                del self.trending[key]
-            else:
-                self.trending[key] = { 
-                    'score': curr_score, 
-                    'last_mtch_time': self.trending[key]['last_mtch_time'],
-                    'first_rcv_time': self.trending[key]['first_rcv_time']
-                }
-    
-
-
-    def run(self):
+    def run(self, timestart):
         config = self.config
         f = open(config['log_path']+self.channel+'_stream.txt', 'r')
         
@@ -275,10 +184,27 @@ class TwitchReader:
             mssg = line.split("_")
             strmdict[float(mssg[0])] = (mssg[1],mssg[2].decode('utf-8'))
             
-        ts_start = time.time()
         timekeys = sorted(strmdict.iterkeys())
 
         last_printed = 0
+        init = True
+
+        while init:
+            timekey = timekeys[0]
+            if timestart > timekey:
+                self.process_message(strmdict[timekey][1], timekey, strmdict[timekey][0])   
+                #print (datetime.now()-timecheck)
+
+                self.last_rcv_time = timekey
+                #self.chat[timekey] = {'channel': self.channel, 'message':strmdict[timekey][1], 'username': strmdict[timekey][0]}
+            
+                timekeys.pop(0)
+            else:
+                init = False
+
+        print self.trending
+
+        ts_start = time.time()
         while len(timekeys) > 0:
             
             # mod_time, extra = divmod(time.time()-ts_start,config['output_freq'])
@@ -289,18 +215,17 @@ class TwitchReader:
             #     pp("****************************")
                 
             #     last_printed = mod_time
-            
+             
             timekey = timekeys[0]
-            if (time.time() - ts_start) > timekey:
+            if (time.time() - ts_start) > (timekey-timestart):
                 
                 #timecheck = datetime.now()
-                self.process_message3(strmdict[timekey][1], timekey, strmdict[timekey][0])   
+                self.process_message(strmdict[timekey][1], timekey, strmdict[timekey][0])   
                 #print (datetime.now()-timecheck)
 
                 self.last_rcv_time = timekey
                 #self.chat[timekey] = {'channel': self.channel, 'message':strmdict[timekey][1], 'username': strmdict[timekey][0]}
             
-                print self.trending
                 timekeys.pop(0)
 
 
