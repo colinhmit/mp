@@ -60,6 +60,8 @@ class StreamServer():
     def get_stream(self, stream_id):
         config = self.config
 
+        stream_id = stream_id.lower()
+        
         if stream_id in self.streams.keys():
             if config['debug']:
                 pp('Found stream!')
