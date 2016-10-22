@@ -71,7 +71,7 @@ class TwitchStream:
 
                     #if no substring match
                     if check_output == None:
-                        self.trending[matched_msg]['score'] = self.trending[matched_msg]['score']+self.config['matched_add_base']
+                        self.trending[matched_msg]['score'] += min(1,3/len(self.trending[matched_msg]['users']))*self.config['matched_add_base']
                         self.trending[matched_msg]['last_mtch_time'] = msgtime
                         self.trending[matched_msg]['users'].append(user)
                         self.trending[matched_msg]['msgs'][msg] = 1.0
@@ -96,7 +96,7 @@ class TwitchStream:
                             del self.trending[submatched_msg]['msgs'][matched_msg]
 
                         else:
-                            self.trending[matched_msg]['score'] = self.trending[matched_msg]['score']+self.config['matched_add_base']
+                            self.trending[matched_msg]['score'] += min(1,3/len(self.trending[matched_msg]['users']))*self.config['matched_add_base']
                             self.trending[matched_msg]['last_mtch_time'] = msgtime
                             self.trending[matched_msg]['users'].append(user)
 
@@ -116,7 +116,7 @@ class TwitchStream:
 
                     #if no substring match
                     if check_output == None:
-                        self.trending[matched_msg]['score'] = self.trending[matched_msg]['score']+self.config['matched_add_base']
+                        self.trending[matched_msg]['score'] += min(1,3/len(self.trending[matched_msg]['users']))*self.config['matched_add_base']
                         self.trending[matched_msg]['last_mtch_time'] = msgtime
                         self.trending[matched_msg]['users'].append(user)
                         self.trending[matched_msg]['msgs'][msg] = 1.0
@@ -141,7 +141,7 @@ class TwitchStream:
                             del self.trending[submatched_msg]['msgs'][matched_msg]
 
                         else:
-                            self.trending[matched_msg]['score'] = self.trending[matched_msg]['score']+self.config['matched_add_base']
+                            self.trending[matched_msg]['score'] += min(1,3/len(self.trending[matched_msg]['users']))*self.config['matched_add_base']
                             self.trending[matched_msg]['last_mtch_time'] = msgtime
                             self.trending[matched_msg]['users'].append(user)
 
