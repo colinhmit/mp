@@ -54,8 +54,9 @@ class StreamServer():
         self.threads[stream].start()
 
     def add_stream(self, stream):
-        self.streams[stream] = TwitchStream(twitch_config,stream)
-        self.streams[stream].run()
+        newStream = TwitchStream(twitch_config,stream)
+        newStream.run()
+        self.streams[stream] = newStream
 
     def get_stream(self, stream_id):
         config = self.config
@@ -65,13 +66,6 @@ class StreamServer():
         if stream_id in self.streams.keys():
             if config['debug']:
                 pp('Found stream!')
-
-            output = json.dumps(self.streams[stream_id].get_trending())
-
-            if config['debug']:
-                pp('Sending: '+ output)
-
-            return output
         else:
             if config['debug']:
                 pp('Stream not found.')
@@ -85,12 +79,12 @@ class StreamServer():
             if config['debug']:
                 pp('Stream created!')
 
-            output = json.dumps(self.streams[stream_id].get_trending())
+        output = json.dumps(self.streams[stream_id].get_trending())
 
-            if config['debug']:
-                pp('Sending: '+ output)
+        if config['debug']:
+            pp('Sending: '+ output)
 
-            return output
+        return output
 
     def filter_clean(self):
         self.filter_clean_loop = True
