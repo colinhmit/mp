@@ -45,7 +45,7 @@ test_twitch_config = {
 
 test_server_config = {
   'host': '127.0.0.1',
-  'port': 5000,
+  'port': 4808,
   # if set to true will display any data received
   'debug': False,
 

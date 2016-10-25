@@ -23,7 +23,7 @@ class TwitchReader:
         self.clean_trending = {}
     
     def get_trending(self):
-        return self.clean_trending
+        return self.clean_trending 
 
     def filter_trending(self):
         if len(self.trending)>0:
