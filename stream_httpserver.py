@@ -28,6 +28,7 @@ class WebServer(BaseHTTPRequestHandler):
     def do_GET(self):
         self._set_headers()
         output = self.handle_GET(self.path)
+        
         self.wfile.write(output)
 
     #get control

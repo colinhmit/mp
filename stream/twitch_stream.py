@@ -33,7 +33,8 @@ class TwitchStream:
 
     def preprocess_trending(self):
         if len(self.trending)>0:
-            max_key = max(self.trending, key=lambda x: self.trending[x]['score'] if self.trending[x]['visible']==0 else 0)
+            temp_trending = dict(self.trending)
+            max_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if temp_trending[x]['visible']==0 else 0)
             self.trending[max_key]['visible'] = 1
             self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
         else:
@@ -44,7 +45,7 @@ class TwitchStream:
         if len(self.trending)>0:
             matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
-            if len(matched) == 0:
+            if (len(matched) == 0) and (len(msg) > 0):
                 if self.config['debug']:
                     pp("??? "+msg+" ???")
                 self.trending[msg] = { 

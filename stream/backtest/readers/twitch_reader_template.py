@@ -33,7 +33,8 @@ class TwitchReader:
 
     def preprocess_trending(self):
         if len(self.trending)>0:
-            max_key = max(self.trending, key=lambda x: self.trending[x]['score'] if self.trending[x]['visible']==0 else 0)
+            temp_trending = dict(self.trending)
+            max_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if temp_trending[x]['visible']==0 else 0)
             self.trending[max_key]['visible'] = 1
             self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
         else:
@@ -43,17 +44,20 @@ class TwitchReader:
         if len(self.trending)>0:
             matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
-            if len(matched) == 0:
-                if self.config['debug']:
-                    pp("??? "+msg+" ???")
-                self.trending[msg] = { 
-                    'score': self.config['matched_init_base'], 
-                    'last_mtch_time': msgtime,
-                    'first_rcv_time': msgtime,
-                    'users' : [user],
-                    'msgs' : {msg: 1.0},
-                    'visible' : 0
-                }
+            if (len(matched) == 0):
+                if (len(msg) > 0):
+                    if self.config['debug']:
+                        pp("??? "+msg+" ???")
+                    self.trending[msg] = { 
+                        'score': self.config['matched_init_base'], 
+                        'last_mtch_time': msgtime,
+                        'first_rcv_time': msgtime,
+                        'users' : [user],
+                        'msgs' : {msg: 1.0},
+                        'visible' : 0
+                    }
+                else:
+                    pass
 
             elif len(matched) == 1:
                 matched_msg = matched[0][0]
@@ -192,12 +196,14 @@ class TwitchReader:
         while init:
             timekey = timekeys[0]
             if timestart > timekey:
+                
                 self.process_message(strmdict[timekey][1], timekey, strmdict[timekey][0])   
                 #print (datetime.now()-timecheck)
 
                 self.last_rcv_time = timekey
                 #self.chat[timekey] = {'channel': self.channel, 'message':strmdict[timekey][1], 'username': strmdict[timekey][0]}
-            
+
+
                 timekeys.pop(0)
             else:
                 init = False
@@ -205,6 +211,7 @@ class TwitchReader:
         print self.trending
 
         ts_start = time.time()
+
         while len(timekeys) > 0:
             
             # mod_time, extra = divmod(time.time()-ts_start,config['output_freq'])
