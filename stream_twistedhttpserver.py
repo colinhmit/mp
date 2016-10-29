@@ -12,24 +12,25 @@ from stream.config.universal_config import *
 import socket, threading
 import logging
 import sys
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import json
 
 logging.basicConfig()
 
-class WebServer(BaseHTTPRequestHandler):
+from twisted.internet import reactor
+from twisted.web.resource import Resource
+from twisted.web.server import Site
+
+import time
+
+class WebServer(Resource):
+
+    isLeaf = True
     stream_server = None
-
-    def _set_headers(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-
-    def do_GET(self):
-        self._set_headers()
-        output = self.handle_GET(self.path)
-        #pp(output)
-        self.wfile.write(output)
+    
+    def render_GET(self, request):
+        request.setHeader("content-type", "application/json")
+        output = self.handle_GET(request.path)
+        return output
 
     #get control
     def handle_GET(self, path):
@@ -102,17 +103,19 @@ class StreamServer():
 
     def run(self):
         pp('Initializing Web Server...')
-        WebServer.stream_server = self
+        resource = WebServer()
+        resource.stream_server = self
+
+        factory = Site(resource)
         #prod aws
-        server = HTTPServer((self.config['host'], self.config['port']), WebServer)
+        reactor.listenTCP(self.config['port'], factory)
         #local testing
-        #server = HTTPServer(('127.0.0.1', 4808), WebServer)
-
+        #reactor.listenTCP(4808, factory)
         pp('Starting Web Server...')
-        server.serve_forever()
+        reactor.run()
 
+        
 if __name__ == '__main__':
     pythonserver = StreamServer(server_config)
     filter_thread = threading.Thread(target = pythonserver.filter_clean).start()
-
     pythonserver.run()

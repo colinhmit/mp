@@ -35,8 +35,11 @@ class TwitchStream:
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
             max_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if temp_trending[x]['visible']==0 else 0)
-            self.trending[max_key]['visible'] = 1
-            self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
+            if self.trending[max_key]['visible'] == 0:
+                self.trending[max_key]['visible'] = 1
+                self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
+            else:
+                pass
         else:
             pass
 

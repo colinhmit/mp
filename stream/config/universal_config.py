@@ -49,7 +49,7 @@ twitch_scraper_config = {
 	'oauth_password': 'oauth:3chiev6dslmp2t4f07ndd7znqm1ygf', # get this from http://twitchapps.com/tmi/
 	
 	# if set to true will display any data received
-	'debug': True,
+	'debug': False,
 
 	# if set to true will log all messages from all channels
 	# TODO
@@ -69,8 +69,8 @@ server_config = {
 
     'host': '172.31.4.69',
     'port': 80,
-    #'host': 'localhost',
-    #'host': '192.168.0.19',
+    #'host': '127.0.0.1',
+    #'port': 4808,
 
 	# if set to true will display any data received
 	'debug': False,
