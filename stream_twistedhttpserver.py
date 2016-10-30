@@ -87,19 +87,29 @@ class StreamServer():
 
         return output
 
-    def filter_clean(self):
-        self.filter_clean_loop = True
+    def filter(self):
+        self.filter_loop = True
 
-        while self.filter_clean_loop:
+        while self.filter_loop:
             if len(self.streams.keys()) > 0:
                 for stream_key in self.streams.keys():
-                    self.streams[stream_key].preprocess_trending()
                     self.streams[stream_key].filter_trending()
-                    
             else:
                 pass
 
-            time.sleep(0.4)
+            time.sleep(0.8)
+
+    def render(self):
+        self.clean_loop = True
+
+        while self.clean_loop:
+            if len(self.streams.keys()) > 0:
+                for stream_key in self.streams.keys():
+                    self.streams[stream_key].render_trending()
+            else:
+                pass
+
+            time.sleep(0.2)
 
     def run(self):
         pp('Initializing Web Server...')
@@ -108,14 +118,15 @@ class StreamServer():
 
         factory = Site(resource)
         #prod aws
-        reactor.listenTCP(self.config['port'], factory)
+        #reactor.listenTCP(self.config['port'], factory)
         #local testing
-        #reactor.listenTCP(4808, factory)
+        reactor.listenTCP(4808, factory)
         pp('Starting Web Server...')
         reactor.run()
 
         
 if __name__ == '__main__':
     pythonserver = StreamServer(server_config)
-    filter_thread = threading.Thread(target = pythonserver.filter_clean).start()
+    filter_thread = threading.Thread(target = pythonserver.filter).start()
+    render_thread = threading.Thread(target = pythonserver.render).start()
     pythonserver.run()
