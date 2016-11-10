@@ -22,7 +22,7 @@ from streams.twitch_stream import *
 from streams.twitter_stream import *
 from config.universal_config import *
 
-import streams.lib.twtr as twtr_
+import streams.utils.twtr as twtr_
 
 class WebServer(Resource):
 

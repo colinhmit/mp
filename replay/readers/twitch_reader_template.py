@@ -9,9 +9,9 @@ import sys
 # Add the mp folder path to the sys.path list
 sys.path.append('/Users/colinh/Repositories/mp')
 
-from src.streams.lib import irc as irc_
-from src.streams.lib.functions_general import *
-from src.streams.lib.functions_matching import *
+from src.streams.utils import irc as irc_
+from src.streams.utils.functions_general import *
+from src.streams.utils.functions_matching import *
 
 class TwitchReader:
 

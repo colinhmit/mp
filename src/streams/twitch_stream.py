@@ -6,9 +6,9 @@ Created on Wed Aug 24 18:42:42 2016
 """
 import datetime
 
-import lib.irc as irc_
-from lib.functions_general import *
-from lib.functions_matching import *
+import utils.irc as irc_
+from utils.functions_general import *
+from utils.functions_matching import *
 
 class TwitchStream:
 

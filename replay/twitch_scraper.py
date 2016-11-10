@@ -5,9 +5,9 @@ Created on Wed Aug 24 18:42:42 2016
 @author: colinh
 """
 
-import src.streams.lib.irc as irc_
-from src.streams.lib.functions_general import *
-from src.streams.lib.functions_matching import *
+import src.streams.utils.irc as irc_
+from src.streams.utils.functions_general import *
+from src.streams.utils.functions_matching import *
 
 twitch_scraper_config = {
     # details required to login to twitch IRC server

@@ -6,8 +6,8 @@ Created on Wed Aug 24 18:42:42 2016
 """
 
 import datetime
-from lib.functions_general import *
-from lib.functions_matching import *
+from utils.functions_general import *
+from utils.functions_matching import *
 
 class TwitterStream:
 
