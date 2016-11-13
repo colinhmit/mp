@@ -141,8 +141,6 @@ class TwitterStream:
             data = pipe.get()
             if len(data) == 0:
                 pp('Connection was lost...')
-
-            pp(data)
             messagetime = datetime.datetime.now()
             self.process_message(data['message'], messagetime, data['username'])  
             self.last_rcv_time = messagetime

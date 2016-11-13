@@ -31,19 +31,14 @@ class WebServer(Resource):
     
     def render_GET(self, request):
         request.setHeader("content-type", "application/json")
-        output = self.handle_GET(request.path)
+        output = self.handle_GET(request.path, request.args)
         return output
 
     #get control
-    def handle_GET(self, path):
+    def handle_GET(self, path, args):
         #stream request
-        if path[0:8] == '/stream/':
-            if path[7:15] == '/twitch/':
-                return self.stream_server.get_stream(path[15:], 'twitch')
-            elif path[7:16] == '/twitter/':
-                return self.stream_server.get_stream(path[16:], 'twitter')
-            else:
-                return json.dumps('Invalid path! Valid paths: /stream/twitch/ & /stream/twitter/')
+        if path[0:7] == '/stream':
+            return self.stream_server.get_agg_streams(args)
         else:
             return json.dumps('Invalid path! Valid paths: /stream/')
 
@@ -74,6 +69,23 @@ class StreamServer():
         else:
             pass
 
+
+    def get_agg_streams(self, args):
+        config = self.config
+
+        trend_dicts = []
+        if 'twitch' in args.keys():
+            for stream_id in args['twitch'][0].split(','):
+                trend_dicts.append(self.get_stream(stream_id, 'twitch'))
+
+        if 'twitter' in args.keys():
+            for stream_id in args['twitter'][0].split(','):
+                trend_dicts.append(self.get_stream(stream_id, 'twitter'))
+
+        output = {}
+        [output.update(d) for d in trend_dicts]
+        return json.dumps(output)
+
     def get_stream(self, stream_id, src):
         config = self.config
         stream_id = stream_id.lower()
@@ -91,7 +103,7 @@ class StreamServer():
                     stream_exists = stream_id in self.twitch_streams.keys()
                 if config['debug']:
                     pp('Stream created!')
-            output = json.dumps(self.twitch_streams[stream_id].get_trending())
+            output = self.twitch_streams[stream_id].get_trending()
 
         elif src == 'twitter':
             if stream_id in self.twitter_streams.keys():
@@ -106,13 +118,11 @@ class StreamServer():
                     stream_exists = stream_id in self.twitter_streams.keys()
                 if config['debug']:
                     pp('Stream created!')
-            output = json.dumps(self.twitter_streams[stream_id].get_trending())
+            output = self.twitter_streams[stream_id].get_trending()
         
         else:
-            output = json.dumps({'NOT FOUND'})
+            output = {'NOT FOUND'}
 
-        if config['debug']:
-            pp('Sending: '+ output)
         return output
 
     def filter_twitch(self):
