@@ -22,6 +22,8 @@ class TwitchStream:
         self.trending = {}
         self.clean_trending = {}
 
+        self.kill = False
+
     def get_trending(self):
         return self.clean_trending
 
@@ -136,7 +138,7 @@ class TwitchStream:
         sock = self.socket
         config = self.config
         
-        while True:
+        while not self.kill:
             data = sock.recv(config['socket_buffer_size']).rstrip()
             if len(data) == 0:
                 pp('Connection was lost, reconnecting.')

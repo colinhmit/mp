@@ -24,6 +24,8 @@ class TwitterStream:
         self.trending = {}
         self.clean_trending = {}
 
+        self.kill = False
+
     def get_trending(self):
         return self.clean_trending
 
@@ -137,7 +139,7 @@ class TwitterStream:
         pipe = self.pipe
         config = self.config
         
-        while True:
+        while not self.kill:
             data = pipe.get()
             if len(data) == 0:
                 pp('Connection was lost...')

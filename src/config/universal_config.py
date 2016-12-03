@@ -42,12 +42,19 @@ global twitter_config
 twitter_config = {
 	
 	# details required to login to twitter stream API
-    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-	'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+ #    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+	# 'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
 
-	'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-	'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+	# 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+	# 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
+	#FALL BACK TWITTER API
+    'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
+	'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
+
+	'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
+	'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
+
 	# if set to true will display any data received
 	'debug': False,
 

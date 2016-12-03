@@ -39,6 +39,11 @@ class WebServer(Resource):
         #stream request
         if path[0:7] == '/stream':
             return self.stream_server.get_agg_streams(args)
+        elif path[0:8] == '/cpanel/':
+            if path[8:14] == 'twitch':
+                return self.stream_server.handle_cpanel('twitch',args)
+            elif path[8:15] == 'twitter':
+                return self.stream_server.handle_cpanel('twitter',args)
         else:
             return json.dumps('Invalid path! Valid paths: /stream/')
 
@@ -49,15 +54,13 @@ class StreamServer():
 
         self.twitch_streams = {}
         self.twitter_streams = {}
-        self.threads = {}
 
         #twitter
         self.twit = twtr_.twtr(twitter_config)
 
     #stream control
     def create_stream(self, stream, src):
-        self.threads[stream] = threading.Thread(target=self.add_stream, args=(stream,src))
-        self.threads[stream].start()
+        threading.Thread(target=self.add_stream, args=(stream,src)).start()
 
     def add_stream(self, stream, src):
         if src == 'twitch':
@@ -69,19 +72,55 @@ class StreamServer():
         else:
             pass
 
+    def handle_cpanel(self, src, args):
+        output = []
+        if src == 'twitch':
+            if 'show' in args.keys():
+                pass
+            elif 'delete' in args.keys():
+                for stream in args['delete'][0].split(','):
+                    if stream in self.twitch_streams.keys():
+                        self.twitch_streams[stream].kill = True
+                        del self.twitch_streams[stream]
+            elif 'add' in args.keys():
+                for stream in args['add'][0].split(','):
+                    if stream in self.twitch_streams.keys():
+                        pass
+                    else:
+                        self.create_stream(stream, 'twitch')
+            output = self.twitch_streams.keys()
+        elif src == 'twitter':
+            if 'show' in args.keys():
+                pass
+            elif 'delete' in args.keys():
+                for channel in args['delete'][0].split(','):
+                    if channel in self.twitter_streams.keys():
+                        self.twitter_streams[channel].kill = True
+                        del self.twitter_streams[channel]
+                        self.twit.leave_channel(channel)
+            elif 'add' in args.keys():
+                for channel in args['add'][0].split(','):
+                    if channel in self.twitter_streams.keys():
+                        pass
+                    else:
+                        self.create_stream(channel, 'twitter')
+            output = self.twitter_streams.keys()
+        else:
+            output = 'INVALID SRC'
+
+        return json.dumps(output)
 
     def get_agg_streams(self, args):
         config = self.config
-
         trend_dicts = []
-        if 'twitch' in args.keys():
+
+        if ('twitch' in args.keys()) and (len(args['twitch'][0])>0):
             for stream_id in args['twitch'][0].split(','):
                 trend_dicts.append(self.get_stream(stream_id, 'twitch'))
-
-        if 'twitter' in args.keys():
+        if ('twitter' in args.keys()) and (len(args['twitter'][0])>0):
             for stream_id in args['twitter'][0].split(','):
                 trend_dicts.append(self.get_stream(stream_id, 'twitter'))
-
+        
         output = {}
         [output.update(d) for d in trend_dicts]
         return json.dumps(output)
