@@ -182,7 +182,7 @@ class StreamServer():
                     self.twitch_streams[stream_key].render_trending()
             else:
                 pass
-            time.sleep(0.2)
+            time.sleep(0.17)
 
     def filter_twitter(self):
         self.filter_loop = True
@@ -202,7 +202,7 @@ class StreamServer():
                     self.twitter_streams[stream_key].render_trending()
             else:
                 pass
-            time.sleep(0.2)
+            time.sleep(0.17)
 
     def run(self):
         pp('Initializing Web Server...')

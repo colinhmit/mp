@@ -27,11 +27,13 @@ twitch_config = {
   	'so_compare_threshold': 80,
       
       #twitch_stream trending params
-      'matched_init_base': 20,
-      'matched_add_base': 20,
+      'matched_init_base': 50,
+      'matched_add_base': 100,
+      'matched_add_user_base':500,
       
       'decay_msg_base': 1,
-      'decay_time_base': 1,
+      'decay_time_mtch_base': 4,
+      'decay_time_base': 0.2,
                        
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096
@@ -48,12 +50,19 @@ twitter_config = {
 	# 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
 	# 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
-	#FALL BACK TWITTER API
-    'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
-	'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
+	# #FALL BACK TWITTER API
+ #    'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
+	# 'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
 
-	'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
-	'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
+	# 'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
+	# 'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
+
+	# #2nd FALL BACK TWITTER API
+    'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+	'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+
+	'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+	'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
 	# if set to true will display any data received
 	'debug': False,
@@ -66,12 +75,14 @@ twitter_config = {
 	'fo_compare_threshold': 65,
   	'so_compare_threshold': 80,
       
-    #twitch_stream trending params
-    'matched_init_base': 20,
-    'matched_add_base': 20,
+     #twitter trending params
+      'matched_init_base': 50,
+      'matched_add_base': 100,
+      'matched_add_user_base':500,
       
-    'decay_msg_base': 1,
-    'decay_time_base': 1,
+      'decay_msg_base': 1,
+      'decay_time_mtch_base': 4,
+      'decay_time_base': 0.2,
                        
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096

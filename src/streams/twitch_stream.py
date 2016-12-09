@@ -30,6 +30,13 @@ class TwitchStream:
     def render_trending(self):
         if len(self.trending)>0:
             self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat() } for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
+            pp('Render vs true?')
+            pp('////////////////')
+            pp(self.clean_trending)
+            pp('----------------')
+            pp(self.trending)
+            pp('////////////////')
+
 
     def filter_trending(self):
         if len(self.trending)>0:
@@ -52,7 +59,7 @@ class TwitchStream:
 
             #if no substring match
             if match_subs == None:
-                self.trending[matched_msg]['score'] += min(1,3/len(self.trending[matched_msg]['users']))*self.config['matched_add_base']
+                self.trending[matched_msg]['score'] += min(0.1,1-((len(self.trending[matched_msg]['users'])**2)/self.config['matched_add_user_base']))*self.config['matched_add_base']
                 self.trending[matched_msg]['last_mtch_time'] = msgtime
                 self.trending[matched_msg]['users'].append(user)
                 self.trending[matched_msg]['msgs'][msg] = 1.0
@@ -77,7 +84,7 @@ class TwitchStream:
                     del self.trending[submatched_msg]['msgs'][matched_msg]
 
                 else:
-                    self.trending[matched_msg]['score'] += min(1,3/len(self.trending[matched_msg]['users']))*self.config['matched_add_base']
+                    self.trending[matched_msg]['score'] += min(0.1,1-((len(self.trending[matched_msg]['users'])**2)/self.config['matched_add_user_base']))*self.config['matched_add_base']
                     self.trending[matched_msg]['last_mtch_time'] = msgtime
                     self.trending[matched_msg]['users'].append(user)
 
@@ -94,21 +101,29 @@ class TwitchStream:
                 'visible' : 0
             }
 
-    def decay(self, msgtime):
+    def decay(self, msg, msgtime):
         if (self.last_rcv_time!=None):
             prev_msgtime = self.last_rcv_time
-        else:
-            prev_msgtime = msgtime
             
-        for key in self.trending.keys():
-            curr_score = self.trending[key]['score']
-            curr_score -= self.config['decay_msg_base']
-            curr_score -= ((msgtime - self.trending[key]['last_mtch_time']).total_seconds())/(max(1,(msgtime-prev_msgtime).total_seconds())) * max(1, (msgtime - self.trending[key]['first_rcv_time']).total_seconds()) * self.config['decay_time_base']
-                        
-            if curr_score<=0.0:
-                del self.trending[key]
-            else:
-                self.trending[key]['score'] = curr_score
+            for key in self.trending.keys():
+                if key == msg:
+                    pass
+                else:
+                    curr_score = self.trending[key]['score']
+
+                    #msgtime_secs = (msgtime - prev_msgtime).total_seconds()
+                    rcvtime_secs = (msgtime - self.trending[key]['first_rcv_time']).total_seconds()
+                    lastmtch_secs = (msgtime - self.trending[key]['last_mtch_time']).total_seconds()
+
+                    #msg event decay
+                    curr_score -= (1/max(0.4,rcvtime_secs))*self.config['decay_msg_base']
+                    #time decay
+                    curr_score -=  max(rcvtime_secs,(lastmtch_secs**2)/self.config['decay_time_mtch_base']) * self.config['decay_time_base']
+                                
+                    if curr_score<=0.0:
+                        del self.trending[key]
+                    else:
+                        self.trending[key]['score'] = curr_score
 
     def process_message(self, msg, msgtime, user):
         if len(self.trending)>0:
@@ -131,7 +146,7 @@ class TwitchStream:
                     pp("Init trending")
             self.handle_new(msg, msgtime, user)
 
-        self.decay(msgtime)
+        self.decay(msg, msgtime)
     
     def run(self):
         irc = self.irc
@@ -150,6 +165,6 @@ class TwitchStream:
                 #print 'Processing message'
                 message_dict = irc.get_message(data)
                 message_time = datetime.datetime.now()
-                
+                pp(message_dict['message'])
                 self.process_message(message_dict['message'], message_time, message_dict['username'])  
                 self.last_rcv_time = message_time
