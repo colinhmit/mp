@@ -13,6 +13,7 @@ twitch_config = {
 	'server': 'irc.twitch.tv',
 	'port': 6667,
 	'username': 'chrendin',
+	'client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
 	'oauth_password': 'oauth:1a6qgh8wz0b0lb2ue5zenht2lrkcdx', # get this from http://twitchapps.com/tmi/
 	
 	# if set to true will display any data received

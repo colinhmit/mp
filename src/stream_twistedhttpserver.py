@@ -11,6 +11,7 @@ import logging
 import sys
 import json
 import time
+import requests
 
 logging.basicConfig()
 

@@ -15,6 +15,7 @@ import Queue
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
+from tweepy import API
 
 from functions_general import *
 
@@ -52,6 +53,7 @@ class twtr:
 		auth = OAuthHandler(config['consumer_token'], config['consumer_secret'])
 		auth.set_access_token(config['access_token'], config['access_secret'])
 		self.stream = Stream(auth, self.l)
+		self.api = API(auth)
 
 	def get_twtr_stream_object(self, channel):
 		return self.l.channels[channel]

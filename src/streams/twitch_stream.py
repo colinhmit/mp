@@ -30,13 +30,6 @@ class TwitchStream:
     def render_trending(self):
         if len(self.trending)>0:
             self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat() } for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
-            pp('Render vs true?')
-            pp('////////////////')
-            pp(self.clean_trending)
-            pp('----------------')
-            pp(self.trending)
-            pp('////////////////')
-
 
     def filter_trending(self):
         if len(self.trending)>0:
