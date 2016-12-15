@@ -159,7 +159,7 @@ class StreamServer():
                 if config['debug']:
                     pp('Stream created!')
             output = self.twitter_streams[stream_id].get_trending()
-        
+
         else:
             output = {'NOT FOUND'}
 
@@ -212,9 +212,9 @@ class StreamServer():
 
         factory = Site(resource)
         #prod aws
-        #reactor.listenTCP(self.config['port'], factory)
+        reactor.listenTCP(self.config['port'], factory)
         #local testing
-        reactor.listenTCP(4808, factory)
+        #reactor.listenTCP(4808, factory)
         pp('Starting Web Server...')
         reactor.run()
 
