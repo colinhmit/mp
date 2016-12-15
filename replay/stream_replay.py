@@ -36,10 +36,13 @@ test_twitch_config = {
   
   #twitch_stream trending params
       'matched_init_base': 50,
-      'matched_add_base': 10,
+      'matched_add_base': 15,
       'matched_add_user_base':500,
+
+      'buffer_mult': 4,
       
       'decay_msg_base': 1,
+      'decay_msg_min_limit': 0.4,
       'decay_time_mtch_base': 4,
       'decay_time_base': 0.2,
                        

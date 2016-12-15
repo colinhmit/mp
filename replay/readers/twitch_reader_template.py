@@ -105,14 +105,15 @@ class TwitchReader:
                     curr_score = self.trending[key]['score']
 
                     msgtime_secs = (msgtime - prev_msgtime)
-                    rcvtime_secs = max(0.00001,(msgtime - self.trending[key]['first_rcv_time']))
-                    lastmtch_secs = max(0.00001,(msgtime - self.trending[key]['last_mtch_time']))
+                    rcvtime_secs = (msgtime - self.trending[key]['first_rcv_time'])
+                    lastmtch_secs = (msgtime - self.trending[key]['last_mtch_time'])
 
+                    buffer_constant = min(msgtime_secs*self.config['buffer_mult'],1)
                     #msg event decay
-                    curr_score -= (1/max(0.4,rcvtime_secs))*self.config['decay_msg_base']
+                    curr_score -= buffer_constant*(1/max(self.config['decay_msg_min_limit'],rcvtime_secs))*self.config['decay_msg_base']
                     #time decay
-                    curr_score -=  min(msgtime_secs,1)*max(rcvtime_secs,(lastmtch_secs**2)/self.config['decay_time_mtch_base']) * self.config['decay_time_base']
-                                
+                    curr_score -=  buffer_constant*max(rcvtime_secs,(lastmtch_secs**2)/self.config['decay_time_mtch_base']) * self.config['decay_time_base']
+                                                  
                     if curr_score<=0.0:
                         del self.trending[key]
                     else:

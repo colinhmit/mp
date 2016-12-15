@@ -110,10 +110,11 @@ class TwitterStream:
                     rcvtime_secs = (msgtime - self.trending[key]['first_rcv_time']).total_seconds()
                     lastmtch_secs = (msgtime - self.trending[key]['last_mtch_time']).total_seconds()
 
+                    buffer_constant = min(msgtime_secs*self.config['buffer_mult'],1)
                     #msg event decay
-                    curr_score -= (1/max(0.4,rcvtime_secs))*self.config['decay_msg_base']
+                    curr_score -= buffer_constant*(1/max(self.config['decay_msg_min_limit'],rcvtime_secs))*self.config['decay_msg_base']
                     #time decay
-                    curr_score -=  min(msgtime_secs,1)*max(rcvtime_secs,(lastmtch_secs**2)/self.config['decay_time_mtch_base']) * self.config['decay_time_base']
+                    curr_score -=  buffer_constant*max(rcvtime_secs,(lastmtch_secs**2)/self.config['decay_time_mtch_base']) * self.config['decay_time_base']
                                 
                     if curr_score<=0.0:
                         del self.trending[key]
@@ -121,7 +122,6 @@ class TwitterStream:
                         self.trending[key]['score'] = curr_score
 
     def process_message(self, msg, msgtime, user):
-        pp(msg)
         if len(self.trending)>0:
             matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
