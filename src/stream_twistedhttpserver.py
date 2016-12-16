@@ -30,6 +30,7 @@ class WebServer(Resource):
     isLeaf = True
     stream_server = None
     
+    #server protocol
     def render_GET(self, request):
         request.setHeader("content-type", "application/json")
         output = self.handle_GET(request.path, request.args)
@@ -37,7 +38,6 @@ class WebServer(Resource):
 
     #get control
     def handle_GET(self, path, args):
-        #stream request
         if path[0:7] == '/stream':
             return self.stream_server.get_agg_streams(args)
         elif path[0:8] == '/cpanel/':
@@ -45,8 +45,10 @@ class WebServer(Resource):
                 return self.stream_server.handle_cpanel('twitch',args)
             elif path[8:15] == 'twitter':
                 return self.stream_server.handle_cpanel('twitter',args)
+            else:
+                return json.dumps('Invalid path! Valid paths: /cpanel/twitch and /cpanel/twitter')
         else:
-            return json.dumps('Invalid path! Valid paths: /stream/')
+            return json.dumps('Invalid path! Valid paths: /stream and /cpanel/.../')
 
 class StreamServer():
     def __init__(self, config):
@@ -56,7 +58,7 @@ class StreamServer():
         self.twitch_streams = {}
         self.twitter_streams = {}
 
-        #twitter
+        #init twitter
         self.twit = twtr_.twtr(twitter_config)
 
     #stream control
@@ -73,8 +75,10 @@ class StreamServer():
         else:
             pass
 
+    #cpanel response
     def handle_cpanel(self, src, args):
         output = []
+
         if src == 'twitch':
             if 'action' in args.keys():
                 for action in args['action'][0].split(','):
@@ -84,18 +88,22 @@ class StreamServer():
                         for stream in self.twitch_streams.keys():
                             self.twitch_streams[stream].kill = True
                             del self.twitch_streams[stream]
+
             elif 'delete' in args.keys():
                 for stream in args['delete'][0].split(','):
                     if stream in self.twitch_streams.keys():
                         self.twitch_streams[stream].kill = True
                         del self.twitch_streams[stream]
+
             elif 'add' in args.keys():
                 for stream in args['add'][0].split(','):
                     if stream in self.twitch_streams.keys():
                         pass
                     else:
                         self.create_stream(stream, 'twitch')
+
             output = self.twitch_streams.keys()
+
         elif src == 'twitter':
             if 'action' in args.keys():
                 for action in args['action'][0].split(','):
@@ -107,20 +115,22 @@ class StreamServer():
                         for channel in self.twitter_streams.keys():
                             self.twitter_streams[channel].kill = True
                             del self.twitter_streams[channel]
-                        self.twit.reset_channels()                        
+                        self.twit.reset_channels()  
+
             elif 'delete' in args.keys():
                 for channel in args['delete'][0].split(','):
                     if channel in self.twitter_streams.keys():
                         self.twitter_streams[channel].kill = True
                         del self.twitter_streams[channel]
                         self.twit.leave_channel(channel)
+
             elif 'add' in args.keys():
                 for channel in args['add'][0].split(','):
-                    if channel in self.twitter_streams.keys():
-                        pass
-                    else:
+                    if not channel in self.twitter_streams.keys():
                         self.create_stream(channel, 'twitter')
+
             output = self.twitter_streams.keys()
+
         else:
             output = 'INVALID SRC'
 
@@ -133,6 +143,7 @@ class StreamServer():
         if ('twitch' in args.keys()) and (len(args['twitch'][0])>0):
             for stream_id in args['twitch'][0].split(','):
                 trend_dicts.append(self.get_stream(stream_id, 'twitch'))
+
         if ('twitter' in args.keys()) and (len(args['twitter'][0])>0):
             for stream_id in args['twitter'][0].split(','):
                 trend_dicts.append(self.get_stream(stream_id, 'twitter'))
@@ -146,37 +157,25 @@ class StreamServer():
         stream_id = stream_id.lower()
 
         if src == 'twitch':
-            if stream_id in self.twitch_streams.keys():
-                if config['debug']:
-                    pp('Found stream!')
-            else:
-                if config['debug']:
-                    pp('Stream not found.')
+            if not stream_id in self.twitch_streams.keys():
                 self.create_stream(stream_id, src)
                 stream_exists = False
                 while not stream_exists:
                     stream_exists = stream_id in self.twitch_streams.keys()
-                if config['debug']:
-                    pp('Stream created!')
+
             output = self.twitch_streams[stream_id].get_trending()
 
         elif src == 'twitter':
-            if stream_id in self.twitter_streams.keys():
-                if config['debug']:
-                    pp('Found stream!')
-            else:
-                if config['debug']:
-                    pp('Stream not found.')
+            if not stream_id in self.twitter_streams.keys():
                 self.create_stream(stream_id, src)
                 stream_exists = False
                 while not stream_exists:
                     stream_exists = stream_id in self.twitter_streams.keys()
-                if config['debug']:
-                    pp('Stream created!')
+
             output = self.twitter_streams[stream_id].get_trending()
 
         else:
-            output = {'NOT FOUND'}
+            output = {'INVALID SRC'}
 
         return output
 
@@ -186,8 +185,7 @@ class StreamServer():
             if len(self.twitch_streams.keys()) > 0:
                 for stream_key in self.twitch_streams.keys():
                     self.twitch_streams[stream_key].filter_trending()
-            else:
-                pass
+
             time.sleep(0.8)
 
     def render_twitch(self):
@@ -196,8 +194,7 @@ class StreamServer():
             if len(self.twitch_streams.keys()) > 0:
                 for stream_key in self.twitch_streams.keys():
                     self.twitch_streams[stream_key].render_trending()
-            else:
-                pass
+
             time.sleep(0.17)
 
     def filter_twitter(self):
@@ -206,8 +203,7 @@ class StreamServer():
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
                     self.twitter_streams[stream_key].filter_trending()
-            else:
-                pass
+
             time.sleep(0.8)
 
     def render_twitter(self):
@@ -216,8 +212,7 @@ class StreamServer():
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
                     self.twitter_streams[stream_key].render_trending()
-            else:
-                pass
+
             time.sleep(0.17)
 
     def run(self):
@@ -228,15 +223,21 @@ class StreamServer():
         factory = Site(resource)
         #prod aws
         reactor.listenTCP(self.config['port'], factory)
+
         #local testing
         #reactor.listenTCP(4808, factory)
+
         pp('Starting Web Server...')
         reactor.run()
 
 if __name__ == '__main__':
+    #init
     pythonserver = StreamServer(server_config)
+    #twitch helpers
     filter_twitch_thread = threading.Thread(target = pythonserver.filter_twitch).start()
     render_twitch_thread = threading.Thread(target = pythonserver.render_twitch).start()
+    #twitter helpers
     filter_twitter_thread = threading.Thread(target = pythonserver.filter_twitter).start()
     render_twitter_thread = threading.Thread(target = pythonserver.render_twitter).start()
+    #serve
     pythonserver.run()

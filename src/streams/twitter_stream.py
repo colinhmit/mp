@@ -23,7 +23,6 @@ class TwitterStream:
         self.last_rcv_time = None
         self.trending = {}
         self.clean_trending = {}
-
         self.kill = False
 
     def get_trending(self):
@@ -152,6 +151,8 @@ class TwitterStream:
             data = pipe.get()
             if len(data) == 0:
                 pp('Connection was lost...')
-            messagetime = datetime.datetime.now()
-            self.process_message(data['message'], messagetime, data['username'])  
-            self.last_rcv_time = messagetime
+
+            if self.channel.lower() in data['message'].lower():
+                messagetime = datetime.datetime.now()
+                self.process_message(data['message'], messagetime, data['username'])  
+                self.last_rcv_time = messagetime
