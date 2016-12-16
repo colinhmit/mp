@@ -121,6 +121,10 @@ class TwitterStream:
                         self.trending[key]['score'] = curr_score
 
     def process_message(self, msg, msgtime, user):
+        #cleanup RT
+        if msg[:4] == 'RT @':
+            msg = msg[msg.find(':')+1:]
+
         if len(self.trending)>0:
             matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
