@@ -39,7 +39,10 @@ class StdOutListener(StreamListener):
 		return True
 
 	def on_error(self, status):
-		print status
+		pp(status)
+
+	def on_timeout(self):
+		pp('Timeout...')
 
 class twtr:
 	def __init__(self, config):
@@ -57,6 +60,18 @@ class twtr:
 
 	def get_twtr_stream_object(self, channel):
 		return self.l.channels[channel]
+
+	def refresh_channels(self):
+		pp('Refreshing channels...')
+		self.stream.disconnect()
+		self.stream.filter(track=self.l.channels.keys(), async=1)
+		pp('Refreshed channels.')
+
+	def reset_channels(self):
+		pp('Resetting channels...')
+		self.l.channels = {}
+		self.stream.disconnect()
+		pp('Reset channels.')
 
 	def join_channel(self, channel):
 		if not channel in self.l.channels.keys():

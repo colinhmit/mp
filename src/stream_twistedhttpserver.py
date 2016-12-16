@@ -76,8 +76,14 @@ class StreamServer():
     def handle_cpanel(self, src, args):
         output = []
         if src == 'twitch':
-            if 'show' in args.keys():
-                pass
+            if 'action' in args.keys():
+                for action in args['action'][0].split(','):
+                    if action == 'show':
+                        pass
+                    elif action == 'reset':
+                        for stream in self.twitch_streams.keys():
+                            self.twitch_streams[stream].kill = True
+                            del self.twitch_streams[stream]
             elif 'delete' in args.keys():
                 for stream in args['delete'][0].split(','):
                     if stream in self.twitch_streams.keys():
@@ -91,8 +97,17 @@ class StreamServer():
                         self.create_stream(stream, 'twitch')
             output = self.twitch_streams.keys()
         elif src == 'twitter':
-            if 'show' in args.keys():
-                pass
+            if 'action' in args.keys():
+                for action in args['action'][0].split(','):
+                    if action == 'show':
+                        pass
+                    elif action == 'refresh':
+                        self.twit.refresh_channels()
+                    elif action == 'reset':
+                        for channel in self.twitter_streams.keys():
+                            self.twitter_streams[channel].kill = True
+                            del self.twitter_streams[channel]
+                        self.twit.reset_channels()                        
             elif 'delete' in args.keys():
                 for channel in args['delete'][0].split(','):
                     if channel in self.twitter_streams.keys():
