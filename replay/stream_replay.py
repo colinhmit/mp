@@ -85,22 +85,20 @@ class WebServer(Resource):
 
 class ReplayServer():
 
-    def __init__(self, config, twitch_config, log, stream, ts):
+    def __init__(self, config, reader_config):
         pp('Initializing Stream Server...')
         #self.config must be set before calling create_socket!
         self.config = config
         self.streams = {}
-        self.threads = {}
-        self.create_stream(twitch_config, log, stream, ts)
+        self.reader_config = reader_config
 
     #stream control
-    def create_stream(self, twitch_config, log, stream, ts):
-        self.threads[stream] = threading.Thread(target=self.add_reader, args=(twitch_config, log, stream, ts))
-        self.threads[stream].start()
+    def create_stream(self, log, ts):
+        threading.Thread(target=self.add_reader, args=(log, ts)).start()
 
-    def add_reader(self, twitch_config, log, stream, ts):
-        self.streams[stream] = TwitchReader(twitch_config,log)
-        self.streams[stream].run(ts)
+    def add_reader(self, log, ts):
+        self.streams[log] = TwitchReader(self.reader_config,log)
+        self.streams[log].run(ts)
 
     def get_agg_streams(self, args):
         config = self.config
@@ -122,14 +120,13 @@ class ReplayServer():
         config = self.config
         stream_id = stream_id.lower()
 
-        output = {}
-        if stream_id in self.streams.keys():
-            if config['debug']:
-                pp('Found stream!')
-            output = self.streams[stream_id].get_trending()
-        else:
-            if config['debug']:
-                pp('Stream not found')
+        if not stream_id in self.streams.keys():
+            self.create_stream(stream_id, 0)
+            stream_exists = False
+            while not stream_exists:
+                stream_exists = stream_id in self.streams.keys()
+
+        output = self.streams[stream_id].get_trending()
         return output
 
     def filter(self):
@@ -175,15 +172,12 @@ class ReplayServer():
         reactor.run()
 
 if __name__ == '__main__':
-    log = raw_input('Enter the stream log ID: ')
-    stream = raw_input('Enter the stream test ID: ')
-    ts = float(raw_input('Enter the start time (s): '))
-    pythonserver = ReplayServer(test_server_config,test_twitch_config,log,stream, ts)
+    pythonserver = ReplayServer(test_server_config,test_twitch_config)
     filter_thread = threading.Thread(target = pythonserver.filter).start()
     render_thread = threading.Thread(target = pythonserver.render).start()
     #server_thread = threading.Thread(target = pythonserver.run).start()
     pythonserver.run()
-    while True:
-        ts = raw_input('Enter a time to restart @:')
-        print '\nPausing...'
-        pythonserver.restart_threads(test_twitch_config, float(ts))
+    # while True:
+    #     ts = raw_input('Enter a time to restart @:')
+    #     print '\nPausing...'
+    #     pythonserver.restart_threads(test_twitch_config, float(ts))
