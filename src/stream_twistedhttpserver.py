@@ -49,9 +49,9 @@ class WebServer(Resource):
                 return json.dumps('Invalid path! Valid paths: /cpanel/twitch and /cpanel/twitter')
         elif path[0:10] == '/featured/':
             if path[10:16] == 'twitch':
-                return self.stream_server.get_twitch_featured()
+                return self.stream_server.get_twitch_featured(args)
             elif path[10:17] == 'twitter':
-                return self.stream_server.get_twitter_featured()
+                return self.stream_server.get_twitter_featured(args)
             else:
                 return json.dumps('Invalid path! Valid paths: /featured/twitch and /featured/twitter')
         else:
@@ -186,16 +186,24 @@ class StreamServer():
 
         return output
 
-    def get_twitter_featured(self):
+    def get_twitter_featured(self, args):
         trends = self.twit.api.trends_place(1)
-        output = [{'stream':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends']]
-        return json.dumps(output)
+        output = [{'stream':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
+        sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
+        if ('limit' in args.keys()) and (len(args['limit'][0])>0):
+            limit = int(args['limit'][0])
+            sorted_output = sorted_output[0:limit]
+        return json.dumps(sorted_output)
 
-    def get_twitch_featured(self):
+    def get_twitch_featured(self,args):
         headers = {'Accept':'application/vnd.twitchtv.v3+json', 'Client-ID':self.config['twitch_client_id']}
         r = requests.get('https://api.twitch.tv/kraken/streams/featured', headers = headers)
         output = [{'stream':x['stream']['channel']['name'], 'image': x['stream']['preview']['medium'], 'description': x['title'], 'count': x['stream']['viewers']} for x in (json.loads(r.content))['featured']]
-        return json.dumps(output)
+        sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
+        if ('limit' in args.keys()) and (len(args['limit'][0])>0):
+            limit = int(args['limit'][0])
+            sorted_output = sorted_output[0:limit]
+        return json.dumps(sorted_output)
 
     def filter_twitch(self):
         self.filter_loop = True
