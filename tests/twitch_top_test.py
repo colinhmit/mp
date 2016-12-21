@@ -16,6 +16,12 @@ headers = {'Accept':'application/vnd.twitchtv.v3+json', 'Client-ID':client_id}
 r = requests.get('https://api.twitch.tv/kraken/streams/featured', headers = headers)
 #r contains all
 
+r2 = json.loads(r.content)
+r2 = r2['featured']
+
+a=[{'stream':x['stream']['channel']['name'], 'image': x['stream']['preview']['medium'], 'description': x['title'], 'viewers': x['stream']['viewers']} for x in r2]
+
+
 
 #twitter
 twit = twtr_.twtr(twitter_config)

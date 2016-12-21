@@ -47,6 +47,13 @@ class WebServer(Resource):
                 return self.stream_server.handle_cpanel('twitter',args)
             else:
                 return json.dumps('Invalid path! Valid paths: /cpanel/twitch and /cpanel/twitter')
+        elif path[0:10] == '/featured/':
+            if path[10:16] == 'twitch':
+                return self.stream_server.get_twitch_featured()
+            elif path[10:17] == 'twitter':
+                return self.stream_server.get_twitter_featured()
+            else:
+                return json.dumps('Invalid path! Valid paths: /featured/twitch and /featured/twitter')
         else:
             return json.dumps('Invalid path! Valid paths: /stream and /cpanel/.../')
 
@@ -179,6 +186,17 @@ class StreamServer():
 
         return output
 
+    def get_twitter_featured(self):
+        trends = self.twit.api.trends_place(1)
+        output = [{'stream':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends']]
+        return json.dumps(output)
+
+    def get_twitch_featured(self):
+        headers = {'Accept':'application/vnd.twitchtv.v3+json', 'Client-ID':self.config['twitch_client_id']}
+        r = requests.get('https://api.twitch.tv/kraken/streams/featured', headers = headers)
+        output = [{'stream':x['stream']['channel']['name'], 'image': x['stream']['preview']['medium'], 'description': x['title'], 'count': x['stream']['viewers']} for x in (json.loads(r.content))['featured']]
+        return json.dumps(output)
+
     def filter_twitch(self):
         self.filter_loop = True
         while self.filter_loop:
@@ -222,10 +240,10 @@ class StreamServer():
 
         factory = Site(resource)
         #prod aws
-        reactor.listenTCP(self.config['port'], factory)
+        #reactor.listenTCP(self.config['port'], factory)
 
         #local testing
-        #reactor.listenTCP(4808, factory)
+        reactor.listenTCP(4808, factory)
 
         pp('Starting Web Server...')
         reactor.run()
