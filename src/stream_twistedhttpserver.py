@@ -188,7 +188,7 @@ class StreamServer():
 
     def get_twitter_featured(self, args):
         trends = self.twit.api.trends_place(1)
-        output = [{'stream':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
+        output = [{'stream':x['name'],'description':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
         sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
         if ('limit' in args.keys()) and (len(args['limit'][0])>0):
             limit = int(args['limit'][0])

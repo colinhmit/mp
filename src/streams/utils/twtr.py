@@ -13,8 +13,6 @@ import threading
 import json
 import Queue
 
-from http.client import IncompleteRead
-
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
