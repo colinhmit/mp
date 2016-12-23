@@ -28,14 +28,21 @@ class StdOutListener(StreamListener):
 	def on_data(self, data):
 		jsondata = json.loads(data)
 		if 'text' in jsondata.keys():
-			# if 'media' in jsondata['entities'].keys():
-			# 	pp('///DEBUGING///')
-			# 	pp(jsondata['text'])
-			# 	pp(jsondata['entities']['media'])
-			msg = {
-						'username': jsondata['user']['name'],
-						'message': jsondata['text']
+			pp('/////DEBUGGING//////')
+			pp(jsondata['text'])
+			pp(jsondata['entities'])
+			if 'media' in jsondata['entities'].keys():
+				msg = {
+					'username': jsondata['user']['name'],
+					'message': jsondata['text'],
+					'media_url': jsondata['entities']['media'][0]['media_url']
 					}
+			else:
+				msg = {
+					'username': jsondata['user']['name'],
+					'message': jsondata['text'],
+					'media_url': ''
+					}	
 			for key in self.channels.keys():
 				self.channels[key].put(msg)
 		return True

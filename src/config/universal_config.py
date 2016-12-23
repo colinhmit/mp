@@ -62,11 +62,11 @@ twitter_config = {
 	'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
 
 	# #2nd FALL BACK TWITTER API
-    #'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
-	#'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+ #    'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+	# 'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
 
-	#'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
-	#'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
+	# 'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+	# 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
 	# if set to true will display any data received
 	'debug': False,

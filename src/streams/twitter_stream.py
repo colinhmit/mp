@@ -30,7 +30,7 @@ class TwitterStream:
 
     def render_trending(self):
         if len(self.trending)>0:
-            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat() } for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'] } for msg_k, msg_v in self.trending.items() if msg_v['visible']==1}
 
     def filter_trending(self):
         if len(self.trending)>0:
@@ -69,6 +69,7 @@ class TwitterStream:
                         'score': (self.trending[matched_msg]['score'] * self.trending[matched_msg]['msgs'][submatched_msg] / sum(self.trending[matched_msg]['msgs'].values())) + self.config['matched_add_base'], 
                         'last_mtch_time': msgtime,
                         'first_rcv_time': msgtime,
+                        'media_url': self.trending[matched_msg]['media_url'],
                         'users' : [user],
                         'msgs' : dict(self.trending[matched_msg]['msgs']),
                         'visible' : 1
@@ -82,7 +83,7 @@ class TwitterStream:
                     self.trending[matched_msg]['last_mtch_time'] = msgtime
                     self.trending[matched_msg]['users'].append(user)
 
-    def handle_new(self, msg, msgtime, user):
+    def handle_new(self, msg, msgtime, user, media):
         if len(msg) > 0:
             if self.config['debug']:
                 pp("??? "+msg+" ???")
@@ -90,6 +91,7 @@ class TwitterStream:
                 'score':  self.config['matched_init_base'],
                 'last_mtch_time': msgtime,
                 'first_rcv_time': msgtime,
+                'media_url': media,
                 'users' : [user],
                 'msgs' : {msg: 1.0},
                 'visible' : 0
@@ -120,7 +122,11 @@ class TwitterStream:
                     else:
                         self.trending[key]['score'] = curr_score
 
-    def process_message(self, msg, msgtime, user):
+    def process_message(self, msgdata, msgtime):
+        msg = msgdata['message']
+        user = msgdata['username']
+        media = msgdata['media_url']
+
         #cleanup RT
         if msg[:4] == 'RT @':
             msg = msg[msg.find(':')+1:]
@@ -129,7 +135,7 @@ class TwitterStream:
             matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
             if (len(matched) == 0):
-                self.handle_new(msg, msgtime, user)
+                self.handle_new(msg, msgtime, user, media)
 
             elif len(matched) == 1:
                 matched_msg = matched[0][0]
@@ -143,7 +149,7 @@ class TwitterStream:
         else:
             if self.config['debug']:
                     pp("Init trending")
-            self.handle_new(msg, msgtime, user)
+            self.handle_new(msg, msgtime, user, media)
 
         self.decay(msg, msgtime)
 
@@ -158,5 +164,5 @@ class TwitterStream:
 
             if self.channel.lower() in data['message'].lower():
                 messagetime = datetime.datetime.now()
-                self.process_message(data['message'], messagetime, data['username'])  
+                self.process_message(data, messagetime)  
                 self.last_rcv_time = messagetime
