@@ -157,6 +157,13 @@ class StreamServer():
         
         output = {}
         [output.update(d) for d in trend_dicts]
+
+        if ('filter' in args.keys()) and (len(args['filter'][0])>0):
+            for keyword in args['filter'][0].split(','):
+                for msg in output.keys():
+                    if keyword.lower() in msg.lower():
+                        del output[msg]
+
         return json.dumps(output)
 
     def get_stream(self, stream_id, src):

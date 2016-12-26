@@ -27,10 +27,23 @@ class StdOutListener(StreamListener):
 
 	def on_data(self, data):
 		jsondata = json.loads(data)
-		if 'text' in jsondata.keys():
-			pp('/////DEBUGGING//////')
-			pp(jsondata['text'])
-			pp(jsondata['entities'])
+		if 'retweeted_status' in jsondata.keys():
+			if 'text' in jsondata['retweeted_status'].keys():
+				if 'media' in jsondata['retweeted_status']['entities'].keys():
+					msg = {
+						'username': jsondata['user']['name'],
+						'message': jsondata['retweeted_status']['text'],
+						'media_url': jsondata['retweeted_status']['entities']['media'][0]['media_url']
+						}
+				else:
+					msg = {
+						'username': jsondata['user']['name'],
+						'message': jsondata['retweeted_status']['text'],
+						'media_url': ''
+						}
+				for key in self.channels.keys():
+					self.channels[key].put(msg)
+		elif 'text' in jsondata.keys():
 			if 'media' in jsondata['entities'].keys():
 				msg = {
 					'username': jsondata['user']['name'],
@@ -42,7 +55,7 @@ class StdOutListener(StreamListener):
 					'username': jsondata['user']['name'],
 					'message': jsondata['text'],
 					'media_url': ''
-					}	
+					}
 			for key in self.channels.keys():
 				self.channels[key].put(msg)
 		return True
