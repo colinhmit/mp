@@ -83,6 +83,7 @@ class twtr:
 	def stream_connection(self, channel_keys):
 		while not self.kill:
 			try:
+				pp('Twitter Stream died... reconnecting')
 				self.stream = Stream(self.auth, self.l)
 				self.stream.filter(track=channel_keys)
 			except:
