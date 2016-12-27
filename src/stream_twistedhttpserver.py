@@ -181,13 +181,11 @@ class StreamServer():
 
         elif src == 'twitter':
             if not stream_id in self.twitter_streams.keys():
-                #self.create_stream(stream_id, src)
-                #stream_exists = False
-                #while not stream_exists:
-                    #stream_exists = stream_id in self.twitter_streams.keys()
-                output = {'Twitter addition disabled.'}
-            else:
-                output = self.twitter_streams[stream_id].get_trending()
+                self.create_stream(stream_id, src)
+                stream_exists = False
+                while not stream_exists:
+                    stream_exists = stream_id in self.twitter_streams.keys()
+            output = self.twitter_streams[stream_id].get_trending()
 
         else:
             output = {'INVALID SRC'}
