@@ -202,12 +202,14 @@ class StreamServer():
         return output
 
     def get_twitter_featured(self, args):
+        pp('Getting twitter featured...')
         trends = self.twit.api.trends_place(1)
         output = [{'stream':x['name'],'description':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
         sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
         if ('limit' in args.keys()) and (len(args['limit'][0])>0):
             limit = int(args['limit'][0])
             sorted_output = sorted_output[0:limit]
+        pp('Got twitter featured.')
         return json.dumps(sorted_output)
 
     def get_twitch_featured(self,args):
