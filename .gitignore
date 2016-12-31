@@ -31,3 +31,4 @@ venv/
 ENV/
 
 .DS_Store
+.venv
