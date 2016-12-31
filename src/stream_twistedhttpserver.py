@@ -12,6 +12,7 @@ import sys
 import json
 import time
 import requests
+import re
 
 logging.basicConfig()
 
@@ -67,6 +68,9 @@ class StreamServer():
 
         #init twitter
         self.twit = twtr_.twtr(twitter_config)
+
+        #CJK regex
+        self.pattern = re.compile('[\W_]+')
 
     #stream control
     def create_stream(self, stream, src):
@@ -169,6 +173,11 @@ class StreamServer():
     def get_stream(self, stream_id, src):
         config = self.config
         stream_id = stream_id.lower()
+        stream_id = self.pattern.sub('', stream_id)
+
+        #CJK break
+        if len(stream_id) == 0:
+            return {}
 
         if src == 'twitch':
             if not stream_id in self.twitch_streams.keys():
@@ -188,7 +197,7 @@ class StreamServer():
             output = self.twitter_streams[stream_id].get_trending()
 
         else:
-            output = {'INVALID SRC'}
+            output = {}
 
         return output
 

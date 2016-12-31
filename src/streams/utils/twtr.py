@@ -8,10 +8,8 @@ Created on Wed Aug 24 18:55:12 2016
 import re
 import time
 import sys
-import thread
-import threading
+import multiprocessing
 import json
-import Queue
 
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
@@ -80,6 +78,8 @@ class twtr:
 		self.auth.set_access_token(config['access_token'], config['access_secret'])
 		self.api = API(self.auth)
 
+		self.strm_con = multiprocessing.Process(target=self.stream_connection, args=([],))
+
 	def stream_connection(self, channel_keys):
 		while not self.kill:
 			try:
@@ -96,34 +96,39 @@ class twtr:
 
 	def refresh_channels(self):
 		pp('Refreshing channels...')
-		self.kill = True
-		self.kill = False
-		threading.Thread(target=self.stream_connection, args=(self.l.channels.keys(),)).start()
+		if self.strm_con.is_alive():
+			self.strm_con.terminate()
+		if len(self.l.channels.keys())>0:
+			self.strm_con = multiprocessing.Process(target=self.stream_connection, args=(self.l.channels.keys(),))
+			self.strm_con.start()
 		pp('Refreshed channels.')
 
 	def reset_channels(self):
 		pp('Resetting channels...')
 		self.l.channels = {}
-		self.kill = True
+		if self.strm_con.is_alive():
+			self.strm_con.terminate()
 		pp('Reset channels.')
 
 	def join_channel(self, channel):
 		if not channel in self.l.channels.keys():
 			pp('Joining channel %s,' % channel)
-			self.l.channels[channel] = Queue.Queue()
-			self.kill = True
-			self.kill = False
-			threading.Thread(target=self.stream_connection, args=(self.l.channels.keys(),)).start()
+			self.l.channels[channel] = multiprocessing.Queue()
+			if self.strm_con.is_alive():
+				self.strm_con.terminate()
+			self.strm_con = multiprocessing.Process(target=self.stream_connection, args=(self.l.channels.keys(),))
+			self.strm_con.start()
 			pp('Joining channel.')
 
 	def leave_channel(self, channel):
 		if channel in self.l.channels:
 			pp('Leaving channel %s,' % channel)
 			del self.l.channels[channel]
-			self.kill = True
+			if self.strm_con.is_alive():
+				self.strm_con.terminate()
 			if len(self.l.channels.keys()) > 0:
-				self.kill = False
-				threading.Thread(target=self.stream_connection, args=(self.l.channels.keys(),)).start()
+				self.strm_con = multiprocessing.Process(target=self.stream_connection, args=(self.l.channels.keys(),))
+				self.strm_con.start()
 			else:
 				pp('No channels to stream from...')
 			pp('Left channel.')
