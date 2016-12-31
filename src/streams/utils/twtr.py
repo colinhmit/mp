@@ -77,6 +77,7 @@ class twtr:
 		self.auth = OAuthHandler(config['consumer_token'], config['consumer_secret'])
 		self.auth.set_access_token(config['access_token'], config['access_secret'])
 		self.api = API(self.auth)
+		self.stream = Stream(self.auth, self.l)
 
 		self.strm_con = multiprocessing.Process(target=self.stream_connection, args=([],))
 
@@ -84,7 +85,6 @@ class twtr:
 		while not self.kill:
 			try:
 				pp('Twitter Stream died... reconnecting')
-				self.stream = Stream(self.auth, self.l)
 				self.stream.filter(track=channel_keys)
 			except:
 				continue
@@ -97,7 +97,9 @@ class twtr:
 	def refresh_channels(self):
 		pp('Refreshing channels...')
 		if self.strm_con.is_alive():
+			pp('Terminating old connection.')
 			self.strm_con.terminate()
+			self.stream.disconnect()
 		if len(self.l.channels.keys())>0:
 			self.strm_con = multiprocessing.Process(target=self.stream_connection, args=(self.l.channels.keys(),))
 			self.strm_con.start()
@@ -107,7 +109,9 @@ class twtr:
 		pp('Resetting channels...')
 		self.l.channels = {}
 		if self.strm_con.is_alive():
+			pp('Terminating old connection.')
 			self.strm_con.terminate()
+			self.stream.disconnect()
 		pp('Reset channels.')
 
 	def join_channel(self, channel):
@@ -115,7 +119,9 @@ class twtr:
 			pp('Joining channel %s,' % channel)
 			self.l.channels[channel] = multiprocessing.Queue()
 			if self.strm_con.is_alive():
+				pp('Terminating old connection.')
 				self.strm_con.terminate()
+				self.stream.disconnect()
 			self.strm_con = multiprocessing.Process(target=self.stream_connection, args=(self.l.channels.keys(),))
 			self.strm_con.start()
 			pp('Joining channel.')
@@ -125,7 +131,9 @@ class twtr:
 			pp('Leaving channel %s,' % channel)
 			del self.l.channels[channel]
 			if self.strm_con.is_alive():
+				pp('Terminating old connection.')
 				self.strm_con.terminate()
+				self.stream.disconnect()
 			if len(self.l.channels.keys()) > 0:
 				self.strm_con = multiprocessing.Process(target=self.stream_connection, args=(self.l.channels.keys(),))
 				self.strm_con.start()

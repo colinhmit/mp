@@ -37,10 +37,9 @@ class TwitterStream:
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
             max_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if temp_trending[x]['visible']==0 else 0)
-            if temp_trending[max_key]['visible'] == 0:
-                temp_trending[max_key]['visible'] = 1
-                temp_trending[max_key]['first_rcv_time'] = self.last_rcv_time
-            self.trending = temp_trending
+            if self.trending.get(max_key,{'visible':1})['visible'] == 0:
+                self.trending[max_key]['visible'] = 1
+                self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
 
     def handle_match(self, matched_msg, msg, msgtime, user):
         if user in self.trending[matched_msg]['users']:

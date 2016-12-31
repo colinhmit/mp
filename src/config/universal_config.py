@@ -48,11 +48,11 @@ global twitter_config
 twitter_config = {
 	
 	# # details required to login to twitter stream API
- #     'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-	#  'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+	'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
 
-	# 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-	# 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+	'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+	'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
 	# #FALL BACK TWITTER API
  #    'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
@@ -62,11 +62,18 @@ twitter_config = {
 	# 'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
 
 	# #2nd FALL BACK TWITTER API
-    'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
-	'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+ #    'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+	# 'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
 
-	'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
-	'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
+	# 'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+	# 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
+
+	# #3rd FALL BACK TWITTER API
+	# 'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
+	# 'consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
+
+	# 'access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
+	# 'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
 	# if set to true will display any data received
 	'debug': False,

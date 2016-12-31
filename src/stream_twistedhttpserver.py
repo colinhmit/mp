@@ -190,11 +190,13 @@ class StreamServer():
 
         elif src == 'twitter':
             if not stream_id in self.twitter_streams.keys():
-                self.create_stream(stream_id, src)
-                stream_exists = False
-                while not stream_exists:
-                    stream_exists = stream_id in self.twitter_streams.keys()
-            output = self.twitter_streams[stream_id].get_trending()
+                # self.create_stream(stream_id, src)
+                # stream_exists = False
+                # while not stream_exists:
+                #     stream_exists = stream_id in self.twitter_streams.keys()
+                output = {}
+            else:
+                output = self.twitter_streams[stream_id].get_trending()
 
         else:
             output = {}
@@ -206,9 +208,11 @@ class StreamServer():
         trends = self.twit.api.trends_place(1)
         output = [{'stream':x['name'],'description':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
         sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
+
         if ('limit' in args.keys()) and (len(args['limit'][0])>0):
             limit = int(args['limit'][0])
             sorted_output = sorted_output[0:limit]
+
         pp('Got twitter featured.')
         return json.dumps(sorted_output)
 
@@ -217,9 +221,11 @@ class StreamServer():
         r = requests.get('https://api.twitch.tv/kraken/streams/featured', headers = headers)
         output = [{'stream':x['stream']['channel']['name'], 'image': x['stream']['preview']['medium'], 'description': x['title'], 'count': x['stream']['viewers']} for x in (json.loads(r.content))['featured']]
         sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
+
         if ('limit' in args.keys()) and (len(args['limit'][0])>0):
             limit = int(args['limit'][0])
             sorted_output = sorted_output[0:limit]
+
         return json.dumps(sorted_output)
 
     def filter_twitch(self):
