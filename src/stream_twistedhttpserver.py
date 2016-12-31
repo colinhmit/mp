@@ -70,7 +70,7 @@ class StreamServer():
         self.twit = twtr_.twtr(twitter_config)
 
         #CJK regex
-        self.pattern = re.compile('[\W_]+')
+        self.pattern = re.compile('[^\w\s_]+')
 
     #stream control
     def create_stream(self, stream, src):
