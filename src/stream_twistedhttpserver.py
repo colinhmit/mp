@@ -190,13 +190,13 @@ class StreamServer():
 
         elif src == 'twitter':
             if not stream_id in self.twitter_streams.keys():
-                # self.create_stream(stream_id, src)
-                # stream_exists = False
-                # while not stream_exists:
-                #     stream_exists = stream_id in self.twitter_streams.keys()
-                output = {}
-            else:
-                output = self.twitter_streams[stream_id].get_trending()
+                self.create_stream(stream_id, src)
+                stream_exists = False
+                while not stream_exists:
+                    stream_exists = stream_id in self.twitter_streams.keys()
+                #output = {}
+            #else:
+            output = self.twitter_streams[stream_id].get_trending()
 
         else:
             output = {}
@@ -271,10 +271,10 @@ class StreamServer():
 
         factory = Site(resource)
         #prod aws
-        reactor.listenTCP(self.config['port'], factory)
+        #reactor.listenTCP(self.config['port'], factory)
 
         #local testing
-        #reactor.listenTCP(4808, factory)
+        reactor.listenTCP(4808, factory)
 
         pp('Starting Web Server...')
         reactor.run()

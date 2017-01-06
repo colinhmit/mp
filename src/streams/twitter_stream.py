@@ -8,12 +8,14 @@ Created on Wed Aug 24 18:42:42 2016
 import datetime
 from utils.functions_general import *
 from utils.functions_matching import *
+from utils.nlp import *
 
 class TwitterStream:
 
     def __init__(self, config, channel, curr_twtr):
         self.config = config
         self.channel = channel
+        self.nlp_parser = nlpParser()
 
         curr_twtr.join_channel(channel)
 
@@ -164,6 +166,13 @@ class TwitterStream:
                 pp('Connection was lost...')
 
             if self.channel.lower() in data['message'].lower():
+                pp('////////////////////////////')
+                pp(data['message'])
+                timer = datetime.datetime.now()
+                svos = self.nlp_parser.parse_text(data['message'])
+                pp(svos)
+                pp(datetime.datetime.now()-timer)
+                #pp(self.pipe.qsize())
                 messagetime = datetime.datetime.now()
                 self.process_message(data, messagetime)  
                 self.last_rcv_time = messagetime
