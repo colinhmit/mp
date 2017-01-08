@@ -81,7 +81,7 @@ class StreamServer():
             self.twitch_streams[stream] = TwitchStream(twitch_config, stream)
             self.twitch_streams[stream].run()
         elif src == 'twitter':
-            self.twitter_streams[stream] = TwitterStream(twitch_config, stream, self.twit)
+            self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit)
             self.twitter_streams[stream].run()
         else:
             pass
@@ -138,6 +138,7 @@ class StreamServer():
             elif 'add' in args.keys():
                 for channel in args['add'][0].split(','):
                     if not channel in self.twitter_streams.keys():
+                        twitter_config['target_streams'].append(channel)
                         self.create_stream(channel, 'twitter')
 
             output = self.twitter_streams.keys()
@@ -194,8 +195,7 @@ class StreamServer():
                 stream_exists = False
                 while not stream_exists:
                     stream_exists = stream_id in self.twitter_streams.keys()
-                #output = {}
-            #else:
+
             output = self.twitter_streams[stream_id].get_trending()
 
         else:
@@ -205,7 +205,7 @@ class StreamServer():
 
     def get_twitter_featured(self, args):
         pp('Getting twitter featured...')
-        trends = self.twit.api.trends_place(1)
+        trends = self.twit.hose_api.trends_place(1)
         output = [{'stream':x['name'],'description':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
         sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
 

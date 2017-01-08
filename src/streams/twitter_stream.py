@@ -6,6 +6,7 @@ Created on Wed Aug 24 18:42:42 2016
 """
 
 import datetime
+import re
 from utils.functions_general import *
 from utils.functions_matching import *
 from utils.nlp import *
@@ -17,14 +18,23 @@ class TwitterStream:
         self.channel = channel
         self.nlp_parser = nlpParser()
 
-        curr_twtr.join_channel(channel)
+        if self.channel in self.config['target_streams']:
+            pp('joining target stream')
+            curr_twtr.join_target_channel(channel)
+        else:
+            curr_twtr.join_hose_channel(channel)
 
         #set the pipe object as the socket & go!
-        self.pipe = curr_twtr.get_twtr_stream_object(channel)
-
+        if self.channel in self.config['target_streams']:
+            self.pipe = curr_twtr.get_twtr_target_stream_object(channel)
+        else:
+            self.pipe = curr_twtr.get_twtr_hose_stream_object(channel)
+        
         self.last_rcv_time = None
         self.trending = {}
         self.clean_trending = {}
+        self.svomap = {}
+        self.svocomp_mem = {}
         self.kill = False
 
     def get_trending(self):
@@ -40,8 +50,11 @@ class TwitterStream:
             temp_trending = dict(self.trending)
             max_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if temp_trending[x]['visible']==0 else 0)
             if self.trending.get(max_key,{'visible':1})['visible'] == 0:
-                self.trending[max_key]['visible'] = 1
-                self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
+                try:
+                    self.trending[max_key]['visible'] = 1
+                    self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
+                except Exception, e:
+                    pp(e)
 
     def handle_match(self, matched_msg, msg, msgtime, user):
         if user in self.trending[matched_msg]['users']:
@@ -55,7 +68,7 @@ class TwitterStream:
             match_subs = fweo_threshold(msg, self.trending[matched_msg]['msgs'].keys(), self.config['so_compare_threshold'])
 
             #if no substring match
-            if match_subs == None:
+            if match_subs is None:
                 self.trending[matched_msg]['score'] += max(0.1,1-((len(self.trending[matched_msg]['users'])**2)/self.config['matched_add_user_base']))*self.config['matched_add_base']
                 self.trending[matched_msg]['last_mtch_time'] = msgtime
                 self.trending[matched_msg]['users'].append(user)
@@ -73,6 +86,7 @@ class TwitterStream:
                         'last_mtch_time': msgtime,
                         'first_rcv_time': msgtime,
                         'media_url': self.trending[matched_msg]['media_url'],
+                        'svos': self.trending[matched_msg]['svos'],
                         'users' : [user],
                         'msgs' : dict(self.trending[matched_msg]['msgs']),
                         'visible' : 1
@@ -86,7 +100,7 @@ class TwitterStream:
                     self.trending[matched_msg]['last_mtch_time'] = msgtime
                     self.trending[matched_msg]['users'].append(user)
 
-    def handle_new(self, msg, msgtime, user, media):
+    def handle_new(self, msg, msgtime, user, media, svos):
         if len(msg) > 0:
             if self.config['debug']:
                 pp("??? "+msg+" ???")
@@ -95,13 +109,70 @@ class TwitterStream:
                 'last_mtch_time': msgtime,
                 'first_rcv_time': msgtime,
                 'media_url': media,
+                'svos': svos,
                 'users' : [user],
                 'msgs' : {msg: 1.0},
                 'visible' : 0
             }
 
+    def get_match(self, msg, svos):
+        matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
+
+        if (len(matched) == 0):
+            for svo in svos:
+                subj, verb, obj, neg = svo
+
+                for key in self.trending.keys():
+                    match_subj = fweo_threshold(subj.lower_, [x[0].lower_ for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
+
+                    if match_subj is None:
+                        pass
+                    else:
+                        matched_svos = [x for x in self.trending[key]['svos'] if x[0].lower_==match_subj[0]]
+
+                        for matched_svo in matched_svos:
+
+                            if (svo, matched_svo) in self.svocomp_mem.keys():
+                                if self.svocomp_mem[(svo, matched_svo)]:
+                                    return key
+
+                            else: 
+                                matched_subj, matched_verb, matched_obj, matched_neg = matched_svo
+
+                                verb_diff = cosine(verb.vector, matched_verb.vector)
+
+                                if (verb_diff<self.config['verb_compare_threshold']) or (neg != matched_neg):
+                                    pass
+                                else:
+                                    obj_diff = cosine(obj.vector, matched_obj.vector)
+
+                                    if (obj_diff<self.config['obj_compare_threshold']):
+                                        pass
+                                    else:
+                                        pp('//Matched!//')
+                                        pp(msg)
+                                        pp(key)
+                                        pp(svo)
+                                        pp(matched_svo)
+                                        self.svocomp_mem[(svo, matched_svo)] = True
+                                        self.svocomp_mem[(matched_svo, svo)] = True
+                                        return key
+
+                                self.svocomp_mem[(svo, matched_svo)] = False
+                                self.svocomp_mem[(matched_svo, svo)] = False
+
+            return None
+
+        elif len(matched) == 1:
+            return matched[0][0]
+
+        else:
+            matched_msgs = [x[0] for x in matched]
+            (matched_msg, score) = fweo_tsort_compare(msg, matched_msgs)
+            return matched_msg
+
     def decay(self, msg, msgtime):
-        if (self.last_rcv_time!=None):
+        if (self.last_rcv_time is not None):
             prev_msgtime = self.last_rcv_time
             
             for key in self.trending.keys():
@@ -125,34 +196,43 @@ class TwitterStream:
                     else:
                         self.trending[key]['score'] = curr_score
 
+
+    def clean_message(self, msg):
+        clean_msg = re.sub(r"http\S+", "", msg)
+        clean_msg = re.sub(r"[#@]", "", clean_msg)
+        return clean_msg
+
     def process_message(self, msgdata, msgtime):
         msg = msgdata['message']
         user = msgdata['username']
         media = msgdata['media_url']
+        hashid = hash(msg)
+
+        if hashid in self.svomap.keys():
+            svos, clean_msg = self.svomap[hashid]
+
+        else:
+            clean_msg = self.clean_message(msg)
+            svos = self.nlp_parser.parse_text(clean_msg)
+            self.svomap[hashid] = svos, clean_msg
 
         #cleanup RT
         if msg[:4] == 'RT @':
             msg = msg[msg.find(':')+1:]
 
         if len(self.trending)>0:
-            matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
+            matched_msg = self.get_match(msg, svos)
 
-            if (len(matched) == 0):
-                self.handle_new(msg, msgtime, user, media)
-
-            elif len(matched) == 1:
-                matched_msg = matched[0][0]
-                self.handle_match(matched_msg, msg, msgtime, user)
+            if matched_msg is None:
+                self.handle_new(msg, msgtime, user, media, svos)
 
             else:
-                matched_msgs = [x[0] for x in matched]
-                (matched_msg, score) = fweo_tsort_compare(msg, matched_msgs)
                 self.handle_match(matched_msg, msg, msgtime, user)
 
         else:
             if self.config['debug']:
                     pp("Init trending")
-            self.handle_new(msg, msgtime, user, media)
+            self.handle_new(msg, msgtime, user, media, svos)
 
         self.decay(msg, msgtime)
 
@@ -164,15 +244,7 @@ class TwitterStream:
             data = pipe.get()
             if len(data) == 0:
                 pp('Connection was lost...')
-
             if self.channel.lower() in data['message'].lower():
-                pp('////////////////////////////')
-                pp(data['message'])
-                timer = datetime.datetime.now()
-                svos = self.nlp_parser.parse_text(data['message'])
-                pp(svos)
-                pp(datetime.datetime.now()-timer)
-                #pp(self.pipe.qsize())
                 messagetime = datetime.datetime.now()
                 self.process_message(data, messagetime)  
                 self.last_rcv_time = messagetime
