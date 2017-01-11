@@ -149,11 +149,6 @@ class TwitterStream:
                                     if (obj_diff<self.config['obj_compare_threshold']):
                                         pass
                                     else:
-                                        pp('//Matched!//')
-                                        pp(msg)
-                                        pp(key)
-                                        pp(svo)
-                                        pp(matched_svo)
                                         self.svocomp_mem[(svo, matched_svo)] = True
                                         self.svocomp_mem[(matched_svo, svo)] = True
                                         return key
