@@ -114,22 +114,18 @@ server_config = {
 	
 	# details required to host the server
 
-    'host': '172.31.4.69',
-    'port': 80,
     #'host': '127.0.0.1',
     #'port': 4808,
 
-    'listen_host': '127.0.0.1',
+    'request_host': '127.0.0.1',
     #'host': 'localhost',
     #'host': '192.168.0.19',
-	'listen_port': 4808,
+	'request_port': 8008,
     'listeners' : 10,
 
     # multicast settings
-    'multicast_server': '239.192.1.100',
-    'multicast_port': 6000,
-    'ttl': 32,
-
+    'data_host': '127.0.0.1',
+    'data_port': 8007,
 
     #featured
     'twitch_client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
@@ -145,4 +141,34 @@ server_config = {
 	'socket_buffer_size': 4096,
  
     'end_of_data': '//data_sent//'
+}
+
+global client_config
+
+client_config = {
+    
+    'host': '172.31.4.69',
+    'port': 80,
+
+    # details required to host the server
+    'request_host': '127.0.0.1',
+    'request_port': 8008,
+
+    'data_host': '127.0.0.1',
+    'data_port': 8007,
+
+    # if set to true will display any data received
+    'debug': False,
+
+    # if set to true will log all messages from all channels
+    # TODO
+    'log_messages': False,
+
+    # maximum amount of bytes to receive from socket - 1024-4096 recommended
+    'socket_buffer_size': 4096,
+ 
+      'end_of_data': '//data_sent//',
+      
+      #modes: backtest, demo
+      'mode': 'demo'
 }

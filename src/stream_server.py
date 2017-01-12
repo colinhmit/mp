@@ -41,15 +41,17 @@ class StreamServer():
         self.pattern = re.compile('[^\w\s_]+')
 
     def init_sockets(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        sock.bind((self.config['listen_host'], self.config['listen_port']))
-        sock.listen(self.config['listeners'])
-        self.listen_socket = sock
+        request_sock.bind((self.config['request_host'], self.config['request_port']))
+        request_sock.listen(self.config['listeners'])
+        self.request_sock = request_sock
 
-        multisock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        multisock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, self.config['ttl'])
-        self.multi_socket = multisock
+        data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        data_sock.bind((self.config['data_host'], self.config['data_port']))
+        data_sock.listen(self.config['listeners'])
+        self.data_sock = data_sock
 
     #stream control
     def create_stream(self, stream, src):
@@ -92,7 +94,6 @@ class StreamServer():
         return json.dumps(output)
 
     def get_twitter_featured(self):
-        pp('Getting twitter featured...')
         trends = self.twit.hose_api.trends_place(1)
         output = [{'stream':x['name'],'description':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
         sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
@@ -106,6 +107,14 @@ class StreamServer():
         sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
 
         self.twitch_featured = sorted_output
+
+    def refresh_featured(self):
+        self.refresh_loop = True
+        while self.refresh_loop:
+            self.get_twitch_featured()
+            self.get_twitter_featured()
+
+            time.sleep(300)
 
     def filter_twitch(self):
         self.filter_loop = True
@@ -143,19 +152,17 @@ class StreamServer():
 
             time.sleep(0.17)
 
-    def multicast(self):
-        multisock = self.multi_socket
+    def send_data(self, client_sock, client_address):
         config = self.config
-        pp('Now multicasting...')
-        self.multicast = True
+        pp('Now broadcasting...')
+        self.broadcast = True
 
-        while self.multicast:
+        while self.broadcast:
             json_data = self.get_stream_data()
-            pp(json.loads(json_data)['twitch_streams'])
-            multisock.sendto(json_data, (self.config['multicast_server'],self.config['multicast_port']))
+            client_sock.sendall(json_data + config['end_of_data'])
             time.sleep(0.17)
 
-    def listen_to_http(self, client_sock, client_address):
+    def handle_http(self, client_sock, client_address):
         config = self.config
         connected = True
 
@@ -165,50 +172,75 @@ class StreamServer():
             if len(data) == 0:
                 pp(('Connection lost by: ' + str(client_address)))
                 connected = False
+            else:
+                if config['debug']:
+                    pp(data)
 
-            if config['debug']:
-                pp(data)
+                jsondata = json.loads(data)
 
-            jsondata = json.loads(data)
+                if 'twitch' in jsondata.keys():
+                    if 'add' in jsondata['twitch'].keys():
+                        for stream in jsondata['twitch']['add']:
+                            if stream not in self.twitch_streams.keys():
+                                self.create_stream(stream, 'twitch')
 
-            if 'twitch' in jsondata.keys():
-                if 'add' in jsondata['twitch'].keys():
-                    for stream in jsondata['twitch']['add']:
-                        if stream not in self.twitch_streams.keys():
-                            self.create_stream(stream, 'twitch')
+                    if 'delete' in jsondata['twitch'].keys():
+                        for stream in jsondata['twitch']['delete']:
+                            if stream in self.twitch_streams.keys():
+                                self.delete_stream(stream, 'twitch')
 
-                if 'delete' in jsondata['twitch'].keys():
-                    for stream in jsondata['twitch']['delete']:
-                        if stream in self.twitch_streams.keys():
-                            self.delete_stream(stream, 'twitch')
+                    if 'reset' in jsondata['twitch'].keys():
+                        for stream in self.twitch_streams.keys():
+                            self.twitch_streams[stream].kill = True
+                            del self.twitch_streams[stream]
 
-            if 'twitter' in jsondata.keys():
-                if 'add' in jsondata['twitter'].keys():
-                    for stream in jsondata['twitter']['add']:
-                        if stream not in self.twitter_streams.keys():
-                            self.create_stream(stream, 'twitter')
+                if 'twitter' in jsondata.keys():
+                    if 'add' in jsondata['twitter'].keys():
+                        for stream in jsondata['twitter']['add']:
+                            if stream not in self.twitter_streams.keys():
+                                self.create_stream(stream, 'twitter')
 
-                if 'delete' in jsondata['twitter'].keys():
-                    for stream in jsondata['twitter']['delete']:
-                        if stream in self.twitter_streams.keys():
-                            self.delete_stream(stream, 'twitter')
+                    if 'delete' in jsondata['twitter'].keys():
+                        for stream in jsondata['twitter']['delete']:
+                            if stream in self.twitter_streams.keys():
+                                self.delete_stream(stream, 'twitter')
 
-                if 'target_add' in jsondata['twitter'].keys():
-                    for stream in jsondata['twitter']['target_add']:
-                        if stream not in self.twitter_streams.keys():
-                            twitter_config['target_streams'].append(channel)
-                            self.create_stream(stream, 'twitter')
+                    if 'target_add' in jsondata['twitter'].keys():
+                        for stream in jsondata['twitter']['target_add']:
+                            if stream not in self.twitter_streams.keys():
+                                twitter_config['target_streams'].append(stream)
+                                self.create_stream(stream, 'twitter')
+
+                    if 'refresh' in jsondata['twitter'].keys():
+                        self.twit.refresh_channels()
+
+                    if 'reset' in jsondata['twitter'].keys():
+                        for stream in self.twitter_streams.keys():
+                            self.twitter_streams[stream].kill = True
+                            del self.twitter_streams[stream]
+                        self.twit.reset_channels()  
 
     def listen(self):
-        sock = self.listen_socket
+        sock = self.request_sock
         config = self.config
         pp('Now listening...')
         self.listening = True
 
         while self.listening:
             (client_sock, client_address) = sock.accept()
-            pp(('Connection initiated by: ' + str(client_address)))
-            threading.Thread(target = self.listen_to_http,args = (client_sock,client_address)).start()
+            pp(('Request Connection initiated by: ' + str(client_address)))
+            threading.Thread(target = self.handle_http, args = (client_sock,client_address)).start()
+
+    def broadcast(self):
+        sock = self.data_sock
+        config = self.config
+        pp('Now broadcasting...')
+        self.broadcasting = True
+
+        while self.broadcasting:
+            (client_sock, client_address) = sock.accept()
+            pp(('Broadcast Connection initiated by: ' + str(client_address)))
+            threading.Thread(target = self.send_data, args = (client_sock,client_address)).start()
 
 if __name__ == '__main__':
     #init
@@ -219,9 +251,8 @@ if __name__ == '__main__':
     #twitter helpers
     filter_twitter_thread = threading.Thread(target = server.filter_twitter).start()
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
+    #featured
+    refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
     #serve
-    server.get_twitter_featured()
-    server.get_twitch_featured()
-
     listen_thread = threading.Thread(target = server.listen).start()
-    multicast_thread = threading.Thread(target = server.multicast).start()
+    broadcast_thread = threading.Thread(target = server.broadcast).start()

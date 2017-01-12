@@ -159,15 +159,13 @@ class twtr:
 			self.target_conn.start()
 			pp('Joining channel.')
 
-	def leave_hose_channel(self, channel):
-		if channel in self.hose_l.channels:
-			pp('Leaving channel %s' % channel)
+	def leave_channel(self, channel):
+		if channel in self.hose_l.channels.keys():
+			pp('Leaving hose channel %s' % channel)
 			del self.hose_l.channels[channel]
-			pp('Left channel.')
-
-	def leave_target_channel(self, channel):
-		if channel in self.target_l.channels:
-			pp('Leaving channel %s,' % channel)
+			pp('Left hose channel.')
+		if channel in self.target_l.channels.keys():
+			pp('Leaving target channel %s,' % channel)
 			del self.target_l.channels[channel]
 			if self.target_conn.is_alive():
 				pp('Terminating old connection.')
@@ -178,4 +176,4 @@ class twtr:
 				self.target_conn.start()
 			else:
 				pp('No channels to stream from...')
-			pp('Left channel.')
+			pp('Left target channel.')

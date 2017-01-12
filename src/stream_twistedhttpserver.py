@@ -213,7 +213,6 @@ class StreamServer():
             limit = int(args['limit'][0])
             sorted_output = sorted_output[0:limit]
 
-        pp('Got twitter featured.')
         return json.dumps(sorted_output)
 
     def get_twitch_featured(self,args):

@@ -26,37 +26,10 @@ from config.universal_config import *
 
 import streams.utils.twtr as twtr_
 
-
-client_config = {
-    
-    # details required to host the server
-    'host': '127.0.0.1',
-    'multicast_server': '239.192.1.100',
-    'multicast_port': 6000,
-    'port': 4808,
-    'ttl': 32,
-    
-    # if set to true will display any data received
-    'debug': False,
-
-    # if set to true will log all messages from all channels
-    # TODO
-    'log_messages': False,
-
-    # maximum amount of bytes to receive from socket - 1024-4096 recommended
-    'socket_buffer_size': 4096,
- 
-      'end_of_data': '//data_sent//',
-      
-      #modes: backtest, demo
-      'mode': 'demo'
- 
-}
-
 class WebServer(Resource):
 
     isLeaf = True
-    stream_server = None
+    stream_client = None
     
     #server protocol
     def render_GET(self, request):
@@ -67,19 +40,19 @@ class WebServer(Resource):
     #get control
     def handle_GET(self, path, args):
         if path[0:7] == '/stream':
-            return self.stream_server.get_agg_streams(args)
+            return self.stream_client.get_agg_streams(args)
         elif path[0:8] == '/cpanel/':
             if path[8:14] == 'twitch':
-                return self.stream_server.handle_cpanel('twitch',args)
+                return self.stream_client.handle_cpanel('twitch',args)
             elif path[8:15] == 'twitter':
-                return self.stream_server.handle_cpanel('twitter',args)
+                return self.stream_client.handle_cpanel('twitter',args)
             else:
                 return json.dumps('Invalid path! Valid paths: /cpanel/twitch and /cpanel/twitter')
         elif path[0:10] == '/featured/':
             if path[10:16] == 'twitch':
-                return self.stream_server.get_twitch_featured(args)
+                return self.stream_client.get_featured('twitch', args)
             elif path[10:17] == 'twitter':
-                return self.stream_server.get_twitter_featured(args)
+                return self.stream_client.get_featured('twitter', args)
             else:
                 return json.dumps('Invalid path! Valid paths: /featured/twitch and /featured/twitter')
         else:
@@ -97,34 +70,58 @@ class StreamClient():
         self.twitch_featured = []
         self.twitter_featured = []
 
-
     def init_sockets(self):
         config = self.config
 
-        server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
-        ####CONFIG
-        server_sock.connect((config['host'], config['port']))
-        self.server_sock = server_sock
+        request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        multi_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        try:
-            multi_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        except AttributeError:
-             pass
-        multi_sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, self.config['ttl'])
-        multi_sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_LOOP, 1)
-        multi_sock.bind((config['multicast_server'], config['multicast_port']))
-        host = socket.gethostbyname(socket.gethostname())
-        multi_sock.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_IF, socket.inet_aton(host))
-        multi_sock.setsockopt(socket.SOL_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(config['multicast_server']) + socket.inet_aton(host))
-        self.multi_socket = multi_sock 
+        request_sock.connect((config['request_host'], config['request_port']))
+        self.request_sock = request_sock
 
-    #/////////////////////
+        data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        data_sock.connect((config['data_host'], config['data_port']))
+        self.data_sock = data_sock
+
     #cpanel response
     def handle_cpanel(self, src, args):
+        request = {}
+        request[src] = {}
+
+        if 'add' in args.keys():
+            request[src]['add'] = args['add'][0].split(',')
+
+        if 'delete' in args.keys():
+            request[src]['delete'] = args['delete'][0].split(',')
+        
+        if 'target_add' in args.keys():
+            request[src]['target_add'] = args['target_add'][0].split(',')
+
+        if 'action' in args.keys():
+            for action in args['action'][0].split(','):
+                if action == 'show':
+                    pass
+                elif action == 'refresh':
+                    request[src]['refresh'] = True
+                elif action == 'reset':
+                    request[src]['reset'] = True
+                else:
+                    pass
+
+        self.request_sock.send(json.dumps(request))
+
         output = []
+        if src == 'twitch':
+            output = self.twitch_streams.keys()
+        elif src == 'twitter':
+            output = self.twitter_streams.keys()
         return json.dumps(output)
+
+    def request_stream(self, stream, src):
+        request = {}
+        request[src] = {'add':[stream]}
+
+        self.request_sock.send(json.dumps(request))
 
     def get_agg_streams(self, args):
         config = self.config
@@ -132,10 +129,18 @@ class StreamClient():
 
         if ('twitch' in args.keys()) and (len(args['twitch'][0])>0):
             for stream_id in args['twitch'][0].split(','):
+                if stream_id not in self.twitch_streams.keys():
+                    self.twitch_streams[stream_id] = {}
+                    self.request_stream(stream_id,'twitch')
+
                 trend_dicts.append(self.twitch_streams[stream_id])
 
         if ('twitter' in args.keys()) and (len(args['twitter'][0])>0):
             for stream_id in args['twitter'][0].split(','):
+                if stream_id not in self.twitter_streams.keys():
+                    self.twitter_streams[stream_id] = {}
+                    self.request_stream(stream_id,'twitter')
+
                 trend_dicts.append(self.twitter_streams[stream_id])
         
         output = {}
@@ -149,23 +154,67 @@ class StreamClient():
 
         return json.dumps(output)
 
-    def handle_multicast(self):
-        sock = self.multi_socket
+    def get_featured(self, src, args):
+        output = []
+
+        if src == 'twitch':
+            output = self.twitch_featured
+        elif src == 'twitter':
+            output = self.twitter_featured
+
+        if ('limit' in args.keys()) and (len(args['limit'][0])>0):
+            limit = int(args['limit'][0])
+            output = output[0:limit]
+
+        return json.dumps(output)
+
+    def recv_data(self):
+        sock = self.data_sock
         config = self.config
+        self.recv = True
 
-        while True:
-            data, address = sock.recvfrom(65535)
-            jsondata = json.loads(data)
 
+        while self.recv:
+            total_data=[];data=''
+            
+            while True:
+                data = sock.recv(config['socket_buffer_size']).rstrip()
+                if config['end_of_data'] in data:
+                    total_data.append(data[:data.find(config['end_of_data'])])
+                    break
+                total_data.append(data)
+                if len(total_data)>1:
+                    #check if end_of_data was split
+                    last_pair=total_data[-2]+total_data[-1]
+                    if config['end_of_data'] in last_pair:
+                        total_data[-2]=last_pair[:last_pair.find(config['end_of_data'])]
+                        total_data.pop()
+                        break
+
+            jsondata = json.loads(''.join(total_data))
             self.twitch_streams = jsondata['twitch_streams']
             self.twitter_streams = jsondata['twitter_streams']
 
             self.twitch_featured = jsondata['twitch_featured']
             self.twitter_featured = jsondata['twitter_featured']
-            pp(self.twitch_streams)
+
+    def run(self):
+        pp('Initializing Web Server...')
+        resource = WebServer()
+        resource.stream_client = self
+
+        factory = Site(resource)
+        #prod aws
+        #reactor.listenTCP(self.config['port'], factory)
+
+        #local testing
+        reactor.listenTCP(4808, factory)
+
+        pp('Starting Web Server...')
+        reactor.run()
 
 if __name__ == '__main__':
     #init
     client = StreamClient(client_config)
-    client.server_sock.send(json.dumps({'twitch':{'add':['overwatch_nge']}}))
-    multicast_thread = threading.Thread(target = client.handle_multicast).start()
+    recv_thread = threading.Thread(target = client.recv_data).start()
+    client.run()
