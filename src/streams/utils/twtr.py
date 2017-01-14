@@ -75,6 +75,9 @@ class twtr:
 		self.streams = {}
 		self.target_streams = []
 
+		self.streams['chrendin'] = Queue.Queue()
+		self.target_streams = ['chrendin']
+
 		self.distribute_thread = threading.Thread(target = self.distribute).start()
 		self.set_twtr_stream_object()
 
@@ -100,6 +103,7 @@ class twtr:
 		self.target_stream = Stream(self.target_auth, self.target_l)
 
 		self.target_conn = multiprocessing.Process(target=self.target_stream_connection)
+		self.target_conn.start()
 		self.hose_conn = threading.Thread(target=self.hose_stream_connection).start()
 
 	def hose_stream_connection(self):

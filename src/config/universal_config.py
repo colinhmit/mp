@@ -76,7 +76,7 @@ twitter_config = {
 	# 'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
 	#Target stream allowed channels
-	'target_streams': ['trump'],
+	'target_streams': ['trump','chrendin'],
 
 	# if set to true will display any data received
 	'debug': False,
