@@ -20,11 +20,8 @@ from twisted.internet import reactor
 from twisted.web.resource import Resource
 from twisted.web.server import Site
 
-from streams.twitch_stream import *
-from streams.twitter_stream import *
+from streams.utils.functions_general import *
 from config.universal_config import *
-
-import streams.utils.twtr as twtr_
 
 class WebServer(Resource):
 
@@ -74,12 +71,10 @@ class StreamClient():
         config = self.config
 
         request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
         request_sock.connect((config['request_host'], config['request_port']))
         self.request_sock = request_sock
 
         data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
         data_sock.connect((config['data_host'], config['data_port']))
         self.data_sock = data_sock
 
@@ -88,16 +83,16 @@ class StreamClient():
         request = {}
         request[src] = {}
 
-        if 'add' in args.keys():
+        if 'add' in args:
             request[src]['add'] = args['add'][0].split(',')
 
-        if 'delete' in args.keys():
+        if 'delete' in args:
             request[src]['delete'] = args['delete'][0].split(',')
         
-        if 'target_add' in args.keys():
+        if 'target_add' in args:
             request[src]['target_add'] = args['target_add'][0].split(',')
 
-        if 'action' in args.keys():
+        if 'action' in args:
             for action in args['action'][0].split(','):
                 if action == 'show':
                     pass
@@ -127,17 +122,17 @@ class StreamClient():
         config = self.config
         trend_dicts = []
 
-        if ('twitch' in args.keys()) and (len(args['twitch'][0])>0):
+        if ('twitch' in args) and (len(args['twitch'][0])>0):
             for stream_id in args['twitch'][0].split(','):
-                if stream_id not in self.twitch_streams.keys():
+                if stream_id not in self.twitch_streams:
                     self.twitch_streams[stream_id] = {}
                     self.request_stream(stream_id,'twitch')
 
                 trend_dicts.append(self.twitch_streams[stream_id])
 
-        if ('twitter' in args.keys()) and (len(args['twitter'][0])>0):
+        if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in args['twitter'][0].split(','):
-                if stream_id not in self.twitter_streams.keys():
+                if stream_id not in self.twitter_streams:
                     self.twitter_streams[stream_id] = {}
                     self.request_stream(stream_id,'twitter')
 
@@ -146,9 +141,9 @@ class StreamClient():
         output = {}
         [output.update(d) for d in trend_dicts]
 
-        if ('filter' in args.keys()) and (len(args['filter'][0])>0):
+        if ('filter' in args) and (len(args['filter'][0])>0):
             for keyword in args['filter'][0].split(','):
-                for msg in output.keys():
+                for msg in output:
                     if keyword.lower() in msg.lower():
                         del output[msg]
 
@@ -162,7 +157,7 @@ class StreamClient():
         elif src == 'twitter':
             output = self.twitter_featured
 
-        if ('limit' in args.keys()) and (len(args['limit'][0])>0):
+        if ('limit' in args) and (len(args['limit'][0])>0):
             limit = int(args['limit'][0])
             output = output[0:limit]
 
@@ -172,7 +167,6 @@ class StreamClient():
         sock = self.data_sock
         config = self.config
         self.recv = True
-
 
         while self.recv:
             total_data=[];data=''
@@ -205,10 +199,10 @@ class StreamClient():
 
         factory = Site(resource)
         #prod aws
-        #reactor.listenTCP(self.config['port'], factory)
+        reactor.listenTCP(self.config['port'], factory)
 
         #local testing
-        reactor.listenTCP(4808, factory)
+        #reactor.listenTCP(4808, factory)
 
         pp('Starting Web Server...')
         reactor.run()

@@ -12,11 +12,11 @@ from utils.functions_matching import *
 
 class TwitchStream:
 
-    def __init__(self, config, channel):
+    def __init__(self, config, stream):
         self.config = config
-        self.channel = channel
+        self.stream = stream
         self.irc = irc_.irc(config)
-        self.socket = self.irc.get_irc_socket_object(channel)
+        self.socket = self.irc.get_irc_socket_object(stream)
 
         self.last_rcv_time = None
         self.trending = {}

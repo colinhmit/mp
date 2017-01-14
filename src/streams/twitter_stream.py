@@ -9,26 +9,29 @@ import datetime
 import re
 from utils.functions_general import *
 from utils.functions_matching import *
-from utils.nlp import *
 
 class TwitterStream:
 
-    def __init__(self, config, channel, curr_twtr):
+    def __init__(self, config, stream, curr_twtr, nlp_parser):
         self.config = config
-        self.channel = channel
-        self.nlp_parser = nlpParser()
+        self.stream = stream
+        self.nlp_parser = nlp_parser
 
-        if self.channel in self.config['target_streams']:
-            pp('joining target stream')
-            curr_twtr.join_target_channel(channel)
-        else:
-            curr_twtr.join_hose_channel(channel)
+
+        curr_twtr.join_stream(stream, self.stream in self.config['target_streams'])
+
+        # if self.stream in self.config['target_streams']:
+        #     pp('joining target stream')
+        #     curr_twtr.join_target_channel(channel)
+        # else:
+        #     curr_twtr.join_hose_channel(channel)
 
         #set the pipe object as the socket & go!
-        if self.channel in self.config['target_streams']:
-            self.pipe = curr_twtr.get_twtr_target_stream_object(channel)
-        else:
-            self.pipe = curr_twtr.get_twtr_hose_stream_object(channel)
+        self.pipe = curr_twtr.get_twtr_stream_object(stream)
+        # if self.channel in self.config['target_streams']:
+        #     self.pipe = curr_twtr.get_twtr_target_stream_object(channel)
+        # else:
+        #     self.pipe = curr_twtr.get_twtr_hose_stream_object(channel)
         
         self.last_rcv_time = None
         self.trending = {}
@@ -132,7 +135,7 @@ class TwitterStream:
 
                         for matched_svo in matched_svos:
 
-                            if (svo, matched_svo) in self.svocomp_mem.keys():
+                            if (svo, matched_svo) in self.svocomp_mem:
                                 if self.svocomp_mem[(svo, matched_svo)]:
                                     return key
 
@@ -191,7 +194,6 @@ class TwitterStream:
                     else:
                         self.trending[key]['score'] = curr_score
 
-
     def clean_message(self, msg):
         clean_msg = re.sub(r"http\S+", "", msg)
         clean_msg = re.sub(r"[#@]", "", clean_msg)
@@ -210,6 +212,9 @@ class TwitterStream:
             clean_msg = self.clean_message(msg)
             svos = self.nlp_parser.parse_text(clean_msg)
             self.svomap[hashid] = svos, clean_msg
+
+        if (len(self.svomap)>1000):
+            self.svomap = {}
 
         #cleanup RT
         if msg[:4] == 'RT @':
@@ -236,10 +241,10 @@ class TwitterStream:
         config = self.config
         
         while not self.kill:
-            data = pipe.get()
-            if len(data) == 0:
+            msg = pipe.get()
+            if len(msg) == 0:
                 pp('Connection was lost...')
-            if self.channel.lower() in data['message'].lower():
+            if self.stream.lower() in msg['message'].lower():
                 messagetime = datetime.datetime.now()
-                self.process_message(data, messagetime)  
+                self.process_message(msg, messagetime)  
                 self.last_rcv_time = messagetime

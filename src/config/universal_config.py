@@ -117,14 +117,14 @@ server_config = {
     #'host': '127.0.0.1',
     #'port': 4808,
 
-    'request_host': '127.0.0.1',
+    'request_host': '35.166.70.54',
     #'host': 'localhost',
     #'host': '192.168.0.19',
 	'request_port': 8008,
     'listeners' : 10,
 
     # multicast settings
-    'data_host': '127.0.0.1',
+    'data_host': '35.166.70.54',
     'data_port': 8007,
 
     #featured
@@ -147,14 +147,14 @@ global client_config
 
 client_config = {
     
-    'host': '172.31.4.69',
+    'host': '35.160.176.189',
     'port': 80,
 
     # details required to host the server
-    'request_host': '127.0.0.1',
+    'request_host': '35.166.70.54',
     'request_port': 8008,
 
-    'data_host': '127.0.0.1',
+    'data_host': '35.166.70.54',
     'data_port': 8007,
 
     # if set to true will display any data received
