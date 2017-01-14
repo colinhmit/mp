@@ -115,16 +115,16 @@ server_config = {
 	# details required to host the server
 
     #'host': '127.0.0.1',
-    #'port': 4808,
+    #'port': 80,
 
-    'request_host': '35.166.70.54',
+    'request_host': '127.0.0.1',
     #'host': 'localhost',
     #'host': '192.168.0.19',
 	'request_port': 8008,
     'listeners' : 10,
 
     # multicast settings
-    'data_host': '35.166.70.54',
+    'data_host': '127.0.0.1',
     'data_port': 8007,
 
     #featured
@@ -147,7 +147,7 @@ global client_config
 
 client_config = {
     
-    'host': '35.160.176.189',
+    'host': '127.0.0.1',
     'port': 80,
 
     # details required to host the server
