@@ -117,14 +117,14 @@ server_config = {
     #'host': '127.0.0.1',
     #'port': 80,
 
-    'request_host': '127.0.0.1',
+    'request_host': '',
     #'host': 'localhost',
     #'host': '192.168.0.19',
 	'request_port': 8008,
     'listeners' : 10,
 
     # multicast settings
-    'data_host': '127.0.0.1',
+    'data_host': '',
     'data_port': 8007,
 
     #featured

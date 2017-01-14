@@ -37,7 +37,6 @@ class TwitterStream:
         self.trending = {}
         self.clean_trending = {}
         self.svomap = {}
-        self.svocomp_mem = {}
         self.kill = False
 
     def get_trending(self):
@@ -135,29 +134,19 @@ class TwitterStream:
 
                         for matched_svo in matched_svos:
 
-                            if (svo, matched_svo) in self.svocomp_mem:
-                                if self.svocomp_mem[(svo, matched_svo)]:
-                                    return key
+                            matched_subj, matched_verb, matched_obj, matched_neg = matched_svo
 
-                            else: 
-                                matched_subj, matched_verb, matched_obj, matched_neg = matched_svo
+                            verb_diff = cosine(verb.vector, matched_verb.vector)
 
-                                verb_diff = cosine(verb.vector, matched_verb.vector)
+                            if (verb_diff<self.config['verb_compare_threshold']) or (neg != matched_neg):
+                                pass
+                            else:
+                                obj_diff = cosine(obj.vector, matched_obj.vector)
 
-                                if (verb_diff<self.config['verb_compare_threshold']) or (neg != matched_neg):
+                                if (obj_diff<self.config['obj_compare_threshold']):
                                     pass
                                 else:
-                                    obj_diff = cosine(obj.vector, matched_obj.vector)
-
-                                    if (obj_diff<self.config['obj_compare_threshold']):
-                                        pass
-                                    else:
-                                        self.svocomp_mem[(svo, matched_svo)] = True
-                                        self.svocomp_mem[(matched_svo, svo)] = True
-                                        return key
-
-                                self.svocomp_mem[(svo, matched_svo)] = False
-                                self.svocomp_mem[(matched_svo, svo)] = False
+                                    return key
 
             return None
 
