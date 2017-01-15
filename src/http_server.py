@@ -103,19 +103,27 @@ class StreamClient():
                 else:
                     pass
 
+        pp('handling cpanel request...')
+        pp(request)
         self.request_sock.send(json.dumps(request))
+        pp('handle_cpanel request done.')
 
         output = []
         if src == 'twitch':
             output = self.twitch_streams.keys()
         elif src == 'twitter':
             output = self.twitter_streams.keys()
+
+        pp('returning output')
+        pp(output)
         return json.dumps(output)
 
     def request_stream(self, stream, src):
         request = {}
         request[src] = {'add':[stream]}
 
+        pp('requesting stream...')
+        pp(request)
         self.request_sock.send(json.dumps(request))
 
     def get_agg_streams(self, args):
@@ -147,7 +155,15 @@ class StreamClient():
                     if keyword.lower() in msg.lower():
                         del output[msg]
 
-        return json.dumps(output)
+        try:
+            jsonoutput = json.dumps(output)
+        except Exception, e:
+            pp('json dump output in get_agg_streams failed!')
+            pp(output)
+            pp('//////end json dump output failed/////')
+            jsonoutput = json.dumps({})
+
+        return jsonoutput
 
     def get_featured(self, src, args):
         output = []
@@ -161,7 +177,15 @@ class StreamClient():
             limit = int(args['limit'][0])
             output = output[0:limit]
 
-        return json.dumps(output)
+        try:
+            jsonoutput = json.dumps(output)
+        except Exception, e:
+            pp('json dump output in get_featured failed!')
+            pp(output)
+            pp('//////end json dump output failed/////')
+            jsonoutput = json.dumps({})
+
+        return jsonoutput
 
     def recv_data(self):
         sock = self.data_sock
@@ -184,6 +208,13 @@ class StreamClient():
                         total_data[-2]=last_pair[:last_pair.find(config['end_of_data'])]
                         total_data.pop()
                         break
+
+            try:
+                jsondata = json.loads(''.join(total_data))
+            except Exception, e:
+                pp('json load input in recv_data failed!')
+                pp(total_data)
+                pp('//////end json load output failed/////')
 
             jsondata = json.loads(''.join(total_data))
             self.twitch_streams = jsondata['twitch_streams']
