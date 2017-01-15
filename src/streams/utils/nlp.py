@@ -14,7 +14,7 @@ class nlpParser:
         self.SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
         self.OBJECTS = ["dobj", "dative", "attr", "oprd"]
         self.parser = spacy.load('en')
-        self.parser.vocab.strings.set_frozen(True)
+        #self.parser.vocab.strings.set_frozen(True)
         pp('Initialized nlpParser.')
 
     def parse_text(self,text):
