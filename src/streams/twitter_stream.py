@@ -204,6 +204,7 @@ class TwitterStream:
 
         if (len(self.svomap)>1000):
             self.svomap = {}
+            self.nlp_parser.vocab.strings.flush_oov()
 
         #cleanup RT
         if msg[:4] == 'RT @':

@@ -99,19 +99,28 @@ class StreamServer():
         return pickle.dumps(output)
 
     def get_twitter_featured(self):
-        trends = self.twit.hose_api.trends_place(1)
-        output = [{'stream':x['name'],'description':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
-        sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
+        try:
+            trends = self.twit.hose_api.trends_place(1)
+            output = [{'stream':x['name'],'description':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
+            sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
 
-        self.twitter_featured = sorted_output
+            self.twitter_featured = sorted_output
+        except Exception, e:
+            pp('Get Twitter featured failed!!!')
+            pp(e)
 
     def get_twitch_featured(self):
         headers = {'Accept':'application/vnd.twitchtv.v3+json', 'Client-ID':self.config['twitch_client_id']}
-        r = requests.get('https://api.twitch.tv/kraken/streams/featured', headers = headers)
-        output = [{'stream':x['stream']['channel']['name'], 'image': x['stream']['preview']['medium'], 'description': x['title'], 'count': x['stream']['viewers']} for x in (json.loads(r.content))['featured']]
-        sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
+        try:
+            r = requests.get('https://api.twitch.tv/kraken/streams/featured', headers = headers)
+            output = [{'stream':x['stream']['channel']['name'], 'image': x['stream']['preview']['medium'], 'description': x['title'], 'count': x['stream']['viewers']} for x in (json.loads(r.content))['featured']]
+            sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
 
-        self.twitch_featured = sorted_output
+            self.twitch_featured = sorted_output
+        except Exception, e:
+            pp('Get Twitch featured failed!!!')
+            pp(e)
+        
 
     def refresh_featured(self):
         self.refresh_loop = True

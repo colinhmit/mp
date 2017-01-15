@@ -4,7 +4,7 @@ Created on Wed Aug 24 18:55:12 2016
 
 @author: colinh
 """
-from spacy.en import English
+import spacy
 from functions_general import *
 
 class nlpParser:
@@ -13,7 +13,8 @@ class nlpParser:
         pp('Initializing nlpParser...')
         self.SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
         self.OBJECTS = ["dobj", "dative", "attr", "oprd"]
-        self.parser = English()
+        self.parser = spacy.load('en')
+        self.parser.vocab.strings.set_frozen(True)
         pp('Initialized nlpParser.')
 
     def parse_text(self,text):
