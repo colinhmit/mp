@@ -13,6 +13,7 @@ import json
 import time
 import requests
 import re
+import pickle
 
 logging.basicConfig()
 
@@ -84,13 +85,13 @@ class StreamClient():
         request[src] = {}
 
         if 'add' in args:
-            request[src]['add'] = args['add'][0].split(',')
+            request[src]['add'] = [x.lower() for x in args['add'][0].split(',')]
 
         if 'delete' in args:
-            request[src]['delete'] = args['delete'][0].split(',')
+            request[src]['delete'] = [x.lower() for x in args['delete'][0].split(',')]
         
         if 'target_add' in args:
-            request[src]['target_add'] = args['target_add'][0].split(',')
+            request[src]['target_add'] = [x.lower() for x in args['target_add'][0].split(',')]
 
         if 'action' in args:
             for action in args['action'][0].split(','):
@@ -131,7 +132,7 @@ class StreamClient():
         trend_dicts = []
 
         if ('twitch' in args) and (len(args['twitch'][0])>0):
-            for stream_id in args['twitch'][0].split(','):
+            for stream_id in [x.lower() for x in args['twitch'][0].split(',')]:
                 if stream_id not in self.twitch_streams:
                     self.twitch_streams[stream_id] = {}
                     self.request_stream(stream_id,'twitch')
@@ -139,7 +140,7 @@ class StreamClient():
                 trend_dicts.append(self.twitch_streams[stream_id])
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
-            for stream_id in args['twitter'][0].split(','):
+            for stream_id in [x.lower() for x in args['twitter'][0].split(',')]:
                 if stream_id not in self.twitter_streams:
                     self.twitter_streams[stream_id] = {}
                     self.request_stream(stream_id,'twitter')
@@ -193,35 +194,27 @@ class StreamClient():
         self.recv = True
 
         while self.recv:
-            total_data=[];data=''
-            
-            while True:
-                data = sock.recv(config['socket_buffer_size']).rstrip()
-                if config['end_of_data'] in data:
-                    total_data.append(data[:data.find(config['end_of_data'])])
-                    break
-                total_data.append(data)
-                if len(total_data)>1:
-                    #check if end_of_data was split
-                    last_pair=total_data[-2]+total_data[-1]
-                    if config['end_of_data'] in last_pair:
-                        total_data[-2]=last_pair[:last_pair.find(config['end_of_data'])]
-                        total_data.pop()
-                        break
+
+            inc_pickle_data = ""
+            inc_data_len = sock.recv(config['socket_buffer_size']).rstrip()
+            for i in range(0,int(int(inc_data_len)/config['socket_send_size'])+1):
+                inc_data = sock.recv(config['socket_buffer_size']).rstrip()
+                inc_pickle_data += inc_data
 
             try:
-                jsondata = json.loads(''.join(total_data))
+                pickle_data = pickle.loads(inc_pickle_data)
             except Exception, e:
                 pp('json load input in recv_data failed!')
-                pp(total_data)
+                pp('expected inc_data_len:'+inc_data_len)
+                pp('actual received :' + str(len(inc_pickle_data)))
                 pp('//////end json load output failed/////')
 
-            jsondata = json.loads(''.join(total_data))
-            self.twitch_streams = jsondata['twitch_streams']
-            self.twitter_streams = jsondata['twitter_streams']
+            pickle_data = pickle.loads(inc_pickle_data)
+            self.twitch_streams = pickle_data['twitch_streams']
+            self.twitter_streams = pickle_data['twitter_streams']
 
-            self.twitch_featured = jsondata['twitch_featured']
-            self.twitter_featured = jsondata['twitter_featured']
+            self.twitch_featured = pickle_data['twitch_featured']
+            self.twitter_featured = pickle_data['twitter_featured']
 
     def run(self):
         pp('Initializing Web Server...')

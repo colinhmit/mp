@@ -139,6 +139,7 @@ server_config = {
 
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096,
+	'socket_send_size': 4000,
  
     'end_of_data': '//data_sent//'
 }
@@ -166,6 +167,7 @@ client_config = {
 
     # maximum amount of bytes to receive from socket - 1024-4096 recommended
     'socket_buffer_size': 4096,
+    'socket_send_size': 4000,
  
       'end_of_data': '//data_sent//',
       

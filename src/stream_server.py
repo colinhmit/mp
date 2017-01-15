@@ -14,6 +14,7 @@ import time
 import requests
 import re
 import copy
+import pickle
 
 logging.basicConfig()
 
@@ -94,7 +95,7 @@ class StreamServer():
 
         output['twitter_featured'] = self.twitter_featured
         output['twitch_featured'] = self.twitch_featured
-        return json.dumps(output)
+        return pickle.dumps(output)
 
     def get_twitter_featured(self):
         trends = self.twit.hose_api.trends_place(1)
@@ -156,13 +157,23 @@ class StreamServer():
             time.sleep(0.17)
 
     def send_data(self, client_sock, client_address):
-        config = self.config
         pp('Now broadcasting...')
         self.broadcast = True
 
         while self.broadcast:
-            json_data = self.get_stream_data()
-            client_sock.sendall(json_data + config['end_of_data'])
+            pickle_data = self.get_stream_data()
+            pickle_data_len = len(pickle_data)
+            client_sock.send(str(pickle_data_len))
+            i = 0
+            j = self.config['socket_send_size']
+            while(i<pickle_data_len):
+                if j>(pickle_data_len-1):
+                    j=pickle_data_len
+                ###send pickle chunks
+                client_sock.send(pickle_data[i:j])
+                i += self.config['socket_send_size']
+                j += self.config['socket_send_size']
+
             time.sleep(0.17)
 
     def handle_http(self, client_sock, client_address):
