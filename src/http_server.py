@@ -9,6 +9,7 @@ import socket
 import threading
 import logging
 import sys
+import struct
 import json
 import time
 import requests
@@ -188,24 +189,32 @@ class StreamClient():
 
         return jsonoutput
 
-    def recv_data(self):
+    def recv_helper(self, bytes):
         sock = self.data_sock
+        data = ''
+        while len(data) < bytes:
+            packet = sock.recv(bytes - len(data))
+            if not packet:
+                return None
+            data += packet
+        return data
+
+    def recv_data(self):
         config = self.config
         self.recv = True
 
         while self.recv:
 
-            inc_pickle_data = ""
-            inc_data_len = sock.recv(config['socket_buffer_size']).rstrip()
-            for i in range(0,int(int(inc_data_len)/config['socket_send_size'])+1):
-                inc_data = sock.recv(config['socket_buffer_size']).rstrip()
-                inc_pickle_data += inc_data
+            raw_len = self.recv_helper(4)
+            msg_len = struct.unpack('>I', raw_len)[0]
+            # Read the message data
+            inc_pickle_data = self.recv_helper(msg_len)
 
             try:
                 pickle_data = pickle.loads(inc_pickle_data)
             except Exception, e:
                 pp('json load input in recv_data failed!')
-                pp('expected inc_data_len:'+inc_data_len)
+                pp('expected inc_data_len:'+raw_len)
                 pp('actual received :' + str(len(inc_pickle_data)))
                 pp('//////end json load output failed/////')
 

@@ -8,6 +8,7 @@ Created on Wed Aug 24 19:22:30 2016
 import socket
 import threading
 import logging
+import struct
 import sys
 import json
 import time
@@ -162,17 +163,8 @@ class StreamServer():
 
         while self.broadcast:
             pickle_data = self.get_stream_data()
-            pickle_data_len = len(pickle_data)
-            client_sock.send(str(pickle_data_len))
-            i = 0
-            j = self.config['socket_send_size']
-            while(i<pickle_data_len):
-                if j>(pickle_data_len-1):
-                    j=pickle_data_len
-                ###send pickle chunks
-                client_sock.send(pickle_data[i:j])
-                i += self.config['socket_send_size']
-                j += self.config['socket_send_size']
+            pickle_data = struct.pack('>I', len(pickle_data)) + pickle_data
+            client_sock.sendall(pickle_data)
 
             time.sleep(0.17)
 
