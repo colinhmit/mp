@@ -58,6 +58,10 @@ class StreamServer():
         data_sock.listen(self.config['listeners'])
         self.data_sock = data_sock
 
+        self.sess = requests.Session()
+        adapter = requests.adapters.HTTPAdapter(max_retries=10000000)
+        self.sess.mount('https://api.twitch.tv', adapter)
+
     #stream control
     def create_stream(self, stream, src):
         threading.Thread(target=self.add_stream, args=(stream,src)).start()
@@ -112,7 +116,7 @@ class StreamServer():
     def get_twitch_featured(self):
         headers = {'Accept':'application/vnd.twitchtv.v3+json', 'Client-ID':self.config['twitch_client_id']}
         try:
-            r = requests.get('https://api.twitch.tv/kraken/streams/featured', headers = headers)
+            r = self.sess.get('https://api.twitch.tv/kraken/streams/featured', headers = headers)
             output = [{'stream':x['stream']['channel']['name'], 'image': x['stream']['preview']['medium'], 'description': x['title'], 'count': x['stream']['viewers']} for x in (json.loads(r.content))['featured']]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
 
