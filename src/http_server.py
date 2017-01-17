@@ -69,6 +69,10 @@ class StreamClient():
         self.twitch_featured = []
         self.twitter_featured = []
 
+        #CJK regex
+        self.pattern = re.compile('[^\w\s\'\"!.,$&?:;_-]+')
+
+
     def init_sockets(self):
         config = self.config
 
@@ -86,13 +90,13 @@ class StreamClient():
         request[src] = {}
 
         if 'add' in args:
-            request[src]['add'] = [x.lower() for x in args['add'][0].split(',')]
+            request[src]['add'] = [self.pattern.sub('',x).lower() for x in args['add'][0].split(',')]
 
         if 'delete' in args:
-            request[src]['delete'] = [x.lower() for x in args['delete'][0].split(',')]
-        
+            request[src]['delete'] = [self.pattern.sub('',x).lower() for x in args['delete'][0].split(',')]
+
         if 'target_add' in args:
-            request[src]['target_add'] = [x.lower() for x in args['target_add'][0].split(',')]
+            request[src]['target_add'] = [self.pattern.sub('',x).lower() for x in args['target_add'][0].split(',')]
 
         if 'action' in args:
             for action in args['action'][0].split(','):
@@ -133,7 +137,7 @@ class StreamClient():
         trend_dicts = []
 
         if ('twitch' in args) and (len(args['twitch'][0])>0):
-            for stream_id in [x.lower() for x in args['twitch'][0].split(',')]:
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
                 if stream_id not in self.twitch_streams:
                     self.twitch_streams[stream_id] = {}
                     self.request_stream(stream_id,'twitch')
@@ -141,7 +145,7 @@ class StreamClient():
                 trend_dicts.append(self.twitch_streams[stream_id])
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
-            for stream_id in [x.lower() for x in args['twitter'][0].split(',')]:
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
                 if stream_id not in self.twitter_streams:
                     self.twitter_streams[stream_id] = {}
                     self.request_stream(stream_id,'twitter')

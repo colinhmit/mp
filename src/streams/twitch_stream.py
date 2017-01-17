@@ -30,7 +30,7 @@ class TwitchStream:
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
-            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url': msg_v['media_url'] } for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url': '','mp4_url':''} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
 
     def filter_trending(self):
         if len(self.trending)>0:
@@ -72,7 +72,6 @@ class TwitchStream:
                         'score': (self.trending[matched_msg]['score'] * self.trending[matched_msg]['msgs'][submatched_msg] / sum(self.trending[matched_msg]['msgs'].values())) + self.config['matched_add_base'], 
                         'last_mtch_time': msgtime,
                         'first_rcv_time': msgtime,
-                        'media_url': self.trending[matched_msg]['media_url'],
                         'users' : [user],
                         'msgs' : dict(self.trending[matched_msg]['msgs']),
                         'visible' : 1
@@ -86,7 +85,7 @@ class TwitchStream:
                     self.trending[matched_msg]['last_mtch_time'] = msgtime
                     self.trending[matched_msg]['users'].append(user)
 
-    def handle_new(self, msg, msgtime, user, media):
+    def handle_new(self, msg, msgtime, user):
         if len(msg) > 0:
             if self.config['debug']:
                 pp("??? "+msg+" ???")
@@ -94,7 +93,6 @@ class TwitchStream:
                 'score':  self.config['matched_init_base'],
                 'last_mtch_time': msgtime,
                 'first_rcv_time': msgtime,
-                'media_url': media,
                 'users' : [user],
                 'msgs' : {msg: 1.0},
                 'visible' : 0
@@ -142,13 +140,12 @@ class TwitchStream:
     def process_message(self, msgdata, msgtime):
         msg = msgdata['message']
         user = msgdata['username']
-        media = ''
 
         if len(self.trending)>0:
             matched_msg = self.get_match(msg)
 
             if matched_msg is None:
-                self.handle_new(msg, msgtime, user, media)
+                self.handle_new(msg, msgtime, user)
 
             else:
                 self.handle_match(matched_msg, msg, msgtime, user)
@@ -156,7 +153,7 @@ class TwitchStream:
         else:
             if self.config['debug']:
                     pp("Init trending")
-            self.handle_new(msg, msgtime, user, media)
+            self.handle_new(msg, msgtime, user)
 
         self.decay(msg, msgtime)
     

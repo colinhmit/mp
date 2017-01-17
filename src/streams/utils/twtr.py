@@ -27,38 +27,7 @@ class StdOutListener(StreamListener):
 		self.queue = queue
 
 	def on_data(self, data):
-		jsondata = json.loads(data)
-		if 'retweeted_status' in jsondata:
-			if 'text' in jsondata['retweeted_status']:
-				if 'media' in jsondata['retweeted_status']['entities']:
-					##pp(jsondata['extended_entities']['media'][0]['media_url'])
-					msg = {
-						'username': jsondata['user']['name'],
-						'message': jsondata['retweeted_status']['text'],
-						'media_url': jsondata['retweeted_status']['entities']['media'][0]['media_url']
-						}
-				else:
-					msg = {
-						'username': jsondata['user']['name'],
-						'message': jsondata['retweeted_status']['text'],
-						'media_url': ''
-						}
-				self.queue.put(msg)
-		elif 'text' in jsondata:
-			if 'media' in jsondata['entities']:
-				#pp(jsondata['extended_entities']['media'][0]['media_url'])
-				msg = {
-					'username': jsondata['user']['name'],
-					'message': jsondata['text'],
-					'media_url': jsondata['entities']['media'][0]['media_url']
-					}
-			else:
-				msg = {
-					'username': jsondata['user']['name'],
-					'message': jsondata['text'],
-					'media_url': ''
-					}
-			self.queue.put(msg)
+		self.queue.put(data)
 		return True
 
 	def on_error(self, status):
@@ -75,16 +44,82 @@ class twtr:
 		self.streams = {}
 		self.target_streams = []
 
-		self.streams['chrendin'] = Queue.Queue()
-		self.target_streams = ['chrendin']
+		self.streams['trump'] = Queue.Queue()
+		self.target_streams = ['trump']
 
 		self.distribute_thread = threading.Thread(target = self.distribute).start()
 		self.set_twtr_stream_object()
 
 	def distribute(self):
-		for msg in iter(self.input_queue.get, 'STOP'):
-			for key in self.streams.keys():
-				self.streams[key].put(msg)
+		for data in iter(self.input_queue.get, 'STOP'):
+			jsondata = json.loads(data)
+			msg = {}
+			if 'retweeted_status' in jsondata:
+				if 'text' in jsondata['retweeted_status']:
+					if 'media' in jsondata['retweeted_status']['entities']:
+						if 'extended_entities' in jsondata:
+							if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
+								msg = {
+									'username': jsondata['user']['name'],
+									'message': jsondata['retweeted_status']['text'],
+									'media_url': '',
+									'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url']
+									}
+							else:
+								msg = {
+									'username': jsondata['user']['name'],
+									'message': jsondata['retweeted_status']['text'],
+									'media_url': jsondata['retweeted_status']['entities']['media'][0]['media_url'],
+									'mp4_url': ''
+									}
+						else:								
+							msg = {
+								'username': jsondata['user']['name'],
+								'message': jsondata['retweeted_status']['text'],
+								'media_url': jsondata['retweeted_status']['entities']['media'][0]['media_url'],
+								'mp4_url': ''
+								}
+					else:
+						msg = {
+							'username': jsondata['user']['name'],
+							'message': jsondata['retweeted_status']['text'],
+							'media_url': '',
+							'mp4_url': ''
+							}
+			elif 'text' in jsondata:
+				if 'media' in jsondata['entities']:
+					if 'extended_entities' in jsondata:
+						if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
+							msg = {
+								'username': jsondata['user']['name'],
+								'message': jsondata['text'],
+								'media_url': '',
+								'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url']
+								}
+						else:
+							msg = {
+								'username': jsondata['user']['name'],
+								'message': jsondata['text'],
+								'media_url': jsondata['entities']['media'][0]['media_url'],
+								'mp4_url': ''
+								}
+					else:
+						msg = {
+							'username': jsondata['user']['name'],
+							'message': jsondata['text'],
+							'media_url': jsondata['entities']['media'][0]['media_url'],
+							'mp4_url': ''
+							}
+				else:
+					msg = {
+						'username': jsondata['user']['name'],
+						'message': jsondata['text'],
+						'media_url': '',
+						'mp4_url': ''
+						}
+			if len(msg) > 0:
+				for key in self.streams.keys():
+					self.streams[key].put(msg)
 			self.input_queue.task_done()
 
 	def set_twtr_stream_object(self):

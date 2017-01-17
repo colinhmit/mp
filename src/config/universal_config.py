@@ -47,36 +47,36 @@ global twitter_config
 
 twitter_config = {
 	
-	# # details required to login to twitter stream API
- #    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-	# 'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+	# # HOSE API
+    'hose_consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+	'hose_consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
 
-	# 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-	# 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+	'hose_access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+	'hose_access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
-	# # #FALL BACK TWITTER API
-    'hose_consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
-	'hose_consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
-
-	'hose_access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
-	'hose_access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
-
-	# #2nd FALL BACK TWITTER API
+	# # #TARGET TWITTER API
     'target_consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
 	'target_consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
 
 	'target_access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
 	'target_access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
-	# #3rd FALL BACK TWITTER API
-	# 'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
-	# 'consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
+	# # #FALL BACK TWITTER API
+ #    'hose_consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
+	# 'hose_consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
 
-	# 'access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
-	# 'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
+	# 'hose_access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
+	# 'hose_access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
+
+	# #OTHER FALL BACK TWITTER API
+	# 'target_consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
+	# 'target_consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
+
+	# 'target_access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
+	# 'target_access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
 	#Target stream allowed channels
-	'target_streams': ['trump','chrendin'],
+	'target_streams': ['trump'],
 
 	# if set to true will display any data received
 	'debug': False,
@@ -152,10 +152,12 @@ client_config = {
     'port': 80,
 
     # details required to host the server
-    'request_host': '35.166.70.54',
+    'request_host': '35.160.61.218',
+    #'request_host': '127.0.0.1',
     'request_port': 8008,
 
-    'data_host': '35.166.70.54',
+    'data_host': '35.160.61.218',
+    #'data_host': '127.0.0.1',
     'data_port': 8007,
 
     # if set to true will display any data received

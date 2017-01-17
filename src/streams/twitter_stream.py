@@ -45,7 +45,7 @@ class TwitterStream:
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
-            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'] } for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
 
     def filter_trending(self):
         if len(self.trending)>0:
@@ -58,7 +58,7 @@ class TwitterStream:
                 except Exception, e:
                     pp(e)
 
-    def handle_match(self, matched_msg, msg, msgtime, user):
+    def handle_match(self, matched_msg, msg, msgtime, user, media, mp4, svos):
         if user in self.trending[matched_msg]['users']:
             if self.config['debug']:
                 pp("&&& DUPLICATE"+matched_msg+" + "+msg+" &&&")
@@ -87,8 +87,9 @@ class TwitterStream:
                         'score': (self.trending[matched_msg]['score'] * self.trending[matched_msg]['msgs'][submatched_msg] / sum(self.trending[matched_msg]['msgs'].values())) + self.config['matched_add_base'], 
                         'last_mtch_time': msgtime,
                         'first_rcv_time': msgtime,
-                        'media_url': self.trending[matched_msg]['media_url'],
-                        'svos': self.trending[matched_msg]['svos'],
+                        'media_url': media,
+                        'mp4_url': mp4,
+                        'svos': svos,
                         'users' : [user],
                         'msgs' : dict(self.trending[matched_msg]['msgs']),
                         'visible' : 1
@@ -102,7 +103,7 @@ class TwitterStream:
                     self.trending[matched_msg]['last_mtch_time'] = msgtime
                     self.trending[matched_msg]['users'].append(user)
 
-    def handle_new(self, msg, msgtime, user, media, svos):
+    def handle_new(self, msg, msgtime, user, media, mp4, svos):
         if len(msg) > 0:
             if self.config['debug']:
                 pp("??? "+msg+" ???")
@@ -111,6 +112,7 @@ class TwitterStream:
                 'last_mtch_time': msgtime,
                 'first_rcv_time': msgtime,
                 'media_url': media,
+                'mp4_url': mp4,
                 'svos': svos,
                 'users' : [user],
                 'msgs' : {msg: 1.0},
@@ -186,12 +188,14 @@ class TwitterStream:
     def clean_message(self, msg):
         clean_msg = re.sub(r"http\S+", "", msg)
         clean_msg = re.sub(r"[#@]", "", clean_msg)
+        clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
         return clean_msg
 
     def process_message(self, msgdata, msgtime):
         msg = msgdata['message']
         user = msgdata['username']
         media = msgdata['media_url']
+        mp4 = msgdata['mp4_url']
         hashid = hash(msg)
 
         if hashid in self.svomap.keys():
@@ -199,12 +203,15 @@ class TwitterStream:
 
         else:
             clean_msg = self.clean_message(msg)
-            svos = self.nlp_parser.parse_text(clean_msg)
+            try:
+                svos = self.nlp_parser.parse_text(clean_msg)
+            except Exception, e:
+                svos = []
             self.svomap[hashid] = svos, clean_msg
 
         if (len(self.svomap)>1000):
             self.svomap = {}
-            #self.nlp_parser.vocab.strings.flush_oov()
+            self.nlp_parser.vocab.strings.flush_oov()
 
         #cleanup RT
         if msg[:4] == 'RT @':
@@ -214,15 +221,15 @@ class TwitterStream:
             matched_msg = self.get_match(msg, svos)
 
             if matched_msg is None:
-                self.handle_new(msg, msgtime, user, media, svos)
+                self.handle_new(msg, msgtime, user, media, mp4, svos)
 
             else:
-                self.handle_match(matched_msg, msg, msgtime, user)
+                self.handle_match(matched_msg, msg, msgtime, user, media, mp4, svos)
 
         else:
             if self.config['debug']:
                     pp("Init trending")
-            self.handle_new(msg, msgtime, user, media, svos)
+            self.handle_new(msg, msgtime, user, media, mp4, svos)
 
         self.decay(msg, msgtime)
 
