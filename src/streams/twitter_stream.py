@@ -123,32 +123,38 @@ class TwitterStream:
         matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
         if (len(matched) == 0):
-            for svo in svos:
-                subj, verb, obj, neg = svo
+            try:
+                for svo in svos:
+                    subj, verb, obj, neg = svo
 
-                for key in self.trending.keys():
-                    match_subj = fweo_threshold(subj.lower_, [x[0].lower_ for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
+                    for key in self.trending.keys():
+                        match_subj = fweo_threshold(subj.lower_, [x[0].lower_ for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
 
-                    if match_subj is None:
-                        pass
-                    else:
-                        matched_svos = [x for x in self.trending[key]['svos'] if x[0].lower_==match_subj[0]]
+                        if match_subj is None:
+                            pass
+                        else:
+                            matched_svos = [x for x in self.trending[key]['svos'] if x[0].lower_==match_subj[0]]
 
-                        for matched_svo in matched_svos:
+                            for matched_svo in matched_svos:
 
-                            matched_subj, matched_verb, matched_obj, matched_neg = matched_svo
+                                matched_subj, matched_verb, matched_obj, matched_neg = matched_svo
 
-                            verb_diff = cosine(verb.vector, matched_verb.vector)
+                                verb_diff = cosine(verb.vector, matched_verb.vector)
 
-                            if (verb_diff<self.config['verb_compare_threshold']) or (neg != matched_neg):
-                                pass
-                            else:
-                                obj_diff = cosine(obj.vector, matched_obj.vector)
-
-                                if (obj_diff<self.config['obj_compare_threshold']):
+                                if (verb_diff<self.config['verb_compare_threshold']) or (neg != matched_neg):
                                     pass
                                 else:
-                                    return key
+                                    obj_diff = cosine(obj.vector, matched_obj.vector)
+
+                                    if (obj_diff<self.config['obj_compare_threshold']):
+                                        pass
+                                    else:
+                                        return key
+            except Exception, e:
+                pp('Twitter SVO Matching Failed!')
+                pp(e)
+                pp(msg)
+                pp(svos)
 
             return None
 
@@ -218,7 +224,14 @@ class TwitterStream:
             msg = msg[msg.find(':')+1:]
 
         if len(self.trending)>0:
-            matched_msg = self.get_match(msg, svos)
+
+            try:
+                matched_msg = self.get_match(msg, svos)
+            except Exception, e:
+                pp('Twitter matching failed!')
+                pp(e)
+                pp(msg)
+                matched_msg = None
 
             if matched_msg is None:
                 self.handle_new(msg, msgtime, user, media, mp4, svos)

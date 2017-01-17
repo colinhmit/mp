@@ -142,7 +142,14 @@ class TwitchStream:
         user = msgdata['username']
 
         if len(self.trending)>0:
-            matched_msg = self.get_match(msg)
+
+            try:
+                matched_msg = self.get_match(msg)
+            except Exception, e:
+                pp('Twitch matching failed!')
+                pp(e)
+                pp(msg)
+                matched_msg = None
 
             if matched_msg is None:
                 self.handle_new(msg, msgtime, user)
