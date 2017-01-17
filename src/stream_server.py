@@ -197,12 +197,12 @@ class StreamServer():
                 if 'twitch' in jsondata:
                     if 'add' in jsondata['twitch']:
                         for stream in jsondata['twitch']['add']:
-                            if stream not in self.twitch_streams & len(stream)>0:
+                            if stream not in self.twitch_streams:
                                 self.create_stream(stream, 'twitch')
 
                     if 'delete' in jsondata['twitch']:
                         for stream in jsondata['twitch']['delete']:
-                            if stream in self.twitch_streams & len(stream)>0:
+                            if stream in self.twitch_streams:
                                 self.delete_stream(stream, 'twitch')
 
                     if 'reset' in jsondata['twitch']:
@@ -213,17 +213,17 @@ class StreamServer():
                 if 'twitter' in jsondata:
                     if 'add' in jsondata['twitter']:
                         for stream in jsondata['twitter']['add']:
-                            if stream not in self.twitter_streams & len(stream)>0:
+                            if stream not in self.twitter_streams:
                                 self.create_stream(stream, 'twitter')
 
                     if 'delete' in jsondata['twitter']:
                         for stream in jsondata['twitter']['delete']:
-                            if stream in self.twitter_streams & len(stream)>0:
+                            if stream in self.twitter_streams:
                                 self.delete_stream(stream, 'twitter')
 
                     if 'target_add' in jsondata['twitter']:
                         for stream in jsondata['twitter']['target_add']:
-                            if stream not in self.twitter_streams & len(stream)>0:
+                            if stream not in self.twitter_streams:
                                 twitter_config['target_streams'].append(stream)
                                 self.create_stream(stream, 'twitter')
 

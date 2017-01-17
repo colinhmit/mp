@@ -21,6 +21,9 @@ class nlpParser:
         parsed_text = self.parser(unicode(text))
         return self.findSVOs(parsed_text)
 
+    def flush(self):
+        self.parser.vocab.strings.flush_oov()
+
     #SVO Methodology
     def getSubsFromConjunctions(self,subs):
         moreSubs = []
