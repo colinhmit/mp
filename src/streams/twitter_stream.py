@@ -224,7 +224,6 @@ class TwitterStream:
             msg = msg[msg.find(':')+1:]
 
         if len(self.trending)>0:
-
             try:
                 matched_msg = self.get_match(msg, svos)
             except Exception, e:
@@ -238,7 +237,6 @@ class TwitterStream:
 
             else:
                 self.handle_match(matched_msg, msg, msgtime, user, media, mp4, svos)
-
         else:
             if self.config['debug']:
                     pp("Init trending")
@@ -252,7 +250,6 @@ class TwitterStream:
         
         while not self.kill:
             msg = pipe.get()
-            pp(self.stream.lower() + ": " + str(pipe.qsize()))
             if len(msg) == 0:
                 pp('Connection was lost...')
             if self.stream.lower() in msg['message'].lower():

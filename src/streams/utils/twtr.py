@@ -138,8 +138,6 @@ class twtr:
 		self.target_api = API(self.target_auth)
 		self.target_stream = Stream(self.target_auth, self.target_l)
 
-		#self.target_conn = multiprocessing.Process(target=self.target_stream_connection)
-		#self.target_conn.start()
 		self.hose_conn = threading.Thread(target=self.hose_stream_connection)
 		self.hose_conn.start()
 		self.target_conn = threading.Thread(target=self.target_stream_connection)
