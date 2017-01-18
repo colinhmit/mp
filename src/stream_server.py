@@ -4,7 +4,7 @@ Created on Wed Aug 24 19:22:30 2016
 
 @author: colinh
 """
-
+import gc
 import socket
 import threading
 import logging
@@ -259,7 +259,12 @@ class StreamServer():
             pp(('Broadcast Connection initiated by: ' + str(client_address)))
             threading.Thread(target = self.send_data, args = (client_sock,client_address)).start()
 
+    def garbage_cleanup(self):
+        gc.collect()
+        time.sleep(10)
+
 if __name__ == '__main__':
+    gc.enable()
     #init
     server = StreamServer(server_config)
     #twitch helpers
@@ -270,8 +275,8 @@ if __name__ == '__main__':
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
     refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
-    #server.get_twitch_featured()
-    #server.get_twitter_featured()
     #serve
     listen_thread = threading.Thread(target = server.listen).start()
     broadcast_thread = threading.Thread(target = server.broadcast).start()
+    #cleanup thread
+    garbage_thread = threading.Thread(target = server.garbage_cleanup).start()
