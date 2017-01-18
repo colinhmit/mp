@@ -40,9 +40,8 @@ class twtr:
 	def __init__(self, config):
 		self.config = config
 		self.kill = False
-		self.input_queue = Queue.Queue()
+		self.input_queue = multiprocessing.Queue()
 		self.streams = {}
-		self.target_streams = []
 
 		self.streams['trump'] = Queue.Queue()
 		self.target_streams = ['trump']

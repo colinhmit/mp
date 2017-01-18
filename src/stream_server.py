@@ -39,8 +39,9 @@ class StreamServer():
         self.twitter_featured = []
 
         #init twitter
-        self.twit = twtr_.twtr(twitter_config)
         self.nlp_parser = nlpParser()
+        self.twit = twtr_.twtr(twitter_config)
+        
 
     def init_sockets(self):
         request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
