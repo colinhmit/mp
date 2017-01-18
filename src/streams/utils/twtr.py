@@ -40,14 +40,16 @@ class twtr:
 	def __init__(self, config):
 		self.config = config
 		self.kill = False
-		self.input_queue = multiprocessing.JoinableQueue()
+		self.input_queue = Queue.Queue()
 		self.streams = {}
 		self.target_streams = []
 
 		self.streams['trump'] = Queue.Queue()
 		self.target_streams = ['trump']
 
-		self.distribute_thread = threading.Thread(target = self.distribute).start()
+		for _ in xrange(self.config['num_dist_threads']):
+			threading.Thread(target = self.distribute).start()
+
 		self.set_twtr_stream_object()
 
 	def distribute(self):
@@ -120,7 +122,6 @@ class twtr:
 			if len(msg) > 0:
 				for key in self.streams.keys():
 					self.streams[key].put(msg)
-			self.input_queue.task_done()
 
 	def set_twtr_stream_object(self):
 		config = self.config

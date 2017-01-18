@@ -235,11 +235,8 @@ class StreamClient():
         resource.stream_client = self
 
         factory = Site(resource)
-        #prod aws
-        reactor.listenTCP(self.config['port'], factory)
 
-        #local testing
-        #reactor.listenTCP(4808, factory)
+        reactor.listenTCP(self.config['port'], factory)
 
         pp('Starting Web Server...')
         reactor.run()

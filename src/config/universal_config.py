@@ -77,6 +77,7 @@ twitter_config = {
 
 	#Target stream allowed channels
 	'target_streams': ['trump'],
+	'num_dist_threads': 100,
 
 	# if set to true will display any data received
 	'debug': False,
@@ -150,6 +151,7 @@ client_config = {
     
     'host': '127.0.0.1',
     'port': 80,
+    #'port': 4808,
 
     # details required to host the server
     'request_host': '35.160.61.218',

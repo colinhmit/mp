@@ -269,6 +269,8 @@ if __name__ == '__main__':
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
     refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
+    #server.get_twitch_featured()
+    #server.get_twitter_featured()
     #serve
     listen_thread = threading.Thread(target = server.listen).start()
     broadcast_thread = threading.Thread(target = server.broadcast).start()
