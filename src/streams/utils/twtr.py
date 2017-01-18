@@ -42,9 +42,10 @@ class twtr:
 		self.kill = False
 		self.input_queue = multiprocessing.Queue()
 		self.streams = {}
+		self.target_streams = ['']
 
-		self.streams['trump'] = Queue.Queue()
-		self.target_streams = ['trump']
+		#self.streams['trump'] = Queue.Queue()
+		#self.target_streams = ['trump']
 
 		for _ in xrange(self.config['num_dist_threads']):
 			threading.Thread(target = self.distribute).start()
@@ -120,6 +121,7 @@ class twtr:
 						}
 			if len(msg) > 0:
 				for key in self.streams.keys():
+					#pp()
 					self.streams[key].put(msg)
 
 	def set_twtr_stream_object(self):
@@ -140,6 +142,7 @@ class twtr:
 		self.target_conn = multiprocessing.Process(target=self.target_stream_connection)
 		self.target_conn.start()
 		self.hose_conn = threading.Thread(target=self.hose_stream_connection).start()
+		#threading.Thread(target=self.target_stream_connection).start()
 
 	def hose_stream_connection(self):
 		while not self.kill:
