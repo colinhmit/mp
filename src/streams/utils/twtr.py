@@ -39,8 +39,7 @@ class StdOutListener(StreamListener):
 class twtr:
 	def __init__(self, config):
 		self.config = config
-		self.kill = False
-		self.input_queue = multiprocessing.Queue()
+		self.input_queue = Queue.Queue()
 		self.streams = {}
 		self.target_streams = ['']
 
@@ -139,70 +138,58 @@ class twtr:
 		self.target_api = API(self.target_auth)
 		self.target_stream = Stream(self.target_auth, self.target_l)
 
-		self.target_conn = multiprocessing.Process(target=self.target_stream_connection)
-		self.target_conn.start()
-		self.hose_conn = threading.Thread(target=self.hose_stream_connection).start()
-		#threading.Thread(target=self.target_stream_connection).start()
+		#self.target_conn = multiprocessing.Process(target=self.target_stream_connection)
+		#self.target_conn.start()
+		self.hose_conn = threading.Thread(target=self.hose_stream_connection)
+		self.hose_conn.start()
+		self.target_conn = threading.Thread(target=self.target_stream_connection)
 
 	def hose_stream_connection(self):
-		while not self.kill:
-			try:
-				pp('Hose Twitter Stream died... reconnecting')
-				self.hose_stream.sample()
-			except:
-				continue
-
-		self.stream.disconnect()
-
+		pp('Connecting to hose stream...')
+		self.hose_stream.sample()
+		
 	def target_stream_connection(self):
-		while not self.kill:
-			try:
-				pp('Target Twitter Stream died... reconnecting')
-				self.target_stream.filter(track=self.target_streams)
-			except:
-				continue
-
-		self.stream.disconnect()
+		pp('Connecting to target stream...')
+		self.target_stream.filter(track=self.target_streams)
 
 	def get_twtr_stream_object(self, stream):
 		return self.streams[stream]
 
 	def refresh_streams(self):
 		pp('Refreshing streams...')
-		self.kill = True
-		self.kill = False
+		self.target_stream.disconnect()
 		self.hose_stream.disconnect()
-		if self.target_conn.is_alive():
-			pp('Terminating old connection.')
-			self.target_conn.terminate()
-			self.target_stream.disconnect()
+		
+		self.target_conn = threading.Thread(target=self.target_stream_connection)
 		if len(self.target_streams)>0:
-			self.target_conn = multiprocessing.Process(target=self.target_stream_connection)
 			self.target_conn.start()
-		self.hose_conn = threading.Thread(target=self.hose_stream_connection).start()
+		self.hose_conn = threading.Thread(target=self.hose_stream_connection)
+		self.hose_conn.start()
 		pp('Refreshed streams.')
 
 	def reset_streams(self):
 		pp('Resetting streams...')
 		self.streams = {}
 		self.target_streams = []
-		if self.target_conn.is_alive():
-			pp('Terminating old connection.')
-			self.target_conn.terminate()
-			self.target_stream.disconnect()
+		pp('Terminating old connection.')
+		self.target_stream.disconnect()
+		self.hose_stream.disconnect()
+
+		self.target_conn = threading.Thread(target=self.target_stream_connection)
+		if len(self.target_streams)>0:
+			self.target_conn.start()
+		self.hose_conn = threading.Thread(target=self.hose_stream_connection)
+		self.hose_conn.start()
 		pp('Reset streams.')
 
 	def join_stream(self, stream, target):
 		if not stream in self.streams:
 			pp('Joining stream %s' % stream)
 			self.streams[stream] = Queue.Queue()
+			self.target_streams.append(stream)
 			if target:
-				self.target_streams.append(stream)
-				if self.target_conn.is_alive():
-					pp('Terminating old connection.')
-					self.target_conn.terminate()
-					self.target_stream.disconnect()
-				self.target_conn = multiprocessing.Process(target=self.target_stream_connection)
+				self.target_stream.disconnect()
+				self.target_conn = threading.Thread(target=self.target_stream_connection)
 				self.target_conn.start()
 			pp('Joining stream.')
 
@@ -213,12 +200,9 @@ class twtr:
 			pp('Left hose stream.')
 			if stream in self.target_streams:
 				self.target_streams.remove(stream)
-				if self.target_conn.is_alive():
-					pp('Terminating old connection.')
-					self.target_conn.terminate()
-					self.target_stream.disconnect()
+				self.target_stream.disconnect()
+				self.target_conn = threading.Thread(target=self.target_stream_connection)
 				if len(self.target_streams)>0:
-					self.target_conn = multiprocessing.Process(target=self.target_stream_connection)
 					self.target_conn.start()
 				else:
 					pp('No streams to stream from...')

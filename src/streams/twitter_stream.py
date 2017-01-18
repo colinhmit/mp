@@ -252,7 +252,7 @@ class TwitterStream:
         
         while not self.kill:
             msg = pipe.get()
-            pp(pipe.qsize())
+            pp(self.stream.lower() + ": " + str(pipe.qsize()))
             if len(msg) == 0:
                 pp('Connection was lost...')
             if self.stream.lower() in msg['message'].lower():
