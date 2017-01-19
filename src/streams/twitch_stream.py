@@ -41,7 +41,7 @@ class TwitchStream:
                     self.trending[max_key]['visible'] = 1
                     self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
                 except Exception, e:
-                    pp('Filter trending failed on race condition.')
+                    pp('Twitch filter trending failed on race condition.')
                     pp(e)
 
     def handle_match(self, matched_msg, msg, msgtime, user):
