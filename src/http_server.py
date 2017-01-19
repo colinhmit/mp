@@ -72,7 +72,6 @@ class StreamClient():
         #CJK regex
         self.pattern = re.compile('[^\w\s\'\"!.,$&?:;_-]+')
 
-
     def init_sockets(self):
         config = self.config
 
@@ -120,16 +119,13 @@ class StreamClient():
         elif src == 'twitter':
             output = self.twitter_streams.keys()
 
-        pp('returning output')
-        pp(output)
         return json.dumps(output)
 
     def request_stream(self, stream, src):
         request = {}
         request[src] = {'add':[stream]}
 
-        pp('requesting stream...')
-        pp(request)
+        pp('Requesting stream: '+ stream)
         self.request_sock.send(json.dumps(request))
 
     def get_agg_streams(self, args):
@@ -161,15 +157,7 @@ class StreamClient():
                     if keyword.lower() in msg.lower():
                         del output[msg]
 
-        try:
-            jsonoutput = json.dumps(output)
-        except Exception, e:
-            pp('json dump output in get_agg_streams failed!')
-            pp(output)
-            pp('//////end json dump output failed/////')
-            jsonoutput = json.dumps({})
-
-        return jsonoutput
+        return json.dumps(output)
 
     def get_featured(self, src, args):
         output = []
@@ -183,15 +171,7 @@ class StreamClient():
             limit = int(args['limit'][0])
             output = output[0:limit]
 
-        try:
-            jsonoutput = json.dumps(output)
-        except Exception, e:
-            pp('json dump output in get_featured failed!')
-            pp(output)
-            pp('//////end json dump output failed/////')
-            jsonoutput = json.dumps({})
-
-        return jsonoutput
+        return json.dumps(output)
 
     def recv_helper(self, bytes):
         sock = self.data_sock
@@ -214,14 +194,6 @@ class StreamClient():
             # Read the message data
             inc_pickle_data = self.recv_helper(msg_len)
 
-            try:
-                pickle_data = pickle.loads(inc_pickle_data)
-            except Exception, e:
-                pp('json load input in recv_data failed!')
-                pp('expected inc_data_len:'+raw_len)
-                pp('actual received :' + str(len(inc_pickle_data)))
-                pp('//////end json load output failed/////')
-
             pickle_data = pickle.loads(inc_pickle_data)
             self.twitch_streams = pickle_data['twitch_streams']
             self.twitter_streams = pickle_data['twitter_streams']
@@ -242,7 +214,6 @@ class StreamClient():
         reactor.run()
 
 if __name__ == '__main__':
-    #init
     client = StreamClient(client_config)
     recv_thread = threading.Thread(target = client.recv_data).start()
     client.run()

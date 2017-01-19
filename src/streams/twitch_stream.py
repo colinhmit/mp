@@ -41,6 +41,7 @@ class TwitchStream:
                     self.trending[max_key]['visible'] = 1
                     self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
                 except Exception, e:
+                    pp('Filter trending failed on race condition.')
                     pp(e)
 
     def handle_match(self, matched_msg, msg, msgtime, user):
@@ -103,10 +104,8 @@ class TwitchStream:
 
         if (len(matched) == 0):
             return None
-
         elif len(matched) == 1:
             return matched[0][0]
-
         else:
             matched_msgs = [x[0] for x in matched]
             (matched_msg, score) = fweo_tsort_compare(msg, matched_msgs)
@@ -142,13 +141,11 @@ class TwitchStream:
         user = msgdata['username']
 
         if len(self.trending)>0:
-
             try:
                 matched_msg = self.get_match(msg)
             except Exception, e:
-                pp('Twitch matching failed!')
+                pp('Twitch matching failed.')
                 pp(e)
-                pp(msg)
                 matched_msg = None
 
             if matched_msg is None:
@@ -158,8 +155,6 @@ class TwitchStream:
                 self.handle_match(matched_msg, msg, msgtime, user)
 
         else:
-            if self.config['debug']:
-                    pp("Init trending")
             self.handle_new(msg, msgtime, user)
 
         self.decay(msg, msgtime)
@@ -178,9 +173,7 @@ class TwitchStream:
             irc.check_for_ping(data)
 
             if irc.check_for_message(data):
-                #print 'Processing message'
                 message_dict = irc.get_message(data)
                 message_time = datetime.datetime.now()
-
                 self.process_message(message_dict, message_time)  
                 self.last_rcv_time = message_time

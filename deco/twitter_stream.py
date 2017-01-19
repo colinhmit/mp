@@ -12,19 +12,32 @@ from utils.functions_matching import *
 
 class TwitterStream:
 
-    def __init__(self, config, stream, curr_twtr, nlp_parser):
+    def __init__(self, config, stream, curr_twtr):
         self.config = config
         self.stream = stream
-        self.nlp_parser = nlp_parser
+        #self.nlp_parser = nlp_parser
+
 
         curr_twtr.join_stream(stream, self.stream in self.config['target_streams'])
 
-        self.pipe = curr_twtr.get_twtr_stream_object(stream)
+        # if self.stream in self.config['target_streams']:
+        #     pp('joining target stream')
+        #     curr_twtr.join_target_channel(channel)
+        # else:
+        #     curr_twtr.join_hose_channel(channel)
 
+        #set the pipe object as the socket & go!
+        self.pipe = curr_twtr.get_twtr_stream_object(stream)
+        # if self.channel in self.config['target_streams']:
+        #     self.pipe = curr_twtr.get_twtr_target_stream_object(channel)
+        # else:
+        #     self.pipe = curr_twtr.get_twtr_hose_stream_object(channel)
+        
         self.last_rcv_time = None
         self.trending = {}
         self.clean_trending = {}
-        self.svomap = {}
+        #self.svomap = {}
+        self.svocomp_mem = {}
         self.kill = False
 
     def get_trending(self):
@@ -33,7 +46,7 @@ class TwitterStream:
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
-            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'] } for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
 
     def filter_trending(self):
         if len(self.trending)>0:
@@ -44,10 +57,9 @@ class TwitterStream:
                     self.trending[max_key]['visible'] = 1
                     self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
                 except Exception, e:
-                    pp('Twitter filter trending failed on race condition.')
                     pp(e)
 
-    def handle_match(self, matched_msg, msg, msgtime, user, media, mp4, svos):
+    def handle_match(self, matched_msg, msg, msgtime, user):
         if user in self.trending[matched_msg]['users']:
             if self.config['debug']:
                 pp("&&& DUPLICATE"+matched_msg+" + "+msg+" &&&")
@@ -76,9 +88,8 @@ class TwitterStream:
                         'score': (self.trending[matched_msg]['score'] * self.trending[matched_msg]['msgs'][submatched_msg] / sum(self.trending[matched_msg]['msgs'].values())) + self.config['matched_add_base'], 
                         'last_mtch_time': msgtime,
                         'first_rcv_time': msgtime,
-                        'media_url': media,
-                        'mp4_url': mp4,
-                        'svos': svos,
+                        'media_url': self.trending[matched_msg]['media_url'],
+                        'svos': self.trending[matched_msg]['svos'],
                         'users' : [user],
                         'msgs' : dict(self.trending[matched_msg]['msgs']),
                         'visible' : 1
@@ -92,7 +103,7 @@ class TwitterStream:
                     self.trending[matched_msg]['last_mtch_time'] = msgtime
                     self.trending[matched_msg]['users'].append(user)
 
-    def handle_new(self, msg, msgtime, user, media, mp4, svos):
+    def handle_new(self, msg, msgtime, user, media, svos):
         if len(msg) > 0:
             if self.config['debug']:
                 pp("??? "+msg+" ???")
@@ -101,7 +112,6 @@ class TwitterStream:
                 'last_mtch_time': msgtime,
                 'first_rcv_time': msgtime,
                 'media_url': media,
-                'mp4_url': mp4,
                 'svos': svos,
                 'users' : [user],
                 'msgs' : {msg: 1.0},
@@ -112,20 +122,24 @@ class TwitterStream:
         matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
         if (len(matched) == 0):
-            try:
-                for svo in svos:
-                    subj, verb, obj, neg = svo
+            for svo in svos:
+                subj, verb, obj, neg = svo
 
-                    for key in self.trending.keys():
-                        match_subj = fweo_threshold(subj.lower_, [x[0].lower_ for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
+                for key in self.trending.keys():
+                    match_subj = fweo_threshold(subj.lower_, [x[0].lower_ for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
 
-                        if match_subj is None:
-                            pass
-                        else:
-                            matched_svos = [x for x in self.trending[key]['svos'] if x[0].lower_==match_subj[0]]
+                    if match_subj is None:
+                        pass
+                    else:
+                        matched_svos = [x for x in self.trending[key]['svos'] if x[0].lower_==match_subj[0]]
 
-                            for matched_svo in matched_svos:
+                        for matched_svo in matched_svos:
 
+                            if (svo, matched_svo) in self.svocomp_mem:
+                                if self.svocomp_mem[(svo, matched_svo)]:
+                                    return key
+
+                            else: 
                                 matched_subj, matched_verb, matched_obj, matched_neg = matched_svo
 
                                 verb_diff = cosine(verb.vector, matched_verb.vector)
@@ -138,10 +152,12 @@ class TwitterStream:
                                     if (obj_diff<self.config['obj_compare_threshold']):
                                         pass
                                     else:
+                                        self.svocomp_mem[(svo, matched_svo)] = True
+                                        self.svocomp_mem[(matched_svo, svo)] = True
                                         return key
-            except Exception, e:
-                pp('Twitter SVO Matching Failed.')
-                pp(e)
+
+                                self.svocomp_mem[(svo, matched_svo)] = False
+                                self.svocomp_mem[(matched_svo, svo)] = False
 
             return None
 
@@ -178,53 +194,42 @@ class TwitterStream:
                     else:
                         self.trending[key]['score'] = curr_score
 
-    def clean_message(self, msg):
-        clean_msg = re.sub(r"http\S+", "", msg)
-        clean_msg = re.sub(r"[#@]", "", clean_msg)
-        clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
-        return clean_msg
+    # def clean_message(self, msg):
+    #     clean_msg = re.sub(r"http\S+", "", msg)
+    #     clean_msg = re.sub(r"[#@]", "", clean_msg)
+    #     return clean_msg
 
-    def process_message(self, msgdata, msgtime):
+    def process_message(self, msgdata, svos, msgtime):
         msg = msgdata['message']
         user = msgdata['username']
         media = msgdata['media_url']
-        mp4 = msgdata['mp4_url']
-        hashid = hash(msg)
+        # hashid = hash(msg)
 
-        if hashid in self.svomap.keys():
-            svos, clean_msg = self.svomap[hashid]
+        # if hashid in self.svomap.keys():
+        #     svos, clean_msg = self.svomap[hashid]
 
-        else:
-            clean_msg = self.clean_message(msg)
-            try:
-                svos = self.nlp_parser.parse_text(clean_msg)
-            except Exception, e:
-                svos = []
-            self.svomap[hashid] = svos, clean_msg
-
-        if (len(self.svomap)>5000):
-            self.svomap = {}
-            self.nlp_parser.flush()
+        # else:
+        #     clean_msg = self.clean_message(msg)
+        #     svos = self.nlp_parser.parse_text(clean_msg)
+        #     self.svomap[hashid] = svos, clean_msg
 
         #cleanup RT
         if msg[:4] == 'RT @':
             msg = msg[msg.find(':')+1:]
 
         if len(self.trending)>0:
-            try:
-                matched_msg = self.get_match(msg, svos)
-            except Exception, e:
-                pp('Twitter matching failed.')
-                pp(e)
-                matched_msg = None
+            matched_msg = self.get_match(msg, svos)
 
             if matched_msg is None:
-                self.handle_new(msg, msgtime, user, media, mp4, svos)
+                self.handle_new(msg, msgtime, user, media, svos)
 
             else:
-                self.handle_match(matched_msg, msg, msgtime, user, media, mp4, svos)
+                self.handle_match(matched_msg, msg, msgtime, user)
+
         else:
-            self.handle_new(msg, msgtime, user, media, mp4, svos)
+            if self.config['debug']:
+                    pp("Init trending")
+            self.handle_new(msg, msgtime, user, media, svos)
 
         self.decay(msg, msgtime)
 
@@ -233,10 +238,11 @@ class TwitterStream:
         config = self.config
         
         while not self.kill:
-            msg = pipe.get()
+            msg, svos = pipe.get()
             if len(msg) == 0:
                 pp('Connection was lost...')
-            if self.stream in msg['message'].lower():
+            if self.stream.lower() in msg['message'].lower():
                 messagetime = datetime.datetime.now()
-                self.process_message(msg, messagetime)  
+                self.process_message(msg, svos, messagetime)  
                 self.last_rcv_time = messagetime
+            pipe.task_done()

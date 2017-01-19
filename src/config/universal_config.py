@@ -19,10 +19,6 @@ twitch_config = {
 	# if set to true will display any data received
 	'debug': False,
 
-	# if set to true will log all messages from all channels
-	# TODO
-	'log_messages': False,
-
 	  #fw_eo output from funcions_matching threshold 
 	  'fo_compare_threshold': 65,
   	'so_compare_threshold': 80,
@@ -47,28 +43,28 @@ global twitter_config
 
 twitter_config = {
 	
-	# # HOSE API
+	#HOSE TWITTER API
     'hose_consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
 	'hose_consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
 
 	'hose_access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
 	'hose_access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
-	# # #TARGET TWITTER API
+	#TARGET TWITTER API
     'target_consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
 	'target_consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
 
 	'target_access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
 	'target_access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
-	# # #FALL BACK TWITTER API
+	#DEV HOSE TWITTER API
  #    'hose_consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
 	# 'hose_consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
 
 	# 'hose_access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
 	# 'hose_access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
 
-	# #OTHER FALL BACK TWITTER API
+	#DEV TARGET TWITTER API
 	# 'target_consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
 	# 'target_consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
 
@@ -77,18 +73,18 @@ twitter_config = {
 
 	#Target stream allowed channels
 	'target_streams': ['trump'],
+
+	#Number of distributor threads
 	'num_dist_threads': 100,
 
 	# if set to true will display any data received
 	'debug': False,
 
-	# if set to true will log all messages from all channels
-	# TODO
-	'log_messages': False,
-
 	#fw_eo output from funcions_matching threshold 
 	'fo_compare_threshold': 65,
   	'so_compare_threshold': 80,
+
+  	#svo thresholds
   	'subj_compare_threshold': 85,
   	'verb_compare_threshold': 0.3,
   	'obj_compare_threshold': 0.5,
@@ -112,21 +108,14 @@ twitter_config = {
 global server_config
 
 server_config = {
-	
-	# details required to host the server
-
-    #'host': '127.0.0.1',
-    #'port': 80,
 
     'request_host': '',
-    #'host': 'localhost',
-    #'host': '192.168.0.19',
 	'request_port': 8008,
-    'listeners' : 10,
 
-    # multicast settings
     'data_host': '',
     'data_port': 8007,
+
+    'listeners' : 10,
 
     #featured
     'twitch_client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
@@ -134,47 +123,35 @@ server_config = {
 	# if set to true will display any data received
 	'debug': False,
 
-	# if set to true will log all messages from all channels
-	# TODO
-	'log_messages': False,
-
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096,
-	'socket_send_size': 4000,
- 
-    'end_of_data': '//data_sent//'
+	'socket_send_size': 4000
 }
 
 global client_config
 
 client_config = {
-    
+
     'host': '127.0.0.1',
+
+    #AWS Settings
     'port': 80,
-    #'port': 4808,
-
-    # details required to host the server
     'request_host': '35.160.61.218',
-    #'request_host': '127.0.0.1',
-    'request_port': 8008,
-
     'data_host': '35.160.61.218',
-    #'data_host': '127.0.0.1',
+
+    #DEV Hosts
+    # 'request_host': '127.0.0.1',
+    # 'data_host': '127.0.0.1',
+    # 'port': 4808,
+
+    #Ports
+    'request_port': 8008,
     'data_port': 8007,
 
     # if set to true will display any data received
     'debug': False,
 
-    # if set to true will log all messages from all channels
-    # TODO
-    'log_messages': False,
-
     # maximum amount of bytes to receive from socket - 1024-4096 recommended
     'socket_buffer_size': 4096,
-    'socket_send_size': 4000,
- 
-      'end_of_data': '//data_sent//',
-      
-      #modes: backtest, demo
-      'mode': 'demo'
+    'socket_send_size': 4000
 }

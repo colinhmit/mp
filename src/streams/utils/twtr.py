@@ -43,9 +43,6 @@ class twtr:
 		self.streams = {}
 		self.target_streams = ['']
 
-		#self.streams['trump'] = Queue.Queue()
-		#self.target_streams = ['trump']
-
 		for _ in xrange(self.config['num_dist_threads']):
 			threading.Thread(target = self.distribute).start()
 
@@ -120,7 +117,6 @@ class twtr:
 						}
 			if len(msg) > 0:
 				for key in self.streams.keys():
-					#pp()
 					self.streams[key].put(msg)
 
 	def set_twtr_stream_object(self):
@@ -143,12 +139,18 @@ class twtr:
 		self.target_conn = threading.Thread(target=self.target_stream_connection)
 
 	def hose_stream_connection(self):
-		pp('Connecting to hose stream...')
-		self.hose_stream.sample()
+		try:
+			pp('Connecting to hose stream...')
+			self.hose_stream.sample()
+		except Exception, e:
+			pp(e)
 		
 	def target_stream_connection(self):
-		pp('Connecting to target stream...')
-		self.target_stream.filter(track=self.target_streams)
+		try:
+			pp('Connecting to target stream...')
+			self.target_stream.filter(track=self.target_streams)
+		except Exception, e:
+			pp(e)
 
 	def get_twtr_stream_object(self, stream):
 		return self.streams[stream]
@@ -169,7 +171,6 @@ class twtr:
 		pp('Resetting streams...')
 		self.streams = {}
 		self.target_streams = []
-		pp('Terminating old connection.')
 		self.target_stream.disconnect()
 		self.hose_stream.disconnect()
 
@@ -184,8 +185,8 @@ class twtr:
 		if not stream in self.streams:
 			pp('Joining stream %s' % stream)
 			self.streams[stream] = Queue.Queue()
-			self.target_streams.append(stream)
 			if target:
+				self.target_streams.append(stream)
 				self.target_stream.disconnect()
 				self.target_conn = threading.Thread(target=self.target_stream_connection)
 				self.target_conn.start()
@@ -205,3 +206,13 @@ class twtr:
 				else:
 					pp('No streams to stream from...')
 				pp('Left target stream.')
+
+	def upgrade_stream(self, stream):
+		if (stream in self.streams) & (stream not in self.target_streams):
+			pp('Upgrading stream %s' % stream)
+			self.target_streams.append(stream)
+			self.target_stream.disconnect()
+			self.target_conn = threading.Thread(target=self.target_stream_connection)
+			self.target_conn.start()
+			pp('Upgraded stream.')
+

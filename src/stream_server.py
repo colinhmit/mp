@@ -108,7 +108,7 @@ class StreamServer():
 
             self.twitter_featured = sorted_output
         except Exception, e:
-            pp('Get Twitter featured failed!!!')
+            pp('Get Twitter featured failed.')
             pp(e)
 
     def get_twitch_featured(self):
@@ -120,10 +120,9 @@ class StreamServer():
 
             self.twitch_featured = sorted_output
         except Exception, e:
-            pp('Get Twitch featured failed!!!')
+            pp('Get Twitch featured failed.')
             pp(e)
         
-
     def refresh_featured(self):
         self.refresh_loop = True
         while self.refresh_loop:
@@ -165,17 +164,6 @@ class StreamServer():
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
                     self.twitter_streams[stream_key].render_trending()
-
-            time.sleep(0.17)
-
-    def send_data(self, client_sock, client_address):
-        pp('Now broadcasting...')
-        self.broadcast = True
-
-        while self.broadcast:
-            pickle_data = self.get_stream_data()
-            pickle_data = struct.pack('>I', len(pickle_data)) + pickle_data
-            client_sock.sendall(pickle_data)
 
             time.sleep(0.17)
 
@@ -248,6 +236,16 @@ class StreamServer():
             pp(('Request Connection initiated by: ' + str(client_address)))
             threading.Thread(target = self.handle_http, args = (client_sock,client_address)).start()
 
+    def send_data(self, client_sock, client_address):
+        connected = True
+
+        while connected:
+            pickle_data = self.get_stream_data()
+            pickle_data = struct.pack('>I', len(pickle_data)) + pickle_data
+            client_sock.sendall(pickle_data)
+
+            time.sleep(0.17)
+
     def broadcast(self):
         sock = self.data_sock
         config = self.config
@@ -261,10 +259,9 @@ class StreamServer():
 
     def garbage_cleanup(self):
         gc.collect()
-        time.sleep(10)
+        time.sleep(300)
 
 if __name__ == '__main__':
-    gc.enable()
     #init
     server = StreamServer(server_config)
     #twitch helpers
