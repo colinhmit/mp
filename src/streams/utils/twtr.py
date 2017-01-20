@@ -131,6 +131,8 @@ class twtr:
 		self.stream_obj = Stream(self.auth, self.l)
 
 		self.stream_conn = threading.Thread(target=self.stream_connection)
+		if len(self.streams)>0:
+			self.stream_conn.start()
 
 	def stream_connection(self):
 		try:
