@@ -39,10 +39,15 @@ class StreamServer():
         self.twitter_featured = []
 
         #init twitter
-        self.nlp_parser = nlpParser()
-        self.twit = twtr_.twtr(twitter_config)
-        
+        self.target_twitter_streams = self.config['target_streams']
 
+        self.nlp_parser = nlpParser()
+        self.twit = twtr_.twtr(twitter_config, self.target_twitter_streams)
+
+        for stream in self.target_twitter_streams:
+            self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit, copy.copy(self.nlp_parser))
+            self.twitter_streams[stream].run()
+        
     def init_sockets(self):
         request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -69,6 +74,7 @@ class StreamServer():
             self.twitch_streams[stream] = TwitchStream(twitch_config, stream)
             self.twitch_streams[stream].run()
         elif src == 'twitter':
+            self.twit.join_stream(stream)
             self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit, copy.copy(self.nlp_parser))
             self.twitter_streams[stream].run()
         else:
@@ -98,15 +104,16 @@ class StreamServer():
 
         output['twitter_featured'] = self.twitter_featured
         output['twitch_featured'] = self.twitch_featured
+        output['target_twitter_streams'] = self.target_twitter_streams
         return pickle.dumps(output)
 
     def get_twitter_featured(self):
         try:
-            trends = self.twit.hose_api.trends_place(23424977)
+            trends = self.twit.api.trends_place(23424977)
             output = [{'stream':x['name'],'description':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
 
-            self.twitter_featured = sorted_output
+            self.twitter_featured = sorted_output[0:self.config['twitter_num_featured']]
         except Exception, e:
             pp('Get Twitter featured failed.')
             pp(e)
@@ -118,7 +125,7 @@ class StreamServer():
             output = [{'stream':x['stream']['channel']['name'], 'image': x['stream']['preview']['medium'], 'description': x['title'], 'count': x['stream']['viewers']} for x in (json.loads(r.content))['featured']]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
 
-            self.twitch_featured = sorted_output
+            self.twitch_featured = sorted_output[0:self.config['twitch_num_featured']]
         except Exception, e:
             pp('Get Twitch featured failed.')
             pp(e)
@@ -129,7 +136,7 @@ class StreamServer():
             self.get_twitch_featured()
             self.get_twitter_featured()
 
-            time.sleep(300)
+            time.sleep(900)
 
     def filter_twitch(self):
         self.filter_loop = True
@@ -202,7 +209,8 @@ class StreamServer():
                 if 'twitter' in jsondata:
                     if 'add' in jsondata['twitter']:
                         for stream in jsondata['twitter']['add']:
-                            if stream not in self.twitter_streams:
+                            #CURRENTLY BLOCKING NON TARGET
+                            if (stream not in self.twitter_streams) and (len(stream)>0) and (stream in self.target_twitter_streams):
                                 self.create_stream(stream, 'twitter')
 
                     if 'delete' in jsondata['twitter']:
@@ -212,8 +220,8 @@ class StreamServer():
 
                     if 'target_add' in jsondata['twitter']:
                         for stream in jsondata['twitter']['target_add']:
-                            if stream not in self.twitter_streams:
-                                twitter_config['target_streams'].append(stream)
+                            if (stream not in self.twitter_streams) and (len(stream)>0):
+                                self.target_twitter_streams.append(stream)
                                 self.create_stream(stream, 'twitter')
 
                     if 'refresh' in jsondata['twitter']:

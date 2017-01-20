@@ -17,9 +17,10 @@ class TwitterStream:
         self.stream = stream
         self.nlp_parser = nlp_parser
 
-        curr_twtr.join_stream(stream, self.stream in self.config['target_streams'])
-
-        self.pipe = curr_twtr.get_twtr_stream_object(stream)
+        try:
+            self.pipe = curr_twtr.get_twtr_stream_object(stream)
+        except Exception, e:
+            raise e
 
         self.last_rcv_time = None
         self.trending = {}
@@ -235,7 +236,7 @@ class TwitterStream:
         while not self.kill:
             msg = pipe.get()
             if len(msg) == 0:
-                pp('Connection was lost...')
+                pp('Twitter connection was lost...')
             if self.stream in msg['message'].lower():
                 messagetime = datetime.datetime.now()
                 self.process_message(msg, messagetime)  
