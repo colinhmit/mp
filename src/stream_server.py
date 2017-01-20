@@ -45,8 +45,7 @@ class StreamServer():
         self.twit = twtr_.twtr(twitter_config, self.target_twitter_streams)
 
         for stream in self.target_twitter_streams:
-            self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit, copy.copy(self.nlp_parser))
-            self.twitter_streams[stream].run()
+            self.create_stream(stream, 'twitter')
         
     def init_sockets(self):
         request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
