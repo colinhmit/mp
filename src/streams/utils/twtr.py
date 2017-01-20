@@ -128,7 +128,7 @@ class twtr:
 		self.auth = OAuthHandler(config['consumer_token'], config['consumer_secret'])
 		self.auth.set_access_token(config['access_token'], config['access_secret'])
 		self.api = API(self.auth)
-		self.stream_obj = Stream(self.target_auth, self.target_l)
+		self.stream_obj = Stream(self.auth, self.l)
 
 		self.stream_conn = threading.Thread(target=self.stream_connection)
 
