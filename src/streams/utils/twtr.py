@@ -52,7 +52,6 @@ class twtr:
 
 	def distribute(self):
 		for data in iter(self.input_queue.get, 'STOP'):
-			pp(self.input_queue.qsize())
 			jsondata = json.loads(data)
 			msg = {}
 			if 'retweeted_status' in jsondata:
