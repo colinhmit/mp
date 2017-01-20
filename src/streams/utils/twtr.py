@@ -146,7 +146,7 @@ class twtr:
 
 	def refresh_streams(self):
 		pp('Refreshing streams...')
-		self.stream_conn.disconnect()
+		self.stream_obj.disconnect()
 		self.stream_conn = threading.Thread(target=self.stream_connection)
 		if len(self.streams)>0:
 			self.stream_conn.start()
@@ -154,7 +154,7 @@ class twtr:
 	def reset_streams(self):
 		pp('Resetting streams...')
 		self.streams = {}
-		self.stream_conn.disconnect()
+		self.stream_obj.disconnect()
 		self.stream_conn = threading.Thread(target=self.stream_connection)
 		if len(self.streams)>0:
 			self.stream_conn.start()
@@ -162,7 +162,7 @@ class twtr:
 	def join_stream(self, stream):
 		if stream not in self.streams:
 			pp('Joining stream %s' % stream)
-			self.stream_conn.disconnect()
+			self.stream_obj.disconnect()
 			self.streams[stream] = Queue.Queue()
 			self.stream_conn = threading.Thread(target=self.stream_connection)
 			self.stream_conn.start()
@@ -170,7 +170,7 @@ class twtr:
 	def leave_stream(self, stream):
 		if stream in self.streams:
 			del self.streams[stream]
-			self.stream_conn.disconnect()
+			self.stream_obj.disconnect()
 			self.stream_conn = threading.Thread(target=self.stream_connection)
 			if len(self.streams)>0:
 				self.stream_conn.start()
@@ -180,7 +180,7 @@ class twtr:
 	def batch_streams(self, streams_to_add):
 		pp('Batching streams.')
 		self.streams = {}
-		self.stream_conn.disconnect()
+		self.stream_obj.disconnect()
 		for stream in streams_to_add:
 			self.streams[stream] = Queue.Queue()
 		self.stream_conn = threading.Thread(target=self.stream_connection)

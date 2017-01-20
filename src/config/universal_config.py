@@ -120,7 +120,7 @@ server_config = {
     'twitter_num_featured': 6,
 
 	#Target stream allowed channels
-	'target_streams': ['trump', 'inauguration'],
+	'target_streams': ['trump', 'inauguration', 'trumpinauguration'],
 
 	# if set to true will display any data received
 	'debug': False,
