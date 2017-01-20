@@ -137,14 +137,14 @@ client_config = {
     'host': '127.0.0.1',
 
     #AWS Settings
-    # 'port': 80,
-    # 'request_host': '35.160.61.218',
-    # 'data_host': '35.160.61.218',
+    'port': 80,
+    'request_host': '35.160.61.218',
+    'data_host': '35.160.61.218',
 
     #DEV Hosts
-    'request_host': '127.0.0.1',
-    'data_host': '127.0.0.1',
-    'port': 4808,
+    # 'request_host': '127.0.0.1',
+    # 'data_host': '127.0.0.1',
+    # 'port': 4808,
 
     #Ports
     'request_port': 8008,
