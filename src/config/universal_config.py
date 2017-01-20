@@ -44,32 +44,32 @@ global twitter_config
 twitter_config = {
 	
 	#HOSE TWITTER API
- #    'hose_consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-	# 'hose_consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+    'hose_consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+	'hose_consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
 
-	# 'hose_access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-	# 'hose_access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+	'hose_access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+	'hose_access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
 	#TARGET TWITTER API
- #    'target_consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
-	# 'target_consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+    'target_consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+	'target_consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
 
-	# 'target_access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
-	# 'target_access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
+	'target_access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+	'target_access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
 	#DEV HOSE TWITTER API
-    'hose_consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
-	'hose_consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
+ #    'hose_consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
+	# 'hose_consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
 
-	'hose_access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
-	'hose_access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
+	# 'hose_access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
+	# 'hose_access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
 
 	#DEV TARGET TWITTER API
-	'target_consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
-	'target_consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
+	# 'target_consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
+	# 'target_consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
 
-	'target_access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
-	'target_access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
+	# 'target_access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
+	# 'target_access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
 	#Target stream allowed channels
 	'target_streams': ['trump'],
@@ -135,14 +135,14 @@ client_config = {
     'host': '127.0.0.1',
 
     #AWS Settings
-    # 'port': 80,
-    # 'request_host': '35.160.61.218',
-    # 'data_host': '35.160.61.218',
+    'port': 80,
+    'request_host': '35.160.61.218',
+    'data_host': '35.160.61.218',
 
     #DEV Hosts
-    'request_host': '127.0.0.1',
-    'data_host': '127.0.0.1',
-    'port': 4808,
+    #'request_host': '127.0.0.1',
+    #'data_host': '127.0.0.1',
+    #'port': 4808,
 
     #Ports
     'request_port': 8008,

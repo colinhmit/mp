@@ -50,6 +50,7 @@ class twtr:
 
 	def distribute(self):
 		for data in iter(self.input_queue.get, 'STOP'):
+			pp(self.input_queue.qsize())
 			jsondata = json.loads(data)
 			msg = {}
 			if 'retweeted_status' in jsondata:
@@ -191,6 +192,11 @@ class twtr:
 				self.target_conn = threading.Thread(target=self.target_stream_connection)
 				self.target_conn.start()
 			pp('Joining stream.')
+		elif (stream in self.streams) and (stream not in self.target_streams) and target:
+			self.target_streams.append(stream)
+			self.target_stream.disconnect()
+			self.target_conn = threading.Thread(target=self.target_stream_connection)
+			self.target_conn.start()
 
 	def leave_stream(self, stream):
 		if stream in self.streams:
@@ -206,13 +212,4 @@ class twtr:
 				else:
 					pp('No streams to stream from...')
 				pp('Left target stream.')
-
-	def upgrade_stream(self, stream):
-		if (stream in self.streams) & (stream not in self.target_streams):
-			pp('Upgrading stream %s' % stream)
-			self.target_streams.append(stream)
-			self.target_stream.disconnect()
-			self.target_conn = threading.Thread(target=self.target_stream_connection)
-			self.target_conn.start()
-			pp('Upgraded stream.')
 
