@@ -167,7 +167,7 @@ class TwitchStream:
         while not self.kill:
             data = sock.recv(config['socket_buffer_size']).rstrip()
             if len(data) == 0:
-                pp('Connection was lost, reconnecting.')
+                #pp('Connection was lost, reconnecting.')
                 sock = self.irc.get_irc_socket_object(self.stream)
             # check for ping, reply with pong
             irc.check_for_ping(data)

@@ -72,7 +72,7 @@ class irc:
 	def join_channel(self, channel):
 		pp('Joining channel %s.' % channel)
 		self.sock.send('JOIN #%s\r\n' % channel)
-		pp('Joined channel.')
+		#pp('Joined channel.')
 
 	def leave_channel(self, channel):
 		pp('Leaving chanel %s,' % channel)

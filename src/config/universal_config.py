@@ -44,11 +44,11 @@ global twitter_config
 twitter_config = {
 	
 	#HOSE TWITTER API
-    'hose_consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-	'hose_consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+ #    'hose_consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+	# 'hose_consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
 
-	'hose_access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-	'hose_access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+	# 'hose_access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+	# 'hose_access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
 	#TARGET TWITTER API
     'target_consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
@@ -75,7 +75,7 @@ twitter_config = {
 	'target_streams': ['trump'],
 
 	#Number of distributor threads
-	'num_dist_threads': 100,
+	'num_dist_threads': 30,
 
 	# if set to true will display any data received
 	'debug': False,

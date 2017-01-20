@@ -41,7 +41,7 @@ class twtr:
 		self.config = config
 		self.input_queue = Queue.Queue()
 		self.streams = {}
-		self.target_streams = ['']
+		# self.target_streams = ['']
 
 		for _ in xrange(self.config['num_dist_threads']):
 			threading.Thread(target = self.distribute).start()
@@ -123,11 +123,11 @@ class twtr:
 	def set_twtr_stream_object(self):
 		config = self.config
 
-		self.hose_l = StdOutListener(self.input_queue)
-		self.hose_auth = OAuthHandler(config['hose_consumer_token'], config['hose_consumer_secret'])
-		self.hose_auth.set_access_token(config['hose_access_token'], config['hose_access_secret'])
-		self.hose_api = API(self.hose_auth)
-		self.hose_stream = Stream(self.hose_auth, self.hose_l)
+		# self.hose_l = StdOutListener(self.input_queue)
+		# self.hose_auth = OAuthHandler(config['hose_consumer_token'], config['hose_consumer_secret'])
+		# self.hose_auth.set_access_token(config['hose_access_token'], config['hose_access_secret'])
+		# self.hose_api = API(self.hose_auth)
+		# self.hose_stream = Stream(self.hose_auth, self.hose_l)
 
 		self.target_l = StdOutListener(self.input_queue)
 		self.target_auth = OAuthHandler(config['target_consumer_token'], config['target_consumer_secret'])
@@ -135,21 +135,22 @@ class twtr:
 		self.target_api = API(self.target_auth)
 		self.target_stream = Stream(self.target_auth, self.target_l)
 
-		self.hose_conn = threading.Thread(target=self.hose_stream_connection)
-		self.hose_conn.start()
+		# self.hose_conn = threading.Thread(target=self.hose_stream_connection)
+		# self.hose_conn.start()
 		self.target_conn = threading.Thread(target=self.target_stream_connection)
 
-	def hose_stream_connection(self):
-		try:
-			pp('Connecting to hose stream...')
-			self.hose_stream.sample()
-		except Exception, e:
-			pp(e)
+	# def hose_stream_connection(self):
+	# 	try:
+	# 		pp('Connecting to hose stream...')
+	# 		self.hose_stream.sample()
+	# 	except Exception, e:
+	# 		pp(e)
 		
 	def target_stream_connection(self):
 		try:
 			pp('Connecting to target stream...')
-			self.target_stream.filter(track=self.target_streams)
+			# self.target_stream.filter(track=self.target_streams)
+			self.target_stream.filter(track=self.streams.keys())
 		except Exception, e:
 			pp(e)
 
@@ -159,57 +160,69 @@ class twtr:
 	def refresh_streams(self):
 		pp('Refreshing streams...')
 		self.target_stream.disconnect()
-		self.hose_stream.disconnect()
+		# self.hose_stream.disconnect()
 		
 		self.target_conn = threading.Thread(target=self.target_stream_connection)
-		if len(self.target_streams)>0:
+		if len(self.streams)>0:
 			self.target_conn.start()
-		self.hose_conn = threading.Thread(target=self.hose_stream_connection)
-		self.hose_conn.start()
+		# self.hose_conn = threading.Thread(target=self.hose_stream_connection)
+		# self.hose_conn.start()
 		pp('Refreshed streams.')
 
 	def reset_streams(self):
 		pp('Resetting streams...')
 		self.streams = {}
-		self.target_streams = []
+		#self.target_streams = []
 		self.target_stream.disconnect()
-		self.hose_stream.disconnect()
+		#self.hose_stream.disconnect()
 
 		self.target_conn = threading.Thread(target=self.target_stream_connection)
-		if len(self.target_streams)>0:
+		if len(self.streams)>0:
 			self.target_conn.start()
-		self.hose_conn = threading.Thread(target=self.hose_stream_connection)
-		self.hose_conn.start()
+		#self.hose_conn = threading.Thread(target=self.hose_stream_connection)
+		#self.hose_conn.start()
 		pp('Reset streams.')
 
 	def join_stream(self, stream, target):
-		if not stream in self.streams:
+		# if not stream in self.streams:
+		# 	pp('Joining stream %s' % stream)
+		# 	self.streams[stream] = Queue.Queue()
+		# 	if target:
+		# 		self.target_streams.append(stream)
+		# 		self.target_stream.disconnect()
+		# 		self.target_conn = threading.Thread(target=self.target_stream_connection)
+		# 		self.target_conn.start()
+		# elif (stream in self.streams) and (stream not in self.target_streams) and target:
+		# 	self.target_streams.append(stream)
+		# 	self.target_stream.disconnect()
+		# 	self.target_conn = threading.Thread(target=self.target_stream_connection)
+		# 	self.target_conn.start()
+		if (stream not in self.streams) and target:
 			pp('Joining stream %s' % stream)
 			self.streams[stream] = Queue.Queue()
-			if target:
-				self.target_streams.append(stream)
-				self.target_stream.disconnect()
-				self.target_conn = threading.Thread(target=self.target_stream_connection)
-				self.target_conn.start()
-			pp('Joining stream.')
-		elif (stream in self.streams) and (stream not in self.target_streams) and target:
-			self.target_streams.append(stream)
 			self.target_stream.disconnect()
 			self.target_conn = threading.Thread(target=self.target_stream_connection)
 			self.target_conn.start()
 
 	def leave_stream(self, stream):
+		# if stream in self.streams:
+		# 	pp('Leaving stream %s' % stream)
+		# 	del self.streams[stream]
+		# 	pp('Left hose stream.')
+		# 	if stream in self.target_streams:
+		# 		self.target_streams.remove(stream)
+		# 		self.target_stream.disconnect()
+		# 		self.target_conn = threading.Thread(target=self.target_stream_connection)
+		# 		if len(self.target_streams)>0:
+		# 			self.target_conn.start()
+		# 		else:
+		# 			pp('No streams to stream from...')
+		# 		pp('Left target stream.')
 		if stream in self.streams:
-			pp('Leaving stream %s' % stream)
 			del self.streams[stream]
-			pp('Left hose stream.')
-			if stream in self.target_streams:
-				self.target_streams.remove(stream)
-				self.target_stream.disconnect()
-				self.target_conn = threading.Thread(target=self.target_stream_connection)
-				if len(self.target_streams)>0:
-					self.target_conn.start()
-				else:
-					pp('No streams to stream from...')
-				pp('Left target stream.')
-
+			self.target_stream.disconnect()
+			self.target_conn = threading.Thread(target=self.target_stream_connection)
+			if len(self.streams)>0:
+				self.target_conn.start()
+			else:
+				pp('No streams to stream from...')
