@@ -141,8 +141,9 @@ class TwitterStream:
                                     else:
                                         return key
             except Exception, e:
-                pp('Twitter SVO Matching Failed.')
-                pp(e)
+                #pp('Twitter SVO Matching Failed.')
+                #pp(e)
+                pass
 
             return None
 
