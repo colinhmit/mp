@@ -61,7 +61,8 @@ class irc:
 		sock.send('NICK %s\r\n' % self.config['username'])
 
 		if self.check_login_status(sock.recv(1024)):
-			pp('Login successful.')
+			#pp('Login successful.')
+			pass
 		else:
 			pp('Login unsuccessful. (hint: make sure your oauth token is set in self.config/self.config.py).', 'error')
 			sys.exit()
@@ -70,7 +71,7 @@ class irc:
 		return sock
 
 	def join_channel(self, channel):
-		pp('Joining channel %s.' % channel)
+		#pp('Joining channel %s.' % channel)
 		self.sock.send('JOIN #%s\r\n' % channel)
 		#pp('Joined channel.')
 

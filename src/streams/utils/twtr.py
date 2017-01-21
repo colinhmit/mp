@@ -139,6 +139,10 @@ class twtr:
 			pp('Connecting to target stream...')
 			self.stream_obj.filter(track=self.streams.keys())
 		except Exception, e:
+			pp('/////////////////STREAM CONNECTION WENT DOWN////////////////////')
+			pp('TWTR Hose size: ' + str(self.input_queue.qsize()))
+			for stream in self.streams.keys():
+				pp(stream + ' stream size: ' + str(self.streams[key].qsize()))
 			pp(e)
 
 	def get_twtr_stream_object(self, stream):

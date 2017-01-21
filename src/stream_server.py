@@ -34,6 +34,7 @@ class StreamServer():
 
         self.twitch_streams = {}
         self.twitter_streams = {}
+        self.twitter_hash = None
 
         self.twitch_featured = []
         self.twitter_featured = []
@@ -96,10 +97,16 @@ class StreamServer():
         output['twitter_streams'] = {}
 
         for stream in self.twitch_streams.keys():
-            output['twitch_streams'][stream] = self.twitch_streams[stream].get_trending()
+            try:
+                output['twitch_streams'][stream] = self.twitch_streams[stream].get_trending()
+            except Exception, e:
+                pp(e)
 
         for stream in self.twitter_streams.keys():
-            output['twitter_streams'][stream] = self.twitter_streams[stream].get_trending()
+            try:
+                output['twitter_streams'][stream] = self.twitter_streams[stream].get_trending()
+            except Exception, e:
+                pp(e)
 
         output['twitter_featured'] = self.twitter_featured
         output['twitch_featured'] = self.twitch_featured
@@ -142,7 +149,11 @@ class StreamServer():
         while self.filter_loop:
             if len(self.twitch_streams.keys()) > 0:
                 for stream_key in self.twitch_streams.keys():
-                    self.twitch_streams[stream_key].filter_trending()
+                    try:
+                        self.twitch_streams[stream_key].filter_trending()
+                    except Exception, e:
+                        pp(e)
+                    
 
             time.sleep(0.8)
 
@@ -151,7 +162,10 @@ class StreamServer():
         while self.clean_loop:
             if len(self.twitch_streams.keys()) > 0:
                 for stream_key in self.twitch_streams.keys():
-                    self.twitch_streams[stream_key].render_trending()
+                    try:
+                        self.twitch_streams[stream_key].render_trending()
+                    except Exception, e:
+                        pp(e)
 
             time.sleep(0.17)
 
@@ -160,7 +174,10 @@ class StreamServer():
         while self.filter_loop:
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
-                    self.twitter_streams[stream_key].filter_trending()
+                    try:
+                        self.twitter_streams[stream_key].filter_trending()
+                    except Exception, e:
+                        pp(e)
 
             time.sleep(0.8)
 
@@ -169,7 +186,10 @@ class StreamServer():
         while self.clean_loop:
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
-                    self.twitter_streams[stream_key].render_trending()
+                    try:
+                        self.twitter_streams[stream_key].render_trending()
+                    except Exception, e:
+                        pp(e)
 
             time.sleep(0.17)
 
@@ -268,6 +288,27 @@ class StreamServer():
         gc.collect()
         time.sleep(300)
 
+    def monitor_twitter(self):
+        monitor = True
+
+        while monitor:
+            curr_dict = {}
+
+            for stream in self.twitter_streams.values():
+                try:
+                    curr_dict.update(stream.get_trending())
+                except Exception, e:
+                    pp(e)
+
+            curr_hash = hash(frozenset(curr_dict))
+            if curr_hash == self.twitter_hash:
+                pp('Monitor twitter triggered - refreshing!')
+                self.twit.refresh_streams()
+            else:
+                self.twitter_hash = curr_hash
+
+            time.sleep(15)
+
 if __name__ == '__main__':
     #init
     server = StreamServer(server_config)
@@ -284,3 +325,4 @@ if __name__ == '__main__':
     broadcast_thread = threading.Thread(target = server.broadcast).start()
     #cleanup thread
     garbage_thread = threading.Thread(target = server.garbage_cleanup).start()
+    monitor_thread = threading.Thread(target = server.monitor_twitter).start()
