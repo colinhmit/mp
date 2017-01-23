@@ -72,7 +72,12 @@ twitter_config = {
 	# 'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
 	#Number of distributor threads
-	'num_dist_threads': 30,
+	'num_proc_threads': 50,
+	'num_dist_threads': 1,
+
+	#ZMQ messaging port
+    'zmq_input_port': 8003,
+    'zmq_output_port': 8004,
 
 	# if set to true will display any data received
 	'debug': False,
@@ -116,8 +121,8 @@ server_config = {
 
     #featured
     'twitch_client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
-    'twitch_num_featured': 6,
-    'twitter_num_featured': 6,
+    'twitch_num_featured': 12,
+    'twitter_num_featured': 12,
 
 	#Target stream allowed channels
 	'target_streams': ['trump', 'inauguration', 'trumpinauguration'],

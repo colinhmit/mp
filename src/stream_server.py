@@ -34,10 +34,14 @@ class StreamServer():
 
         self.twitch_streams = {}
         self.twitter_streams = {}
-        self.twitter_hash = None
-
+        
         self.twitch_featured = []
         self.twitter_featured = []
+
+        #twitter workarounds
+        self.twitter_hash = None
+        self.twitter_featured_buffer = []
+        self.pattern = re.compile('[^\w\s\'\"!.,$&?:;_-]+')
 
         #init twitter
         self.target_twitter_streams = self.config['target_streams']
@@ -71,26 +75,34 @@ class StreamServer():
 
     def add_stream(self, stream, src):
         if src == 'twitch':
-            self.twitch_streams[stream] = TwitchStream(twitch_config, stream)
-            self.twitch_streams[stream].run()
+            if stream not in self.twitch_streams:
+                self.twitch_streams[stream] = TwitchStream(twitch_config, stream)
+                self.twitch_streams[stream].run()
         elif src == 'twitter':
-            self.twit.join_stream(stream)
-            self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit, copy.copy(self.nlp_parser))
-            self.twitter_streams[stream].run()
-        else:
-            pass
+            if stream not in self.twitter_streams:
+                self.twitter_streams[stream] = None 
+                self.twit.join_stream(stream)
+                self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit, copy.copy(self.nlp_parser))
+                self.twitter_streams[stream].run()
 
     def delete_stream(self, stream, src):
         if src == 'twitch':
-            self.twitch_streams[stream].kill = True
-            del self.twitch_streams[stream]
+            if stream in self.twitch_streams:
+                try:
+                    self.twitch_streams[stream].kill = True
+                    del self.twitch_streams[stream]
+                except Exception, e:
+                    pp(e)
+                    
         elif src == 'twitter':
-            self.twitter_streams[stream].kill = True
-            del self.twitter_streams[stream]
-            self.twit.leave_stream(stream)
-        else:
-            pass
-
+            if stream in self.twitter_streams:
+                try:
+                    self.twitter_streams[stream].kill = True
+                    del self.twitter_streams[stream]
+                    self.twit.leave_stream(stream)
+                except Exception, e:
+                    pp(e)
+     
     def get_stream_data(self):
         output = {}
         output['twitch_streams'] = {}
@@ -98,28 +110,66 @@ class StreamServer():
 
         for stream in self.twitch_streams.keys():
             try:
-                output['twitch_streams'][stream] = self.twitch_streams[stream].get_trending()
+                output['twitch_streams'][stream] = {}
+                output['twitch_streams'][stream]['default_image'] = ''
+                output['twitch_streams'][stream]['trending'] = self.twitch_streams[stream].get_trending()
             except Exception, e:
                 pp(e)
 
         for stream in self.twitter_streams.keys():
             try:
-                output['twitter_streams'][stream] = self.twitter_streams[stream].get_trending()
+                output['twitter_streams'][stream] = {}
+                output['twitter_streams'][stream]['default_image'] = self.twitter_streams[stream].get_default_image()
+                output['twitter_streams'][stream]['trending'] = self.twitter_streams[stream].get_trending()
             except Exception, e:
                 pp(e)
 
-        output['twitter_featured'] = self.twitter_featured
+        output['twitter_featured'] = [dict(x, image=self.get_default_image_helper(x['stream'], 'twitter')) for x in self.twitter_featured]
         output['twitch_featured'] = self.twitch_featured
         output['target_twitter_streams'] = self.target_twitter_streams
         return pickle.dumps(output)
 
+    def get_default_image_helper(self, stream, src):
+        default_image = ''
+        stream = self.pattern.sub('',stream).lower()
+        if src == 'twitter':
+            try:
+                default_image = self.twitter_streams[stream].get_default_image()
+            except Exception, e:
+                pp('get image failing')
+                pp(e)
+
+        return default_image
+
     def get_twitter_featured(self):
         try:
             trends = self.twit.api.trends_place(23424977)
-            output = [{'stream':x['name'],'description':x['name'],'count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
+            output = [{'stream':x['name'],'description':'','count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
+            sorted_output = sorted_output[0:self.config['twitter_num_featured']]
 
-            self.twitter_featured = sorted_output[0:self.config['twitter_num_featured']]
+            streams_to_add = [self.pattern.sub('',x['stream']).lower() for x in sorted_output]
+            streams_to_remove = []
+
+            self.twitter_featured_buffer += streams_to_add
+
+            while len(self.twitter_featured_buffer)>100:
+                old_stream = self.twitter_featured_buffer.pop(0)
+                if (old_stream not in self.twitter_featured_buffer) and (old_stream in self.twitter_streams):
+                    try:
+                        self.twitter_streams[old_stream].kill = True
+                        del self.twitter_streams[old_stream]
+                    except Exception, e:
+                        pp(e)
+                    streams_to_remove.append(old_stream)
+
+            self.twit.batch_streams(streams_to_add, streams_to_remove)
+
+            for featured_stream in streams_to_add:
+                self.create_stream(featured_stream, 'twitter')
+
+            self.twitter_featured = sorted_output
+
         except Exception, e:
             pp('Get Twitter featured failed.')
             pp(e)
@@ -127,10 +177,9 @@ class StreamServer():
     def get_twitch_featured(self):
         headers = {'Accept':'application/vnd.twitchtv.v3+json', 'Client-ID':self.config['twitch_client_id']}
         try:
-            r = self.sess.get('https://api.twitch.tv/kraken/streams/featured', headers = headers)
-            output = [{'stream':x['stream']['channel']['name'], 'image': x['stream']['preview']['medium'], 'description': x['title'], 'count': x['stream']['viewers']} for x in (json.loads(r.content))['featured']]
+            r = self.sess.get('https://api.twitch.tv/kraken/streams', headers = headers)
+            output = [{'stream':x['channel']['name'], 'image': x['preview']['medium'], 'description': x['channel']['status'], 'game': x['game'], 'count': x['viewers']} for x in (json.loads(r.content))['streams']]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
-
             self.twitch_featured = sorted_output[0:self.config['twitch_num_featured']]
         except Exception, e:
             pp('Get Twitch featured failed.')
@@ -142,7 +191,7 @@ class StreamServer():
             self.get_twitch_featured()
             self.get_twitter_featured()
 
-            time.sleep(900)
+            time.sleep(1200)
 
     def filter_twitch(self):
         self.filter_loop = True
@@ -154,7 +203,6 @@ class StreamServer():
                     except Exception, e:
                         pp(e)
                     
-
             time.sleep(0.8)
 
     def render_twitch(self):

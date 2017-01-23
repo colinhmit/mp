@@ -25,11 +25,15 @@ class TwitterStream:
         self.last_rcv_time = None
         self.trending = {}
         self.clean_trending = {}
+        self.default_image = {'image':"",'score':0}
         self.svomap = {}
         self.kill = False
 
     def get_trending(self):
         return self.clean_trending
+
+    def get_default_image(self):
+        return self.default_image['image']
 
     def render_trending(self):
         if len(self.trending)>0:
@@ -47,6 +51,9 @@ class TwitterStream:
                 except Exception, e:
                     pp('Twitter filter trending failed on race condition.')
                     pp(e)
+            image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
+            if (len(temp_trending[image_key]['media_url'])>0) and (temp_trending[image_key]['score']>self.default_image['score']):
+                self.default_image = {'image':temp_trending[image_key]['media_url'][0], 'score':temp_trending[image_key]['score']}
 
     def handle_match(self, matched_msg, msg, msgtime, user, media, mp4, svos):
         if user in self.trending[matched_msg]['users']:
@@ -141,8 +148,8 @@ class TwitterStream:
                                     else:
                                         return key
             except Exception, e:
-                #pp('Twitter SVO Matching Failed.')
-                #pp(e)
+                # pp('Twitter SVO Matching Failed.')
+                # pp(e)
                 pass
 
             return None
