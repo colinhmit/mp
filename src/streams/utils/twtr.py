@@ -168,7 +168,7 @@ class twtr:
 				self.l.pipe.bind("tcp://127.0.0.1:"+str(self.l.port))
 				connected = True
 			except Exception, e:
-				pp(e)
+				pass
 
 		try:
 			pp('Connecting to target stream...')
