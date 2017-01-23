@@ -138,7 +138,7 @@ class twtr:
 	def distribute(self):
 		context = zmq.Context()
 		recvr = context.socket(zmq.PULL)
-		recvr.bind("tcp://127.0.0.1:"+str(self.config['zmq_output_port']))
+		recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_output_port']))
 
 		for data in iter(recvr.recv_json, 'STOP'):
 			for key in self.streams.keys():
@@ -158,10 +158,17 @@ class twtr:
 
 		self.stream_conn = multiprocessing.Process(target=self.stream_connection)
 
+		context = zmq.Context()
+		input_master = context.socket(zmq.PUSH)
+		input_master.bind("tcp://127.0.0.1:"+str(self.config['zmq_input_port']))
+
+		output_master = context.socket(zmq.PUSH)
+		output_master.bind("tcp://127.0.0.1:"+str(self.config['zmq_output_port']))
+
 	def stream_connection(self):
 		context = zmq.Context()
 		self.l.pipe = context.socket(zmq.PUSH)
-		self.l.pipe.bind("tcp://127.0.0.1:"+str(self.l.port))
+		self.l.pipe.connect("tcp://127.0.0.1:"+str(self.l.port))
 
 		try:
 			pp('Connecting to target stream...')
