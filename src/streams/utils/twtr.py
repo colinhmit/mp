@@ -32,9 +32,6 @@ class StdOutListener(StreamListener):
 		self.pipe = None
 
 	def on_data(self, data):
-		jsondata = json.loads(data)
-		if 'text' in jsondata:
-			pp('>>>>>>>>>>>')
 		self.pipe.send_string(data)
 		return True
 
@@ -158,7 +155,6 @@ class twtr:
 				msg['svos'] = svos
 
 				if len(svomap)>100:
-					pp('Wiping svomap & flushing')
 					svomap = {}
 					nlp.flush()
 					gc.collect()
@@ -173,7 +169,6 @@ class twtr:
 
 		for pickled_data in iter(recvr.recv, 'STOP'):
 			msg = pickle.loads(pickled_data)
-			pp('<<<<<<')
 			for key in self.streams.keys():
 				try:
 					self.streams[key].put(msg)

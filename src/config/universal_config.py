@@ -72,7 +72,7 @@ twitter_config = {
 	'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
 	#Number of distributor threads
-	'num_proc_threads': 10,
+	'num_proc_threads': 15,
 	'num_dist_threads': 1,
 
 	#ZMQ messaging port
