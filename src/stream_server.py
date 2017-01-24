@@ -296,9 +296,12 @@ class StreamServer():
                         self.twit.refresh_streams()
 
                     if 'reset' in jsondata['twitter']:
+                        self.twitter_featured = []
+                        self.twitter_featured_buffer = []
                         for stream in self.twitter_streams.keys():
                             self.twitter_streams[stream].kill = True
                             del self.twitter_streams[stream]
+
                         self.twit.reset_streams()  
 
     def listen(self):
@@ -368,10 +371,10 @@ if __name__ == '__main__':
     filter_twitter_thread = threading.Thread(target = server.filter_twitter).start()
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
-    #refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
+    refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
     #serve
     listen_thread = threading.Thread(target = server.listen).start()
     broadcast_thread = threading.Thread(target = server.broadcast).start()
     #cleanup thread
     garbage_thread = threading.Thread(target = server.garbage_cleanup).start()
-    #monitor_thread = threading.Thread(target = server.monitor_twitter).start()
+    monitor_thread = threading.Thread(target = server.monitor_twitter).start()
