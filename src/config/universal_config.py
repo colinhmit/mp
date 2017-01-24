@@ -44,11 +44,11 @@ global twitter_config
 twitter_config = {
 	
 	# PRODUCTION TWITTER API
- #    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-	# 'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+	'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
 
-	# 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-	# 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+	'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+	'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
 	# DEV TWITTER API
  #    'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
@@ -65,11 +65,11 @@ twitter_config = {
 	# 'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
 
 	#DEV TWITTER API 3
-	'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
-	'consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
+	# 'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
+	# 'consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
 
-	'access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
-	'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
+	# 'access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
+	# 'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
 	#Number of distributor threads
 	'num_proc_threads': 20,
