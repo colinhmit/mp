@@ -16,6 +16,7 @@ import datetime
 import zmq
 import copy
 import pickle
+import gc
 
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
@@ -58,7 +59,7 @@ class twtr:
 			threading.Thread(target=self.distribute).start()
 
 		for _ in xrange(self.config['num_proc_threads']):
-			multiprocessing.Process(target=self.process, args=(copy.copy(nlp),)).start()
+			multiprocessing.Process(target=self.process, args=(nlp,)).start()
 
 		if len(self.streams)>0:
 			self.stream_conn.start()
@@ -159,7 +160,9 @@ class twtr:
 				if len(svomap)>5000:
 					pp('Wiping svomap & flushing')
 					svomap = {}
-					nlp.flush()
+				
+				nlp.flush()
+				gc.collect()
 
 				pickled_data = pickle.dumps(msg)
 				sendr.send(pickled_data)
