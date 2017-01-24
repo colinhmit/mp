@@ -157,12 +157,11 @@ class twtr:
 
 				msg['svos'] = svos
 
-				if len(svomap)>5000:
+				if len(svomap)>100:
 					pp('Wiping svomap & flushing')
 					svomap = {}
-				
-				nlp.flush()
-				gc.collect()
+					nlp.flush()
+					gc.collect()
 
 				pickled_data = pickle.dumps(msg)
 				sendr.send(pickled_data)
