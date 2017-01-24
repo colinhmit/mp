@@ -14,6 +14,8 @@ import json
 import multiprocessing
 import datetime
 import zmq
+import copy
+import pickle
 
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
@@ -29,6 +31,9 @@ class StdOutListener(StreamListener):
 		self.pipe = None
 
 	def on_data(self, data):
+		jsondata = json.loads(data)
+		if 'text' in jsondata:
+			pp('>>>>>>>>>>>')
 		self.pipe.send_string(data)
 		return True
 
@@ -39,7 +44,7 @@ class StdOutListener(StreamListener):
 		pp('Timeout...')
 
 class twtr:
-	def __init__(self, config, init_streams):
+	def __init__(self, config, init_streams, nlp):
 		self.config = config
 		self.input_queue = Queue.Queue()
 		self.streams = {}
@@ -53,18 +58,20 @@ class twtr:
 			threading.Thread(target=self.distribute).start()
 
 		for _ in xrange(self.config['num_proc_threads']):
-			multiprocessing.Process(target=self.process).start()
+			multiprocessing.Process(target=self.process, args=(copy.copy(nlp),)).start()
 
 		if len(self.streams)>0:
 			self.stream_conn.start()
 
-	def process(self):
+	def process(self, nlp):
 		context = zmq.Context()
 		recvr = context.socket(zmq.PULL)
 		recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_input_port']))
 
 		sendr = context.socket(zmq.PUSH)
 		sendr.connect("tcp://127.0.0.1:"+str(self.config['zmq_output_port']))
+
+		svomap = {}
 
 		for data in iter(recvr.recv_string, 'STOP'):
 			jsondata = json.loads(data)
@@ -133,17 +140,41 @@ class twtr:
 						'mp4_url': ''
 						}
 			if len(msg) > 0:
-				sendr.send_json(msg)
+				hashid = hash(msg['message'])
+
+				if hashid in svomap:
+					svos = svomap[hashid]
+				else:
+					clean_msg = re.sub(r"http\S+", "", msg['message'])
+					clean_msg = re.sub(r"[#@]", "", clean_msg)
+					clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
+					try:
+						svos = nlp.parse_text(clean_msg)
+					except Exception, e:
+						svos = []
+					svomap[hashid] = svos
+
+				msg['svos'] = svos
+
+				if len(svomap)>5000:
+					pp('Wiping svomap & flushing')
+					svomap = {}
+					nlp.flush()
+
+				pickled_data = pickle.dumps(msg)
+				sendr.send(pickled_data)
 
 	def distribute(self):
 		context = zmq.Context()
 		recvr = context.socket(zmq.PULL)
 		recvr.bind("tcp://127.0.0.1:"+str(self.config['zmq_output_port']))
 
-		for data in iter(recvr.recv_json, 'STOP'):
+		for pickled_data in iter(recvr.recv, 'STOP'):
+			msg = pickle.loads(pickled_data)
+			pp('<<<<<<')
 			for key in self.streams.keys():
 				try:
-					self.streams[key].put(data)
+					self.streams[key].put(msg)
 				except Exception, e:
 					pp(e)
 	

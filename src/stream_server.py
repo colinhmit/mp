@@ -47,7 +47,7 @@ class StreamServer():
         self.target_twitter_streams = self.config['target_streams']
 
         self.nlp_parser = nlpParser()
-        self.twit = twtr_.twtr(twitter_config, self.target_twitter_streams)
+        self.twit = twtr_.twtr(twitter_config, self.target_twitter_streams, self.nlp_parser)
 
         for stream in self.target_twitter_streams:
             self.create_stream(stream, 'twitter')
@@ -82,7 +82,8 @@ class StreamServer():
             if stream not in self.twitter_streams:
                 self.twitter_streams[stream] = None 
                 self.twit.join_stream(stream)
-                self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit, copy.copy(self.nlp_parser))
+                #self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit, copy.copy(self.nlp_parser))
+                self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit)
                 self.twitter_streams[stream].run()
 
     def delete_stream(self, stream, src):
@@ -367,10 +368,10 @@ if __name__ == '__main__':
     filter_twitter_thread = threading.Thread(target = server.filter_twitter).start()
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
-    refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
+    #refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
     #serve
     listen_thread = threading.Thread(target = server.listen).start()
     broadcast_thread = threading.Thread(target = server.broadcast).start()
     #cleanup thread
     garbage_thread = threading.Thread(target = server.garbage_cleanup).start()
-    monitor_thread = threading.Thread(target = server.monitor_twitter).start()
+    #monitor_thread = threading.Thread(target = server.monitor_twitter).start()

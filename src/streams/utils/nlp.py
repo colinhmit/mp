@@ -162,7 +162,7 @@ class nlpParser:
                 v, objs = self.getAllObjs(v)
                 for sub in subs:
                     for obj in objs:
-                        objNegated = self.isNegated(obj)
-                        svos.append((sub,v,obj,verbNegated))
-                        #svos.append((sub.lower_, "!" + v.lower_ if verbNegated or objNegated else v.lower_, obj.lower_))
+                        #objNegated = self.isNegated(obj)
+                        #svos.append((sub,v,obj,verbNegated))
+                        svos.append({'subj':sub.lower_,'verb':v.vector,'obj':obj.vector,'neg':verbNegated})
         return svos

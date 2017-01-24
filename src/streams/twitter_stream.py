@@ -12,10 +12,9 @@ from utils.functions_matching import *
 
 class TwitterStream:
 
-    def __init__(self, config, stream, curr_twtr, nlp_parser):
+    def __init__(self, config, stream, curr_twtr):
         self.config = config
         self.stream = stream
-        self.nlp_parser = nlp_parser
 
         try:
             self.pipe = curr_twtr.get_twtr_stream_object(stream)
@@ -26,7 +25,6 @@ class TwitterStream:
         self.trending = {}
         self.clean_trending = {}
         self.default_image = {'image':"",'score':0}
-        self.svomap = {}
         self.kill = False
 
     def get_trending(self):
@@ -116,43 +114,40 @@ class TwitterStream:
                 'visible' : 0
             }
 
+    def nlp_compare(self, svos):
+        for svo in svos:
+            for key in self.trending.keys():
+                match_subj = fweo_threshold(svo['subj'], [x['subj'] for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
+
+                if match_subj is None:
+                    pass
+                else:
+                    matched_svos = [x for x in self.trending[key]['svos'] if x['subj']==match_subj[0]]
+
+                    for matched_svo in matched_svos:
+                        verb_diff = cosine(svo['verb'], matched_svo['verb'])
+
+                        if (verb_diff<self.config['verb_compare_threshold']) or (svo['neg'] != matched_svo['neg']):
+                            pass
+                        else:
+                            obj_diff = cosine(svo['obj'], matched_svo['obj'])
+
+                            if (obj_diff<self.config['obj_compare_threshold']):
+                                pass
+                            else:
+                                return key
+        return None
+
     def get_match(self, msg, svos):
         matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
         if (len(matched) == 0):
             try:
-                for svo in svos:
-                    subj, verb, obj, neg = svo
-
-                    for key in self.trending.keys():
-                        match_subj = fweo_threshold(subj.lower_, [x[0].lower_ for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
-
-                        if match_subj is None:
-                            pass
-                        else:
-                            matched_svos = [x for x in self.trending[key]['svos'] if x[0].lower_==match_subj[0]]
-
-                            for matched_svo in matched_svos:
-
-                                matched_subj, matched_verb, matched_obj, matched_neg = matched_svo
-
-                                verb_diff = cosine(verb.vector, matched_verb.vector)
-
-                                if (verb_diff<self.config['verb_compare_threshold']) or (neg != matched_neg):
-                                    pass
-                                else:
-                                    obj_diff = cosine(obj.vector, matched_obj.vector)
-
-                                    if (obj_diff<self.config['obj_compare_threshold']):
-                                        pass
-                                    else:
-                                        return key
+                return self.nlp_compare(svos) 
             except Exception, e:
-                # pp('Twitter SVO Matching Failed.')
-                # pp(e)
-                pass
-
-            return None
+                pp('Twitter SVO Matching Failed.')
+                pp(e)
+                return None
 
         elif len(matched) == 1:
             return matched[0][0]
@@ -198,23 +193,8 @@ class TwitterStream:
         user = msgdata['username']
         media = msgdata['media_url']
         mp4 = msgdata['mp4_url']
-        hashid = hash(msg)
-
-        if hashid in self.svomap.keys():
-            svos, clean_msg = self.svomap[hashid]
-
-        else:
-            clean_msg = self.clean_message(msg)
-            try:
-                svos = self.nlp_parser.parse_text(clean_msg)
-            except Exception, e:
-                svos = []
-            self.svomap[hashid] = svos, clean_msg
-
-        if (len(self.svomap)>5000):
-            self.svomap = {}
-            self.nlp_parser.flush()
-
+        svos = msgdata['svos']
+        
         #cleanup RT
         if msg[:4] == 'RT @':
             msg = msg[msg.find(':')+1:]
