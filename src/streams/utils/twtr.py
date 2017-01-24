@@ -44,7 +44,6 @@ class StdOutListener(StreamListener):
 class twtr:
 	def __init__(self, config, init_streams, nlp):
 		self.config = config
-		self.input_queue = Queue.Queue()
 		self.streams = {}
 
 		for stream in init_streams:
@@ -190,20 +189,19 @@ class twtr:
 		context = zmq.Context()
 		self.l.pipe = context.socket(zmq.PUSH)
 		connected = False
-
+		pp('Starting rebind...')
 		while not connected:
 			try:
 				self.l.pipe.bind("tcp://127.0.0.1:"+str(self.l.port))
+				pp('Finished rebinding.')
 				connected = True
 			except Exception, e:
 				pass
-
 		try:
 			pp('Connecting to target stream...')
 			self.stream_obj.filter(track=self.streams.keys())
 		except Exception, e:
 			pp('/////////////////STREAM CONNECTION WENT DOWN////////////////////')
-			pp('TWTR Hose size: ' + str(self.input_queue.qsize()))
 			for stream in self.streams.keys():
 				pp(stream + ' stream size: ' + str(self.streams[stream].qsize()))
 			pp(e)
