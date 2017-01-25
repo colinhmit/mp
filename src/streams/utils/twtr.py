@@ -44,15 +44,14 @@ class StdOutListener(StreamListener):
 class twtr:
 	def __init__(self, config, init_streams, nlp):
 		self.config = config
-		self.streams = {}
+		self.init_streams = init_streams
 
-		for stream in init_streams:
-			self.streams[stream] = Queue.Queue()
+		self.streams = self.init_streams
 
 		self.set_twtr_stream_object()
 
 		for _ in xrange(self.config['num_dist_threads']):
-			threading.Thread(target=self.distribute).start()
+			multiprocessing.Process(target=self.distribute).start()
 
 		for _ in xrange(self.config['num_proc_threads']):
 			multiprocessing.Process(target=self.process, args=(nlp,)).start()
@@ -63,10 +62,10 @@ class twtr:
 	def process(self, nlp):
 		context = zmq.Context()
 		recvr = context.socket(zmq.PULL)
-		recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_input_port']))
+		recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_queue_port']))
 
-		sendr = context.socket(zmq.PUSH)
-		sendr.connect("tcp://127.0.0.1:"+str(self.config['zmq_output_port']))
+		sendr = context.socket(zmq.PUB)
+		sendr.connect("tcp://127.0.0.1:"+str(self.config['zmq_pub_port']))
 
 		svomap = {}
 
@@ -162,22 +161,25 @@ class twtr:
 				sendr.send(pickled_data)
 
 	def distribute(self):
-		context = zmq.Context()
-		recvr = context.socket(zmq.PULL)
-		recvr.bind("tcp://127.0.0.1:"+str(self.config['zmq_output_port']))
+		distributing = True
 
-		for pickled_data in iter(recvr.recv, 'STOP'):
-			msg = pickle.loads(pickled_data)
-			for key in self.streams.keys():
-				try:
-					self.streams[key].put(msg)
-				except Exception, e:
-					pp(e)
-	
+		while distributing:
+			try:
+				context = zmq.Context(1)
+				frontend = context.socket(zmq.SUB)
+				frontend.bind("tcp://*:"+str(self.config['zmq_pub_port']))
+				frontend.setsockopt(zmq.SUBSCRIBE, "")
+
+				backend = context.socket(zmq.PUB)
+				backend.bind("tcp://*:"+str(self.config['zmq_sub_port']))
+				zmq.device(zmq.FORWARDER, frontend, backend)
+			except Exception, e:
+				pp(e)
+				
 	def set_twtr_stream_object(self):
 		config = self.config
 
-		self.l = StdOutListener(config['zmq_input_port'])
+		self.l = StdOutListener(config['zmq_queue_port'])
 		self.auth = OAuthHandler(config['consumer_token'], config['consumer_secret'])
 		self.auth.set_access_token(config['access_token'], config['access_secret'])
 		self.api = API(self.auth)
@@ -199,15 +201,10 @@ class twtr:
 				pass
 		try:
 			pp('Connecting to target stream...')
-			self.stream_obj.filter(track=self.streams.keys())
+			self.stream_obj.filter(track=self.streams)
 		except Exception, e:
 			pp('/////////////////STREAM CONNECTION WENT DOWN////////////////////')
-			for stream in self.streams.keys():
-				pp(stream + ' stream size: ' + str(self.streams[stream].qsize()))
 			pp(e)
-
-	def get_twtr_stream_object(self, stream):
-		return self.streams[stream]
 
 	def refresh_streams(self):
 		pp('Refreshing streams...')
@@ -220,7 +217,7 @@ class twtr:
 
 	def reset_streams(self):
 		pp('Resetting streams...')
-		self.streams = {}
+		self.streams = self.init_streams
 		if self.stream_conn.is_alive():
 			self.stream_obj.disconnect()
  			self.stream_conn.terminate()
@@ -234,13 +231,13 @@ class twtr:
 			if self.stream_conn.is_alive():
 				self.stream_obj.disconnect()
 	 			self.stream_conn.terminate()
-			self.streams[stream] = Queue.Queue()
+			self.streams.append(stream)
 			self.stream_conn = multiprocessing.Process(target=self.stream_connection)
 			self.stream_conn.start()
 
 	def leave_stream(self, stream):
 		if stream in self.streams:
-			del self.streams[stream]
+			self.streams.remove(stream)
 			if self.stream_conn.is_alive():
 				self.stream_obj.disconnect()
 	 			self.stream_conn.terminate()
@@ -257,12 +254,9 @@ class twtr:
  			self.stream_conn.terminate()
  		for stream in streams_to_remove:
 			if stream in self.streams:
-				try:
-					del self.streams[stream]
-				except Exception, e:
-					raise e
+				self.streams.remove(stream)
 		for stream in streams_to_add:
 			if stream not in self.streams:
-				self.streams[stream] = Queue.Queue()
+				self.streams.append(stream)
 		self.stream_conn = multiprocessing.Process(target=self.stream_connection)
 		self.stream_conn.start()

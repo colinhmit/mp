@@ -7,6 +7,9 @@ Created on Wed Aug 24 18:42:42 2016
 
 import datetime
 import re
+import zmq
+import pickle
+
 from utils.functions_general import *
 from utils.functions_matching import *
 
@@ -15,11 +18,6 @@ class TwitterStream:
     def __init__(self, config, stream, curr_twtr):
         self.config = config
         self.stream = stream
-
-        try:
-            self.pipe = curr_twtr.get_twtr_stream_object(stream)
-        except Exception, e:
-            raise e
 
         self.last_rcv_time = None
         self.trending = {}
@@ -218,11 +216,15 @@ class TwitterStream:
         self.decay(msg, msgtime)
 
     def run(self):
-        pipe = self.pipe
+        context = zmq.Context()
+        socket = context.socket(zmq.SUB)
+        socket.connect("tcp://127.0.0.1:"+str(self.config['zmq_sub_port']))
+        socket.setsockopt(zmq.SUBSCRIBE, "")
         config = self.config
         
         while not self.kill:
-            msg = pipe.get()
+            data = socket.recv()
+            msg = pickle.loads(data)
             if len(msg) == 0:
                 pp('Twitter connection was lost...')
             if self.stream in msg['message'].lower():

@@ -215,7 +215,7 @@ class StreamServer():
                     except Exception, e:
                         pp(e)
 
-            time.sleep(0.49)
+            time.sleep(0.5)
 
     def filter_twitter(self):
         self.filter_loop = True
@@ -239,7 +239,7 @@ class StreamServer():
                     except Exception, e:
                         pp(e)
 
-            time.sleep(0.49)
+            time.sleep(0.5)
 
     def handle_http(self, client_sock, client_address):
         config = self.config
@@ -322,7 +322,7 @@ class StreamServer():
             pickle_data = struct.pack('>I', len(pickle_data)) + pickle_data
             client_sock.sendall(pickle_data)
 
-            time.sleep(0.48)
+            time.sleep(0.5)
 
     def broadcast(self):
         sock = self.data_sock
