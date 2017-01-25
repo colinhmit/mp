@@ -17,6 +17,7 @@ import zmq
 import copy
 import pickle
 import gc
+import random
 
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
@@ -68,6 +69,7 @@ class twtr:
 		sendr.connect("tcp://127.0.0.1:"+str(self.config['zmq_pub_port']))
 
 		svomap = {}
+		svorefresh = random.randint(300, 500)
 
 		for data in iter(recvr.recv_string, 'STOP'):
 			jsondata = json.loads(data)
@@ -152,7 +154,7 @@ class twtr:
 
 				msg['svos'] = svos
 
-				if len(svomap)>100:
+				if len(svomap)>svorefresh:
 					svomap = {}
 					nlp.flush()
 					gc.collect()
@@ -202,6 +204,7 @@ class twtr:
 		try:
 			pp('Connecting to target stream...')
 			self.stream_obj.filter(track=self.streams)
+			gc.collect()
 		except Exception, e:
 			pp('/////////////////STREAM CONNECTION WENT DOWN////////////////////')
 			pp(e)
