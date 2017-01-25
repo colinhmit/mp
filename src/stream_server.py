@@ -82,7 +82,6 @@ class StreamServer():
             if stream not in self.twitter_streams:
                 self.twitter_streams[stream] = None 
                 self.twit.join_stream(stream)
-                #self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit, copy.copy(self.nlp_parser))
                 self.twitter_streams[stream] = TwitterStream(twitter_config, stream, self.twit)
                 self.twitter_streams[stream].run()
 
@@ -216,7 +215,7 @@ class StreamServer():
                     except Exception, e:
                         pp(e)
 
-            time.sleep(0.17)
+            time.sleep(0.49)
 
     def filter_twitter(self):
         self.filter_loop = True
@@ -240,7 +239,7 @@ class StreamServer():
                     except Exception, e:
                         pp(e)
 
-            time.sleep(0.17)
+            time.sleep(0.49)
 
     def handle_http(self, client_sock, client_address):
         config = self.config
@@ -323,7 +322,7 @@ class StreamServer():
             pickle_data = struct.pack('>I', len(pickle_data)) + pickle_data
             client_sock.sendall(pickle_data)
 
-            time.sleep(0.17)
+            time.sleep(0.48)
 
     def broadcast(self):
         sock = self.data_sock
