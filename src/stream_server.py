@@ -17,6 +17,9 @@ import re
 import copy
 import pickle
 
+from oauth2client.service_account import ServiceAccountCredentials
+from apiclient.discovery import build
+
 logging.basicConfig()
 
 from streams.twitch_stream import *
@@ -36,7 +39,8 @@ class StreamServer():
         self.twitter_streams = {}
         
         self.twitch_featured = []
-        self.twitter_featured = []
+        self.twitter_api_featured = []
+        self.twitter_manual_featured = []
 
         #twitter workarounds
         self.twitter_hash = None
@@ -68,6 +72,9 @@ class StreamServer():
         self.sess = requests.Session()
         adapter = requests.adapters.HTTPAdapter(max_retries=5)
         self.sess.mount('https://api.twitch.tv', adapter)
+
+        self.credentials = ServiceAccountCredentials.from_json_keyfile_name(self.config['sheets_key'], self.config['scopes'])
+        self.service = build('sheets', 'v4', credentials=self.credentials)
 
     #stream control
     def create_stream(self, stream, src):
@@ -124,14 +131,13 @@ class StreamServer():
             except Exception, e:
                 pp(e)
 
-        output['twitter_featured'] = [dict(x, image=self.get_default_image_helper(x['stream'], 'twitter')) for x in self.twitter_featured]
+        output['twitter_featured'] =  self.twitter_manual_featured + [dict(x, image=self.get_default_image_helper(x['stream'][0], 'twitter')) for x in self.twitter_api_featured]
         output['twitch_featured'] = self.twitch_featured
         output['target_twitter_streams'] = self.target_twitter_streams
         return pickle.dumps(output)
 
     def get_default_image_helper(self, stream, src):
         default_image = ''
-        stream = self.pattern.sub('',stream).lower()
         if src == 'twitter':
             try:
                 default_image = self.twitter_streams[stream].get_default_image()
@@ -144,11 +150,11 @@ class StreamServer():
     def get_twitter_featured(self):
         try:
             trends = self.twit.api.trends_place(23424977)
-            output = [{'stream':x['name'],'description':'','count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
+            output = [{'title':x['name'],'stream':[self.pattern.sub('',x['name']).lower()],'description':'','count':x['tweet_volume']} for x in trends[0]['trends'] if x['tweet_volume']!=None]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
             sorted_output = sorted_output[0:self.config['twitter_num_featured']]
 
-            streams_to_add = [self.pattern.sub('',x['stream']).lower() for x in sorted_output]
+            streams_to_add = [x['stream'][0] for x in sorted_output]
             streams_to_remove = []
 
             self.twitter_featured_buffer += streams_to_add
@@ -168,17 +174,57 @@ class StreamServer():
             for featured_stream in streams_to_add:
                 self.create_stream(featured_stream, 'twitter')
 
-            self.twitter_featured = sorted_output
+            self.twitter_api_featured = sorted_output
 
         except Exception, e:
-            pp('Get Twitter featured failed.')
+            pp('Get Twitter API featured failed.')
+            pp(e)
+
+    def get_twitter_featured_manual(self):
+        try:
+            result = self.service.spreadsheets().values().get(spreadsheetId=self.config['spreadsheetID'], range=self.config['featured_live_range']).execute()
+            values = result.get('values', [])
+            live_bool = int(values[0][0])
+
+            if live_bool == 1:
+                result = self.service.spreadsheets().values().get(spreadsheetId=self.config['spreadsheetID'], range=self.config['featured_data_range']).execute()
+                values = result.get('values', [])
+
+                manual_featured = []
+                for row in values:
+                    manual_featured.append({'title':row[0], 'stream':row[1].split(","), 'image':row[3], 'description':row[2], 'count':row[4]})
+
+                if manual_featured != self.twitter_manual_featured:
+                    current_manual_streams = [x['stream'] for x in self.twitter_manual_featured]
+                    current_manual_streams = [val for sublist in current_manual_streams for val in sublist]
+
+                    addition_manual_streams = [x['stream'] for x in manual_featured]
+                    addition_manual_streams = [val for sublist in addition_manual_streams for val in sublist]
+
+                    for old_stream in current_manual_streams:
+                        if (old_stream not in addition_manual_streams) and (old_stream in self.twitter_streams):
+                            try:
+                                self.twitter_streams[old_stream].kill = True
+                                del self.twitter_streams[old_stream]
+                            except Exception, e:
+                                pp(e)
+
+                    self.twit.batch_streams(addition_manual_streams, current_manual_streams)
+
+                    for featured_stream in addition_manual_streams:
+                        self.create_stream(featured_stream, 'twitter')
+
+                    self.twitter_manual_featured = manual_featured
+
+        except Exception, e:
+            pp('Get Twitter manual featured failed.')
             pp(e)
 
     def get_twitch_featured(self):
         headers = {'Accept':'application/vnd.twitchtv.v3+json', 'Client-ID':self.config['twitch_client_id']}
         try:
             r = self.sess.get('https://api.twitch.tv/kraken/streams', headers = headers)
-            output = [{'stream':x['channel']['name'], 'image': x['preview']['medium'], 'description': x['channel']['status'], 'game': x['game'], 'count': x['viewers']} for x in (json.loads(r.content))['streams']]
+            output = [{'title':x['channel']['name'], 'stream':x['channel']['name'], 'image': x['preview']['medium'], 'description': x['channel']['status'], 'game': x['game'], 'count': x['viewers']} for x in (json.loads(r.content))['streams']]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
             self.twitch_featured = sorted_output[0:self.config['twitch_num_featured']]
         except Exception, e:
@@ -192,6 +238,13 @@ class StreamServer():
             self.get_twitter_featured()
 
             time.sleep(1200)
+
+    def refresh_manual(self):
+        self.refresh_manual = True
+        while self.refresh_manual:
+            self.get_twitter_featured_manual()
+
+            time.sleep(60)
 
     def filter_twitch(self):
         self.filter_loop = True
@@ -215,7 +268,7 @@ class StreamServer():
                     except Exception, e:
                         pp(e)
 
-            time.sleep(0.5)
+            time.sleep(0.3)
 
     def filter_twitter(self):
         self.filter_loop = True
@@ -239,7 +292,7 @@ class StreamServer():
                     except Exception, e:
                         pp(e)
 
-            time.sleep(0.5)
+            time.sleep(0.3)
 
     def handle_http(self, client_sock, client_address):
         config = self.config
@@ -322,7 +375,7 @@ class StreamServer():
             pickle_data = struct.pack('>I', len(pickle_data)) + pickle_data
             client_sock.sendall(pickle_data)
 
-            time.sleep(0.5)
+            time.sleep(0.3)
 
     def broadcast(self):
         sock = self.data_sock
@@ -371,6 +424,8 @@ if __name__ == '__main__':
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
     refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
+    #Google API
+    manual_thread = threading.Thread(target = server.refresh_manual).start()
     #serve
     listen_thread = threading.Thread(target = server.listen).start()
     broadcast_thread = threading.Thread(target = server.broadcast).start()

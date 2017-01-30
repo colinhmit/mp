@@ -40,6 +40,11 @@ class WebServer(Resource):
     def handle_GET(self, path, args):
         if path[0:7] == '/stream':
             return self.stream_client.get_agg_streams(args)
+        elif path[0:5] == '/top/':
+            if path[5:12] == 'twitter':
+                return self.get_top_twitter_streams(args)
+            else:
+                return json.dumps('Invalid path! Valid path: /top/twitter')
         elif path[0:8] == '/cpanel/':
             if path[8:14] == 'twitch':
                 return self.stream_client.handle_cpanel('twitch',args)
@@ -128,10 +133,42 @@ class StreamClient():
 
         self.request_sock.send(json.dumps(request))
 
+    def get_top_twitter_streams(self, args):
+        config = self.config
+        trend_dicts = []
+        image_output = 'https://media.giphy.com/media/Nwz6NZkToYC4M/giphy.gif'
+
+        for stream_id in self.twitter_streams:
+            trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{}))
+
+        trending_output = {}
+        [trending_output.update(d) for d in trend_dicts]
+
+        if ('filter' in args) and (len(args['filter'][0])>0):
+            for keyword in args['filter'][0].split(','):
+                for msg in trending_output:
+                    if keyword.lower() in msg.lower():
+                        del trending_output[msg]
+
+        trending_output = {}
+        [trending_output.update(d) for d in trend_dicts]
+
+        if ('filter' in args) and (len(args['filter'][0])>0):
+            for keyword in args['filter'][0].split(','):
+                for msg in trending_output:
+                    if keyword.lower() in msg.lower():
+                        del trending_output[msg]
+
+        return json.dumps({'default_image':image_output, 'trending': trending_output})
+
     def get_agg_streams(self, args):
         config = self.config
         trend_dicts = []
         trend_images = []
+
+        #WORKAROUND FOR TOP
+        if ('twitter' in args) and (len(args['twitter'][0])>0) and ('top' in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]):
+            return self.get_top_twitter_streams(args)
 
         if ('twitch' in args) and (len(args['twitch'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:

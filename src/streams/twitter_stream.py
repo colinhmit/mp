@@ -18,7 +18,6 @@ class TwitterStream:
     def __init__(self, config, stream, curr_twtr):
         self.config = config
         self.stream = stream
-
         self.last_rcv_time = None
         self.trending = {}
         self.clean_trending = {}
