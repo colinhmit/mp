@@ -16,6 +16,7 @@ import requests
 import re
 import copy
 import pickle
+import datetime
 
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
@@ -55,6 +56,8 @@ class StreamServer():
 
         for stream in self.target_twitter_streams:
             self.create_stream(stream, 'twitter')
+
+        self.schedule = []
         
     def init_sockets(self):
         request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -182,11 +185,11 @@ class StreamServer():
 
     def get_twitter_featured_manual(self):
         try:
-            result = self.service.spreadsheets().values().get(spreadsheetId=self.config['spreadsheetID'], range=self.config['featured_live_range']).execute()
-            values = result.get('values', [])
-            live_bool = int(values[0][0])
+            featured_result = self.service.spreadsheets().values().get(spreadsheetId=self.config['spreadsheetID'], range=self.config['featured_live_range']).execute()
+            featured_values = featured_result.get('values', [])
+            featured_live_bool = int(featured_values[0][0])
 
-            if live_bool == 1:
+            if featured_live_bool == 1:
                 result = self.service.spreadsheets().values().get(spreadsheetId=self.config['spreadsheetID'], range=self.config['featured_data_range']).execute()
                 values = result.get('values', [])
 
@@ -215,6 +218,22 @@ class StreamServer():
                         self.create_stream(featured_stream, 'twitter')
 
                     self.twitter_manual_featured = manual_featured
+
+            schedule_result = self.service.spreadsheets().values().get(spreadsheetId=self.config['spreadsheetID'], range=self.config['schedule_live_range']).execute()
+            schedule_values = schedule_result.get('values', [])
+            schedule_live_bool = int(schedule_values[0][0])
+
+            if featured_live_bool == 1:
+                result = self.service.spreadsheets().values().get(spreadsheetId=self.config['spreadsheetID'], range=self.config['schedule_data_range']).execute()
+                values = result.get('values', [])
+
+                schedule = []
+                for row in values:
+                    schedule.append({'eventname':row[0], 'source':row[1], 'stream':row[2], 'starttime':datetime.datetime.strptime(row[3]+" "+ row[4],"%m/%d/%y %I:%M:%S %p"), 'endtime':datetime.datetime.strptime(row[3]+" "+ row[5],"%m/%d/%y %I:%M:%S %p")})
+
+                if schedule != self.schedule:
+                    self.schedule = schedule
+                    pp(self.schedule)
 
         except Exception, e:
             pp('Get Twitter manual featured failed.')
@@ -245,6 +264,38 @@ class StreamServer():
             self.get_twitter_featured_manual()
 
             time.sleep(60)
+
+    def log_monitor(self):
+        self.logging = True
+
+        while self.logging:
+            for scheduled_stream in self.schedule:
+                try:
+                    if (datetime.datetime.now() > scheduled_stream['starttime']) and (datetime.datetime.now() < scheduled_stream['endtime']):
+                        if (scheduled_stream['source'] == 'twitch') and (scheduled_stream['stream'] in self.twitch_streams):
+                            if self.twitch_streams[scheduled_stream['stream']].log_file is None:
+                                self.twitch_streams[scheduled_stream['stream']].log_start_time = scheduled_stream['starttime']
+                                self.twitch_streams[scheduled_stream['stream']].log_file = open(self.config['twitch_log_path']+scheduled_stream['stream']+scheduled_stream['starttime'].strftime("%y%m%d_%H%M"), 'w')
+                        elif (scheduled_stream['source'] == 'twitter') and (scheduled_stream['stream'] in self.twitter_streams):
+                            if self.twitter_streams[scheduled_stream['stream']].log_file is None:
+                                self.twitter_streams[scheduled_stream['stream']].log_start_time = scheduled_stream['starttime']
+                                self.twitter_streams[scheduled_stream['stream']].log_file = open(self.config['twitter_log_path']+scheduled_stream['stream']+scheduled_stream['starttime'].strftime("%y%m%d_%H%M"), 'w')
+                    else:
+                        if (scheduled_stream['source'] == 'twitch') and (scheduled_stream['stream'] in self.twitch_streams):
+                            if self.twitch_streams[scheduled_stream['stream']].log_file is not None:
+                                self.twitch_streams[scheduled_stream['stream']].log_file.close()
+                                self.twitch_streams[scheduled_stream['stream']].log_file = None
+                                self.twitch_streams[scheduled_stream['stream']].log_start_time = None
+                        elif (scheduled_stream['source'] == 'twitter') and (scheduled_stream['stream'] in self.twitter_streams):
+                            if self.twitter_streams[scheduled_stream['stream']].log_file is not None:
+                                self.twitter_streams[scheduled_stream['stream']].log_file.close()
+                                self.twitter_streams[scheduled_stream['stream']].log_file = None
+                                self.twitter_streams[scheduled_stream['stream']].log_start_time = None
+                except Exception, e:
+                    pp(e)
+
+            time.sleep(1)
+                
 
     def filter_twitch(self):
         self.filter_loop = True
@@ -426,9 +477,11 @@ if __name__ == '__main__':
     refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
     #Google API
     manual_thread = threading.Thread(target = server.refresh_manual).start()
+    logging_thread = threading.Thread(target = server.log_monitor).start()
     #serve
     listen_thread = threading.Thread(target = server.listen).start()
     broadcast_thread = threading.Thread(target = server.broadcast).start()
     #cleanup thread
     garbage_thread = threading.Thread(target = server.garbage_cleanup).start()
     monitor_thread = threading.Thread(target = server.monitor_twitter).start()
+

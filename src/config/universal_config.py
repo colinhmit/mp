@@ -136,6 +136,16 @@ server_config = {
     'spreadsheetID': '1lz4g3-WvT8EjVc2hogalhnGQmkMb1d1fIvatpLUsano',
     'featured_data_range': 'Twitter Featured!A2:E',
     'featured_live_range': 'Twitter Featured!G2',
+    'schedule_data_range': 'Scraping Schedule!A2:F',
+    'schedule_live_range': 'Scraping Schedule!H2',
+
+    #AWS Log Path
+    # 'twitter_log_path': '/home/ec2-user/mp/src/logs/twitter/',
+    # 'twitch_log_path': '/home/ec2-user/mp/src/logs/twitch/',
+
+    #DEV Log Path
+    'twitter_log_path': '/Users/colinh/Repositories/mp/src/logs/twitter/',
+    'twitch_log_path': '/Users/colinh/Repositories/mp/src/logs/twitch/',
 
 	#Target stream allowed channels
 	'target_streams': ['trump'],

@@ -21,6 +21,8 @@ class TwitchStream:
         self.last_rcv_time = None
         self.trending = {}
         self.clean_trending = {}
+        self.log_file = None
+        self.log_start_time = None
 
         self.kill = False
 
@@ -139,6 +141,10 @@ class TwitchStream:
     def process_message(self, msgdata, msgtime):
         msg = msgdata['message']
         user = msgdata['username']
+
+        if self.log_file is not None:
+            line = str(msgtime - self.log_start_time) + "*|*" + user + "*|*" + msg
+            self.log_file.write(line.encode('utf8') + "\n")
 
         if len(self.trending)>0:
             try:

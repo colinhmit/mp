@@ -22,6 +22,9 @@ class TwitterStream:
         self.trending = {}
         self.clean_trending = {}
         self.default_image = {'image':"",'score':0}
+        self.log_file = None
+        self.log_start_time = None
+
         self.kill = False
 
     def get_trending(self):
@@ -192,6 +195,10 @@ class TwitterStream:
         mp4 = msgdata['mp4_url']
         svos = msgdata['svos']
         
+        if self.log_file is not None:
+            line = str(msgtime - self.log_start_time) + "*|*" + user + "*|*" + msg + "*|*" + str(media) + "*|*" + mp4
+            self.log_file.write(line.encode('utf8') + "\n")
+
         #cleanup RT
         if msg[:4] == 'RT @':
             msg = msg[msg.find(':')+1:]
