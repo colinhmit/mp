@@ -183,7 +183,7 @@ class StreamServer():
             pp('Get Twitter API featured failed.')
             pp(e)
 
-    def get_twitter_featured_manual(self):
+    def get_twitter_manual(self):
         try:
             featured_result = self.service.spreadsheets().values().get(spreadsheetId=self.config['spreadsheetID'], range=self.config['featured_live_range']).execute()
             featured_values = featured_result.get('values', [])
@@ -223,7 +223,7 @@ class StreamServer():
             schedule_values = schedule_result.get('values', [])
             schedule_live_bool = int(schedule_values[0][0])
 
-            if featured_live_bool == 1:
+            if schedule_live_bool == 1:
                 result = self.service.spreadsheets().values().get(spreadsheetId=self.config['spreadsheetID'], range=self.config['schedule_data_range']).execute()
                 values = result.get('values', [])
 
@@ -256,14 +256,9 @@ class StreamServer():
             self.get_twitch_featured()
             self.get_twitter_featured()
 
+            self.get_twitter_manual()
+
             time.sleep(1200)
-
-    def refresh_manual(self):
-        self.refresh_manual = True
-        while self.refresh_manual:
-            self.get_twitter_featured_manual()
-
-            time.sleep(60)
 
     def log_monitor(self):
         self.logging = True
@@ -294,7 +289,7 @@ class StreamServer():
                 except Exception, e:
                     pp(e)
 
-            time.sleep(1)
+            time.sleep(30)
                 
 
     def filter_twitch(self):
@@ -476,8 +471,7 @@ if __name__ == '__main__':
     #featured
     refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
     #Google API
-    manual_thread = threading.Thread(target = server.refresh_manual).start()
-    logging_thread = threading.Thread(target = server.log_monitor).start()
+    #logging_thread = threading.Thread(target = server.log_monitor).start()
     #serve
     listen_thread = threading.Thread(target = server.listen).start()
     broadcast_thread = threading.Thread(target = server.broadcast).start()

@@ -69,7 +69,7 @@ class twtr:
 		sendr.connect("tcp://127.0.0.1:"+str(self.config['zmq_pub_port']))
 
 		svomap = {}
-		svorefresh = random.randint(1000, 2000)
+		svorefresh = random.randint(750, 1000)
 
 		for data in iter(recvr.recv_string, 'STOP'):
 			jsondata = json.loads(data)
