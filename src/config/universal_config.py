@@ -40,18 +40,18 @@ twitch_config = {
 twitter_config = {
 	
 	# PRODUCTION TWITTER API
-    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-	'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+ #    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+	# 'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
 
-	'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-	'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+	# 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+	# 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
 	# DEV TWITTER API
- #    'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
-	# 'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+    'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+	'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
 
-	# 'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
-	# 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
+	'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+	'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
 	#DEV TWITTER API 2
  #    'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
@@ -99,6 +99,10 @@ twitter_config = {
       'decay_msg_min_limit': 0.4,
       'decay_time_mtch_base': 4,
       'decay_time_base': 0.2,
+
+      #twitter content cutoff
+      'content_max_time': 1800,
+      'content_max_size': 20,
                        
 	# maximum amount of bytes to receive from socket - 1024-4096 recommended
 	'socket_buffer_size': 4096
@@ -157,9 +161,9 @@ client_config = {
     'host': '127.0.0.1',
 
     #AWS Settings
-    'port': 80,
-    'request_host': '35.160.61.218',
-    'data_host': '35.160.61.218',
+    # 'port': 80,
+    # 'request_host': '35.160.61.218',
+    # 'data_host': '35.160.61.218',
 
     #DEV Hosts
     # 'request_host': '127.0.0.1',
@@ -167,9 +171,9 @@ client_config = {
     # 'port': 4808,
 
     # #AWS DEV Hosts
-    # 'request_host': '35.166.70.54',
-    # 'data_host': '35.166.70.54',
-    # 'port': 80,	
+    'request_host': '35.166.70.54',
+    'data_host': '35.166.70.54',
+    'port': 80,	
 
     #Ports
     'request_port': 8008,

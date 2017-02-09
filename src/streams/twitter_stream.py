@@ -21,7 +21,8 @@ class TwitterStream:
         self.last_rcv_time = None
         self.trending = {}
         self.clean_trending = {}
-        self.default_image = {'image':"",'score':0}
+        self.content = {}
+        self.default_image = {'image': '', 'score': 0}
         self.log_file = None
         self.log_start_time = None
 
@@ -32,6 +33,9 @@ class TwitterStream:
 
     def get_default_image(self):
         return self.default_image['image']
+
+    def get_content(self):
+        return self.content
 
     def render_trending(self):
         if len(self.trending)>0:
@@ -49,10 +53,44 @@ class TwitterStream:
                 except Exception, e:
                     pp('Twitter filter trending failed on race condition.')
                     pp(e)
+            
+    def filter_content(self):
+        if len(self.trending)>0:
+            curr_time = datetime.datetime.now()
+            for msg_key in self.content:
+                if (curr_time - self.content[msg_key]['last_mtch_time']) > self.config['content_max_time']:
+                    del self.content[msg_key]
+
+            temp_trending = dict(self.trending)
+            min_key = min(self.content, key=lambda x: self.content[x]['score'])
+            for msg_key in temp_trending:
+                if msg_key in self.content:
+                    self.content[msg_key]['score'] = max(self.content[msg_key]['score'],temp_trending[msg_key]['score'])
+                    self.content[msg_key]['last_mtch_time'] = temp_trending[msg_key]['last_mtch_time']
+                elif len(self.content)<self.config['content_max_size']:
+                    self.content[msg_key] = {
+                        'score': temp_trending[msg_key]['score'],
+                        'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
+                        'media_url': temp_trending[msg_key]['media_url'],
+                        'mp4_url': temp_trending[msg_key]['mp4_url']
+                    }
+                    if self.content[msg_key]['score'] < self.content[min_key]['score']:
+                        min_key = msg_key
+                elif temp_trending[msg_key]['score'] > self.content[min_key]['score']:
+                    del self.content[min_key]
+                    self.content[msg_key] = {
+                        'score': temp_trending[msg_key]['score'],
+                        'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
+                        'media_url': temp_trending[msg_key]['media_url'],
+                        'mp4_url': temp_trending[msg_key]['mp4_url']
+                    }
+                    min_key = min(self.content, key=lambda x: self.content[x]['score'])
+
             image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
             if (len(temp_trending[image_key]['media_url'])>0) and (temp_trending[image_key]['score']>self.default_image['score']):
                 self.default_image = {'image':temp_trending[image_key]['media_url'][0], 'score':temp_trending[image_key]['score']}
 
+            
     def handle_match(self, matched_msg, msg, msgtime, user, media, mp4, svos):
         if user in self.trending[matched_msg]['users']:
             if self.config['debug']:

@@ -15,6 +15,7 @@ import time
 import requests
 import re
 import pickle
+import operator
 
 logging.basicConfig()
 
@@ -40,6 +41,8 @@ class WebServer(Resource):
     def handle_GET(self, path, args):
         if path[0:7] == '/stream':
             return self.stream_client.get_agg_streams(args)
+        elif path[0:8] == '/content':
+            return self.stream_client.get_agg_content(args)
         elif path[0:5] == '/top/':
             if path[5:12] == 'twitter':
                 return self.get_top_twitter_streams(args)
@@ -161,6 +164,31 @@ class StreamClient():
 
         return json.dumps({'default_image':image_output, 'trending': trending_output})
 
+
+    def get_agg_content(self, args):
+        config = self.config
+        content_dicts = []
+
+        if ('twitter' in args) and (len(args['twitter'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+                if stream_id not in self.twitter_streams:
+                    self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.request_stream(stream_id,'twitter')
+
+                content_dicts.append(self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+
+        content_output = {}
+        [content_output.update(d) for d in content_dicts]
+
+        if ('filter' in args) and (len(args['filter'][0])>0):
+            for keyword in args['filter'][0].split(','):
+                for msg in content_output:
+                    if keyword.lower() in msg.lower():
+                        del content_output[msg]
+
+        return json.dumps({'content': content_output})
+
+
     def get_agg_streams(self, args):
         config = self.config
         trend_dicts = []
@@ -180,13 +208,27 @@ class StreamClient():
                 trend_images.append(self.twitch_streams.get(stream_id,{}).get('default_image',''))
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
-            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
-                if stream_id not in self.twitter_streams:
-                    self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
-                    self.request_stream(stream_id,'twitter')
+            #HACKY WORKAROUND FOR CONTENT
+            if ('content' in args):
+                content_time = int(args['content'][0])
+                curr_time = datetime.datetime.now()
+                for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+                    if stream_id not in self.twitter_streams:
+                        self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                        self.request_stream(stream_id,'twitter')
 
-                trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
-                trend_images.append(self.twitter_streams.get(stream_id,{}).get('default_image',''))
+                    content_dict = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
+
+                    content_dict = {msg_k: {'score':50, 'first_rcv_time': datetime.datetime.fromtimestamp(msg_v['score']).isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url']} for msg_k, msg_v in content_dict.items() if (curr_time - msg_v['last_mtch_time'])<content_time}
+                    trend_dicts.append(content_dict)
+            else:
+                for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+                    if stream_id not in self.twitter_streams:
+                        self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                        self.request_stream(stream_id,'twitter')
+
+                    trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+                    trend_images.append(self.twitter_streams.get(stream_id,{}).get('default_image',''))
 
         trending_output = {}
         [trending_output.update(d) for d in trend_dicts]

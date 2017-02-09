@@ -131,6 +131,7 @@ class StreamServer():
                 output['twitter_streams'][stream] = {}
                 output['twitter_streams'][stream]['default_image'] = self.twitter_streams[stream].get_default_image()
                 output['twitter_streams'][stream]['trending'] = self.twitter_streams[stream].get_trending()
+                output['twitter_streams'][stream]['content'] = self.twitter_streams[stream].get_content()
             except Exception, e:
                 pp(e)
 
@@ -293,8 +294,8 @@ class StreamServer():
                 
 
     def filter_twitch(self):
-        self.filter_loop = True
-        while self.filter_loop:
+        self.twitch_filter_loop = True
+        while self.twitch_filter_loop:
             if len(self.twitch_streams.keys()) > 0:
                 for stream_key in self.twitch_streams.keys():
                     try:
@@ -305,8 +306,8 @@ class StreamServer():
             time.sleep(0.8)
 
     def render_twitch(self):
-        self.clean_loop = True
-        while self.clean_loop:
+        self.twitch_clean_loop = True
+        while self.twitch_clean_loop:
             if len(self.twitch_streams.keys()) > 0:
                 for stream_key in self.twitch_streams.keys():
                     try:
@@ -316,9 +317,21 @@ class StreamServer():
 
             time.sleep(0.3)
 
-    def filter_twitter(self):
-        self.filter_loop = True
-        while self.filter_loop:
+    def filter_content_twitter(self):
+        self.twitter_filter_content_loop = True
+        while self.twitter_filter_content_loop:
+            if len(self.twitter_streams.keys()) > 0:
+                for stream_key in self.twitter_streams.keys():
+                    try:
+                        self.twitter_streams[stream_key].filter_content()
+                    except Exception, e:
+                        pp(e)
+
+            time.sleep(5)
+
+    def filter_trending_twitter(self):
+        self.twitter_filter_trending_loop = True
+        while self.twitter_filter_trending_loop:
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
                     try:
@@ -466,7 +479,8 @@ if __name__ == '__main__':
     filter_twitch_thread = threading.Thread(target = server.filter_twitch).start()
     render_twitch_thread = threading.Thread(target = server.render_twitch).start()
     #twitter helpers
-    filter_twitter_thread = threading.Thread(target = server.filter_twitter).start()
+    filter_trending_twitter_thread = threading.Thread(target = server.filter_trending_twitter).start()
+    filter_content_twitter_thread = threading.Thread(target = server.filter_content_twitter).start()
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
     refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
