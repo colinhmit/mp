@@ -62,7 +62,6 @@ class TwitterStream:
                     del self.content[msg_key]
 
             temp_trending = dict(self.trending)
-            min_key = min(self.content, key=lambda x: self.content[x]['score'])
             for msg_key in temp_trending:
                 if msg_key in self.content:
                     self.content[msg_key]['score'] = max(self.content[msg_key]['score'],temp_trending[msg_key]['score'])
@@ -74,17 +73,16 @@ class TwitterStream:
                         'media_url': temp_trending[msg_key]['media_url'],
                         'mp4_url': temp_trending[msg_key]['mp4_url']
                     }
-                    if self.content[msg_key]['score'] < self.content[min_key]['score']:
-                        min_key = msg_key
-                elif temp_trending[msg_key]['score'] > self.content[min_key]['score']:
-                    del self.content[min_key]
-                    self.content[msg_key] = {
-                        'score': temp_trending[msg_key]['score'],
-                        'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
-                        'media_url': temp_trending[msg_key]['media_url'],
-                        'mp4_url': temp_trending[msg_key]['mp4_url']
-                    }
+                else:
                     min_key = min(self.content, key=lambda x: self.content[x]['score'])
+                    if temp_trending[msg_key]['score'] > self.content[min_key]['score']:
+                        del self.content[min_key]
+                        self.content[msg_key] = {
+                            'score': temp_trending[msg_key]['score'],
+                            'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
+                            'media_url': temp_trending[msg_key]['media_url'],
+                            'mp4_url': temp_trending[msg_key]['mp4_url']
+                        }
 
             image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
             if (len(temp_trending[image_key]['media_url'])>0) and (temp_trending[image_key]['score']>self.default_image['score']):
