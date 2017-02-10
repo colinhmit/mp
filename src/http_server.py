@@ -16,6 +16,7 @@ import requests
 import re
 import pickle
 import operator
+import datetime
 
 logging.basicConfig()
 
@@ -76,7 +77,6 @@ class StreamClient():
 
         self.twitch_featured = []
         self.twitter_featured = []
-
         self.target_twitter_streams = []
 
         #CJK regex
@@ -89,9 +89,17 @@ class StreamClient():
         request_sock.connect((config['request_host'], config['request_port']))
         self.request_sock = request_sock
 
-        data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        data_sock.connect((config['data_host'], config['data_port']))
-        self.data_sock = data_sock
+        twitch_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        twitch_data_sock.connect((config['data_host'], config['twitch_data_port']))
+        self.twitch_data_sock = twitch_data_sock
+
+        twitter_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        twitter_data_sock.connect((config['data_host'], config['twitter_data_port']))
+        self.twitter_data_sock = twitter_data_sock
+
+        featured_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        featured_data_sock.connect((config['data_host'], config['featured_data_port']))
+        self.featured_data_sock = featured_data_sock
 
     #cpanel response
     def handle_cpanel(self, src, args):
@@ -153,17 +161,7 @@ class StreamClient():
                     if keyword.lower() in msg.lower():
                         del trending_output[msg]
 
-        trending_output = {}
-        [trending_output.update(d) for d in trend_dicts]
-
-        if ('filter' in args) and (len(args['filter'][0])>0):
-            for keyword in args['filter'][0].split(','):
-                for msg in trending_output:
-                    if keyword.lower() in msg.lower():
-                        del trending_output[msg]
-
         return json.dumps({'default_image':image_output, 'trending': trending_output})
-
 
     def get_agg_content(self, args):
         config = self.config
@@ -188,7 +186,6 @@ class StreamClient():
 
         return json.dumps({'content': content_output})
 
-
     def get_agg_streams(self, args):
         config = self.config
         trend_dicts = []
@@ -209,8 +206,8 @@ class StreamClient():
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             #HACKY WORKAROUND FOR CONTENT
-            if ('content' in args):
-                content_time = int(args['content'][0])
+            if ('contenttest' in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]):
+                content_time = 1800
                 curr_time = datetime.datetime.now()
                 for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
                     if stream_id not in self.twitter_streams:
@@ -218,8 +215,7 @@ class StreamClient():
                         self.request_stream(stream_id,'twitter')
 
                     content_dict = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
-
-                    content_dict = {msg_k: {'score':50, 'first_rcv_time': datetime.datetime.fromtimestamp(msg_v['score']).isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url']} for msg_k, msg_v in content_dict.items() if (curr_time - msg_v['last_mtch_time'])<content_time}
+                    content_dict = {msg_k: {'score':50, 'first_rcv_time': datetime.datetime.fromtimestamp(msg_v['score']).isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url']} for msg_k, msg_v in content_dict.items() if (curr_time - msg_v['last_mtch_time']).total_seconds() < content_time}
                     trend_dicts.append(content_dict)
             else:
                 for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
@@ -259,8 +255,15 @@ class StreamClient():
 
         return json.dumps(output)
 
-    def recv_helper(self, bytes):
-        sock = self.data_sock
+    def recv_helper(self, bytes, src):
+        sock = None
+        if src == 'twitch':
+            sock = self.twitch_data_sock
+        elif src == 'twitter':
+            sock = self.twitter_data_sock
+        elif src == 'featured':
+            sock = self.featured_data_sock
+
         data = ''
         while len(data) < bytes:
             packet = sock.recv(bytes - len(data))
@@ -269,24 +272,49 @@ class StreamClient():
             data += packet
         return data
 
-    def recv_data(self):
+    def recv_featured_data(self):
         config = self.config
-        self.recv = True
+        self.recv_featured = True
 
-        while self.recv:
+        while self.recv_featured:
 
-            raw_len = self.recv_helper(4)
+            raw_len = self.recv_helper(4, 'featured')
             msg_len = struct.unpack('>I', raw_len)[0]
             # Read the message data
-            inc_pickle_data = self.recv_helper(msg_len)
+            inc_pickle_data = self.recv_helper(msg_len, 'featured')
 
             pickle_data = pickle.loads(inc_pickle_data)
-            self.twitch_streams = pickle_data['twitch_streams']
-            self.twitter_streams = pickle_data['twitter_streams']
-
             self.twitch_featured = pickle_data['twitch_featured']
             self.twitter_featured = pickle_data['twitter_featured']
             self.target_twitter_streams = pickle_data['target_twitter_streams']
+
+    def recv_twitch_data(self):
+        config = self.config
+        self.recv_twitch = True
+
+        while self.recv_twitch:
+
+            raw_len = self.recv_helper(4, 'twitch')
+            msg_len = struct.unpack('>I', raw_len)[0]
+            # Read the message data
+            inc_pickle_data = self.recv_helper(msg_len, 'twitch')
+
+            pickle_data = pickle.loads(inc_pickle_data)
+            self.twitch_streams = pickle_data['twitch_streams']
+
+    def recv_twitter_data(self):
+        config = self.config
+        self.recv_twitter = True
+
+        while self.recv_twitter:
+
+            raw_len = self.recv_helper(4, 'twitter')
+            msg_len = struct.unpack('>I', raw_len)[0]
+            # Read the message data
+            inc_pickle_data = self.recv_helper(msg_len, 'twitter')
+
+            pickle_data = pickle.loads(inc_pickle_data)
+            self.twitter_streams = pickle_data['twitter_streams']
 
     def run(self):
         pp('Initializing Web Server...')

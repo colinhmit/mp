@@ -114,7 +114,9 @@ server_config = {
 	'request_port': 8008,
 
     'data_host': '',
-    'data_port': 8007,
+    'twitch_data_port': 8016,
+    'twitter_data_port': 8017,
+    'featured_data_port': 8018,
 
     'listeners' : 10,
 
@@ -177,7 +179,9 @@ client_config = {
 
     #Ports
     'request_port': 8008,
-    'data_port': 8007,
+    'twitch_data_port': 8016,
+    'twitter_data_port': 8017,
+    'featured_data_port': 8018,
 
     # if set to true will display any data received
     'debug': False,

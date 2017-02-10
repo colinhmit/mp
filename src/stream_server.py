@@ -61,16 +61,24 @@ class StreamServer():
         
     def init_sockets(self):
         request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
         request_sock.bind((self.config['request_host'], self.config['request_port']))
         request_sock.listen(self.config['listeners'])
         self.request_sock = request_sock
 
-        data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        twitch_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        twitch_data_sock.bind((self.config['data_host'], self.config['twitch_data_port']))
+        twitch_data_sock.listen(self.config['listeners'])
+        self.twitch_data_sock = twitch_data_sock
 
-        data_sock.bind((self.config['data_host'], self.config['data_port']))
-        data_sock.listen(self.config['listeners'])
-        self.data_sock = data_sock
+        twitter_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        twitter_data_sock.bind((self.config['data_host'], self.config['twitter_data_port']))
+        twitter_data_sock.listen(self.config['listeners'])
+        self.twitter_data_sock = twitter_data_sock
+
+        featured_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        featured_data_sock.bind((self.config['data_host'], self.config['featured_data_port']))
+        featured_data_sock.listen(self.config['listeners'])
+        self.featured_data_sock = featured_data_sock
 
         self.sess = requests.Session()
         adapter = requests.adapters.HTTPAdapter(max_retries=5)
@@ -113,31 +121,35 @@ class StreamServer():
                 except Exception, e:
                     pp(e)
      
-    def get_stream_data(self):
+    def get_stream_data(self, src):
         output = {}
-        output['twitch_streams'] = {}
-        output['twitter_streams'] = {}
 
-        for stream in self.twitch_streams.keys():
-            try:
-                output['twitch_streams'][stream] = {}
-                output['twitch_streams'][stream]['default_image'] = ''
-                output['twitch_streams'][stream]['trending'] = self.twitch_streams[stream].get_trending()
-            except Exception, e:
-                pp(e)
+        if src == 'twitch':
+            output['twitch_streams'] = {}
+            for stream in self.twitch_streams.keys():
+                try:
+                    output['twitch_streams'][stream] = {}
+                    output['twitch_streams'][stream]['default_image'] = ''
+                    output['twitch_streams'][stream]['trending'] = self.twitch_streams[stream].get_trending()
+                except Exception, e:
+                    pp(e)
 
-        for stream in self.twitter_streams.keys():
-            try:
-                output['twitter_streams'][stream] = {}
-                output['twitter_streams'][stream]['default_image'] = self.twitter_streams[stream].get_default_image()
-                output['twitter_streams'][stream]['trending'] = self.twitter_streams[stream].get_trending()
-                output['twitter_streams'][stream]['content'] = self.twitter_streams[stream].get_content()
-            except Exception, e:
-                pp(e)
+        elif src == 'twitter':
+            output['twitter_streams'] = {}
+            for stream in self.twitter_streams.keys():
+                try:
+                    output['twitter_streams'][stream] = {}
+                    output['twitter_streams'][stream]['default_image'] = self.twitter_streams[stream].get_default_image()
+                    output['twitter_streams'][stream]['trending'] = self.twitter_streams[stream].get_trending()
+                    output['twitter_streams'][stream]['content'] = self.twitter_streams[stream].get_content()
+                except Exception, e:
+                    pp(e)
 
-        output['twitter_featured'] =  self.twitter_manual_featured + [dict(x, image=self.get_default_image_helper(x['stream'][0], 'twitter')) for x in self.twitter_api_featured]
-        output['twitch_featured'] = self.twitch_featured
-        output['target_twitter_streams'] = self.target_twitter_streams
+        elif src == 'featured':
+            output['twitter_featured'] =  self.twitter_manual_featured + [dict(x, image=self.get_default_image_helper(x['stream'][0], 'twitter')) for x in self.twitter_api_featured]
+            output['twitch_featured'] = self.twitch_featured
+            output['target_twitter_streams'] = self.target_twitter_streams
+            
         return pickle.dumps(output)
 
     def get_default_image_helper(self, stream, src):
@@ -252,19 +264,18 @@ class StreamServer():
             pp(e)
         
     def refresh_featured(self):
-        self.refresh_loop = True
-        while self.refresh_loop:
+        refresh = True
+        while refresh:
             self.get_twitch_featured()
             self.get_twitter_featured()
-
             self.get_twitter_manual()
 
             time.sleep(1200)
 
     def log_monitor(self):
-        self.logging = True
+        log_monitor = True
 
-        while self.logging:
+        while log_monitor:
             for scheduled_stream in self.schedule:
                 try:
                     if (datetime.datetime.now() > scheduled_stream['starttime']) and (datetime.datetime.now() < scheduled_stream['endtime']):
@@ -291,11 +302,10 @@ class StreamServer():
                     pp(e)
 
             time.sleep(30)
-                
 
     def filter_twitch(self):
-        self.twitch_filter_loop = True
-        while self.twitch_filter_loop:
+        filter_loop = True
+        while filter_loop:
             if len(self.twitch_streams.keys()) > 0:
                 for stream_key in self.twitch_streams.keys():
                     try:
@@ -306,8 +316,8 @@ class StreamServer():
             time.sleep(0.8)
 
     def render_twitch(self):
-        self.twitch_clean_loop = True
-        while self.twitch_clean_loop:
+        render_loop = True
+        while render_loop:
             if len(self.twitch_streams.keys()) > 0:
                 for stream_key in self.twitch_streams.keys():
                     try:
@@ -318,8 +328,8 @@ class StreamServer():
             time.sleep(0.3)
 
     def filter_content_twitter(self):
-        self.twitter_filter_content_loop = True
-        while self.twitter_filter_content_loop:
+        filter_loop = True
+        while filter_loop:
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
                     try:
@@ -330,8 +340,8 @@ class StreamServer():
             time.sleep(5)
 
     def filter_trending_twitter(self):
-        self.twitter_filter_trending_loop = True
-        while self.twitter_filter_trending_loop:
+        filter_loop = True
+        while filter_loop:
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
                     try:
@@ -342,8 +352,8 @@ class StreamServer():
             time.sleep(0.8)
 
     def render_twitter(self):
-        self.clean_loop = True
-        while self.clean_loop:
+        render_loop = True
+        while render_loop:
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
                     try:
@@ -419,33 +429,46 @@ class StreamServer():
         sock = self.request_sock
         config = self.config
         pp('Now listening...')
-        self.listening = True
+        listening = True
 
-        while self.listening:
+        while listening:
             (client_sock, client_address) = sock.accept()
             pp(('Request Connection initiated by: ' + str(client_address)))
             threading.Thread(target = self.handle_http, args = (client_sock,client_address)).start()
 
-    def send_data(self, client_sock, client_address):
-        connected = True
+    def send_data(self, client_sock, client_address, src):
+        timeout = 100000
+        if src == 'twitch':
+            timeout = 0.3
+        elif src == 'twitter':
+            timeout = 1
+        elif src == 'featured':
+            timeout = 1200
 
+        connected = True
         while connected:
-            pickle_data = self.get_stream_data()
+            pickle_data = self.get_stream_data(src)
             pickle_data = struct.pack('>I', len(pickle_data)) + pickle_data
             client_sock.sendall(pickle_data)
 
-            time.sleep(0.3)
+            time.sleep(timeout)
 
-    def broadcast(self):
-        sock = self.data_sock
-        config = self.config
-        pp('Now broadcasting...')
-        self.broadcasting = True
+    def broadcast(self, src):
+        sock = None
+        if src == 'twitch':
+            sock = self.twitch_data_sock
+        elif src == 'twitter':
+            sock = self.twitter_data_sock
+        elif src == 'featured':
+            sock = self.featured_data_sock
 
-        while self.broadcasting:
+        pp('Now broadcasting for: ' + src + '...')
+        broadcasting = True
+
+        while broadcasting:
             (client_sock, client_address) = sock.accept()
             pp(('Broadcast Connection initiated by: ' + str(client_address)))
-            threading.Thread(target = self.send_data, args = (client_sock,client_address)).start()
+            threading.Thread(target = self.send_data, args = (client_sock,client_address,src)).start()
 
     def garbage_cleanup(self):
         gc.collect()
@@ -488,7 +511,9 @@ if __name__ == '__main__':
     #logging_thread = threading.Thread(target = server.log_monitor).start()
     #serve
     listen_thread = threading.Thread(target = server.listen).start()
-    broadcast_thread = threading.Thread(target = server.broadcast).start()
+    broadcast_twitch_thread = threading.Thread(target = server.broadcast, args = ('twitch',)).start()
+    broadcast_twitter_thread = threading.Thread(target = server.broadcast, args = ('twitter',)).start()
+    broadcast_featured_thread = threading.Thread(target = server.broadcast, args = ('featured',)).start()
     #cleanup thread
     garbage_thread = threading.Thread(target = server.garbage_cleanup).start()
     monitor_thread = threading.Thread(target = server.monitor_twitter).start()
