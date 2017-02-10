@@ -141,6 +141,7 @@ class StreamClient():
     def request_stream(self, stream, src):
         request = {}
         request[src] = {'add':[stream]}
+        pp('Requesting stream on ' + src + ': '+stream)
 
         self.request_sock.send(json.dumps(request))
 
@@ -289,7 +290,6 @@ class StreamClient():
         self.recv_twitch = True
 
         while self.recv_twitch:
-
             raw_len = self.recv_helper(4, 'twitch')
             msg_len = struct.unpack('>I', raw_len)[0]
             # Read the message data

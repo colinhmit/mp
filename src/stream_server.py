@@ -149,7 +149,7 @@ class StreamServer():
             output['twitter_featured'] =  self.twitter_manual_featured + [dict(x, image=self.get_default_image_helper(x['stream'][0], 'twitter')) for x in self.twitter_api_featured]
             output['twitch_featured'] = self.twitch_featured
             output['target_twitter_streams'] = self.target_twitter_streams
-            
+
         return pickle.dumps(output)
 
     def get_default_image_helper(self, stream, src):
@@ -361,7 +361,7 @@ class StreamServer():
                     except Exception, e:
                         pp(e)
 
-            time.sleep(0.3)
+            time.sleep(0.7)
 
     def handle_http(self, client_sock, client_address):
         config = self.config
@@ -432,10 +432,13 @@ class StreamServer():
         listening = True
 
         while listening:
-            (client_sock, client_address) = sock.accept()
-            pp(('Request Connection initiated by: ' + str(client_address)))
-            threading.Thread(target = self.handle_http, args = (client_sock,client_address)).start()
-
+            try:
+                (client_sock, client_address) = sock.accept()
+                pp(('Request Connection initiated by: ' + str(client_address)))
+                threading.Thread(target = self.handle_http, args = (client_sock,client_address)).start()
+            except Exception, e:
+                pp(e)
+            
     def send_data(self, client_sock, client_address, src):
         timeout = 100000
         if src == 'twitch':
@@ -466,9 +469,13 @@ class StreamServer():
         broadcasting = True
 
         while broadcasting:
-            (client_sock, client_address) = sock.accept()
-            pp(('Broadcast Connection initiated by: ' + str(client_address)))
-            threading.Thread(target = self.send_data, args = (client_sock,client_address,src)).start()
+            try:
+                (client_sock, client_address) = sock.accept()
+                pp(('Broadcast Connection initiated by: ' + str(client_address)))
+                threading.Thread(target = self.send_data, args = (client_sock,client_address,src)).start()
+            except Exception, e:
+                pp(e)
+                
 
     def garbage_cleanup(self):
         gc.collect()
