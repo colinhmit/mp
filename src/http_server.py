@@ -330,5 +330,7 @@ class StreamClient():
 
 if __name__ == '__main__':
     client = StreamClient(client_config)
-    recv_thread = threading.Thread(target = client.recv_data).start()
+    recv_twitch_thread = threading.Thread(target = client.recv_twitch_data).start()
+    recv_twitter_thread = threading.Thread(target = client.recv_twitter_data).start()
+    recv_featured_thread = threading.Thread(target = client.recv_featured_data).start()
     client.run()
