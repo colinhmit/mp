@@ -57,7 +57,7 @@ class TwitterStream:
     def filter_content(self):
         if len(self.trending)>0:
             curr_time = datetime.datetime.now()
-            for msg_key in self.content:
+            for msg_key in self.content.keys():
                 if (curr_time - self.content[msg_key]['last_mtch_time']).total_seconds() > self.config['content_max_time']:
                     del self.content[msg_key]
 
