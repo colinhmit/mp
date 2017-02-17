@@ -40,7 +40,7 @@ class TwitterStream:
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
-            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
 
     def filter_trending(self):
         if len(self.trending)>0:
