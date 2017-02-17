@@ -9,6 +9,7 @@ import datetime
 import re
 import zmq
 import pickle
+import numpy
 
 from utils.functions_general import *
 from utils.functions_matching import *
@@ -26,6 +27,9 @@ class TwitterStream:
         self.log_file = None
         self.log_start_time = None
 
+        self.subjs = {}
+        self.clusters = {}
+
         self.kill = False
 
     def get_trending(self):
@@ -40,7 +44,7 @@ class TwitterStream:
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
-            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
 
     def filter_trending(self):
         if len(self.trending)>0:
@@ -71,7 +75,8 @@ class TwitterStream:
                         'score': temp_trending[msg_key]['score'],
                         'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                         'media_url': temp_trending[msg_key]['media_url'],
-                        'mp4_url': temp_trending[msg_key]['mp4_url']
+                        'mp4_url': temp_trending[msg_key]['mp4_url'],
+                        'id': temp_trending[msg_key]['id']
                     }
                 else:
                     min_key = min(self.content, key=lambda x: self.content[x]['score'])
@@ -81,7 +86,8 @@ class TwitterStream:
                             'score': temp_trending[msg_key]['score'],
                             'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                             'media_url': temp_trending[msg_key]['media_url'],
-                            'mp4_url': temp_trending[msg_key]['mp4_url']
+                            'mp4_url': temp_trending[msg_key]['mp4_url'],
+                            'id': temp_trending[msg_key]['id']
                         }
 
             image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
@@ -123,7 +129,8 @@ class TwitterStream:
                         'svos': svos,
                         'users' : [user],
                         'msgs' : dict(self.trending[matched_msg]['msgs']),
-                        'visible' : 1
+                        'visible' : 1,
+                        'id': idstr
                     }
                     self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
                     del self.trending[matched_msg]['msgs'][submatched_msg]
@@ -134,7 +141,7 @@ class TwitterStream:
                     self.trending[matched_msg]['last_mtch_time'] = msgtime
                     self.trending[matched_msg]['users'].append(user)
 
-    def handle_new(self, msg, msgtime, user, media, mp4, svos):
+    def handle_new(self, msg, msgtime, user, media, mp4, svos, idstr):
         if len(msg) > 0:
             if self.config['debug']:
                 pp("??? "+msg+" ???")
@@ -147,7 +154,8 @@ class TwitterStream:
                 'svos': svos,
                 'users' : [user],
                 'msgs' : {msg: 1.0},
-                'visible' : 0
+                'visible' : 0,
+                'id': idstr
             }
 
     def nlp_compare(self, svos):
@@ -174,12 +182,43 @@ class TwitterStream:
                                 return key
         return None
 
+    def process_subjs(self, svos):
+        inc_subjs = [svo['subj'] for svo in svos]
+        for inc_subj in inc_subjs:
+            if inc_subj['lower'] not in self.subjs:
+                self.subjs[inc_subj['lower']] = {
+                    'vector': inc_subj['vector'],
+                    'score': 1
+                }
+            else:
+                try:
+                    self.subjs[inc_subj['lower']]['score'] += 1
+                except Exception, e:
+                    pp(e)
+
+    def cluster_subjs(self):
+        #clean up subs
+        if len(self.subjs)>0:
+            temp_subjs = dict(self.subjs)
+            subj_scores = [temp_subjs[x]['score'] for x in temp_subjs]
+            
+
+        for sub in self.subs.keys():
+            if self.subs[sub]['score'] < 3:
+                del self.subs[sub]
+
+        #RUN KMEANS CLUSTERING ON self.subs['vector']
+        #CREATE CLUSTERS w/ AVG SCORE
+        #CREATE ABILITY TO GET X PLACE CLUSTER
+
     def get_match(self, msg, svos):
         matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
         if (len(matched) == 0):
             try:
-                return self.nlp_compare(svos) 
+                #!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                #return self.nlp_compare(svos) 
+                return None
             except Exception, e:
                 pp('Twitter SVO Matching Failed.')
                 pp(e)
@@ -225,12 +264,15 @@ class TwitterStream:
         return clean_msg
 
     def process_message(self, msgdata, msgtime):
+        idstr = msgdata['id']
         msg = msgdata['message']
         user = msgdata['username']
         media = msgdata['media_url']
         mp4 = msgdata['mp4_url']
         svos = msgdata['svos']
-        
+
+        self.process_subjs(svos)
+
         if self.log_file is not None:
             line = str(msgtime - self.log_start_time) + "*|*" + user + "*|*" + msg + "*|*" + str(media) + "*|*" + mp4
             self.log_file.write(line.encode('utf8') + "\n")
@@ -248,12 +290,12 @@ class TwitterStream:
                 matched_msg = None
 
             if matched_msg is None:
-                self.handle_new(msg, msgtime, user, media, mp4, svos)
+                self.handle_new(msg, msgtime, user, media, mp4, svos, idstr)
 
             else:
-                self.handle_match(matched_msg, msg, msgtime, user, media, mp4, svos)
+                self.handle_match(matched_msg, msg, msgtime, user, media, mp4, svos, idstr)
         else:
-            self.handle_new(msg, msgtime, user, media, mp4, svos)
+            self.handle_new(msg, msgtime, user, media, mp4, svos, idstr)
 
         self.decay(msg, msgtime)
 

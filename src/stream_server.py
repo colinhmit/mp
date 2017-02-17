@@ -513,7 +513,7 @@ if __name__ == '__main__':
     filter_content_twitter_thread = threading.Thread(target = server.filter_content_twitter).start()
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
-    refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
+    #refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
     #Google API
     #logging_thread = threading.Thread(target = server.log_monitor).start()
     #serve
