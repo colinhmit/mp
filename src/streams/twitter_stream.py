@@ -89,9 +89,8 @@ class TwitterStream:
             image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
             if (len(temp_trending[image_key]['media_url'])>0) and (temp_trending[image_key]['score']>self.default_image['score']):
                 self.default_image = {'image':temp_trending[image_key]['media_url'][0], 'score':temp_trending[image_key]['score']}
-
             
-    def handle_match(self, matched_msg, msg, msgtime, user, media, mp4, svos):
+    def handle_match(self, matched_msg, msg, msgtime, user, media, mp4, svos, idstr):
         if user in self.trending[matched_msg]['users']:
             if self.config['debug']:
                 pp("&&& DUPLICATE"+matched_msg+" + "+msg+" &&&")
@@ -125,7 +124,8 @@ class TwitterStream:
                         'svos': svos,
                         'users' : [user],
                         'msgs' : dict(self.trending[matched_msg]['msgs']),
-                        'visible' : 1
+                        'visible' : 1,
+                        'id': idstr
                     }
                     self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
                     del self.trending[matched_msg]['msgs'][submatched_msg]
@@ -136,7 +136,7 @@ class TwitterStream:
                     self.trending[matched_msg]['last_mtch_time'] = msgtime
                     self.trending[matched_msg]['users'].append(user)
 
-    def handle_new(self, msg, msgtime, user, media, mp4, svos):
+    def handle_new(self, msg, msgtime, user, media, mp4, svos, idstr):
         if len(msg) > 0:
             if self.config['debug']:
                 pp("??? "+msg+" ???")
@@ -149,7 +149,8 @@ class TwitterStream:
                 'svos': svos,
                 'users' : [user],
                 'msgs' : {msg: 1.0},
-                'visible' : 0
+                'visible' : 0,
+                'id': idstr
             }
 
     def nlp_compare(self, svos):
@@ -227,6 +228,7 @@ class TwitterStream:
         return clean_msg
 
     def process_message(self, msgdata, msgtime):
+        idstr = msgdata['id']
         msg = msgdata['message']
         user = msgdata['username']
         media = msgdata['media_url']
@@ -250,12 +252,12 @@ class TwitterStream:
                 matched_msg = None
 
             if matched_msg is None:
-                self.handle_new(msg, msgtime, user, media, mp4, svos)
+                self.handle_new(msg, msgtime, user, media, mp4, svos, idstr)
 
             else:
-                self.handle_match(matched_msg, msg, msgtime, user, media, mp4, svos)
+                self.handle_match(matched_msg, msg, msgtime, user, media, mp4, svos, idstr)
         else:
-            self.handle_new(msg, msgtime, user, media, mp4, svos)
+            self.handle_new(msg, msgtime, user, media, mp4, svos, idstr)
 
         self.decay(msg, msgtime)
 
