@@ -168,14 +168,14 @@ client_config = {
     # 'data_host': '35.160.61.218',
 
     #DEV Hosts
-    # 'request_host': '127.0.0.1',
-    # 'data_host': '127.0.0.1',
-    # 'port': 80,
+    'request_host': '127.0.0.1',
+    'data_host': '127.0.0.1',
+    'port': 80,
 
     # #AWS DEV Hosts
-    'request_host': '35.166.70.54',
-    'data_host': '35.166.70.54',
-    'port': 80,	
+    # 'request_host': '35.166.70.54',
+    # 'data_host': '35.166.70.54',
+    # 'port': 80,	
 
     #Ports
     'request_port': 8008,
