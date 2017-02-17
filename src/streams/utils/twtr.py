@@ -82,29 +82,33 @@ class twtr:
 								msg = {
 									'username': jsondata['user']['name'],
 									'message': jsondata['retweeted_status']['text'],
-									'media_url': [],
-									'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url']
+									'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
+									'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
+									'id': jsondata['id_str']
 									}
 							else:
 								msg = {
 									'username': jsondata['user']['name'],
 									'message': jsondata['retweeted_status']['text'],
 									'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
-									'mp4_url': ''
+									'mp4_url': '',
+									'id': jsondata['id_str']
 									}
 						else:								
 							msg = {
 								'username': jsondata['user']['name'],
 								'message': jsondata['retweeted_status']['text'],
 								'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
-								'mp4_url': ''
+								'mp4_url': '',
+								'id': jsondata['id_str']
 								}
 					else:
 						msg = {
 							'username': jsondata['user']['name'],
 							'message': jsondata['retweeted_status']['text'],
 							'media_url': [],
-							'mp4_url': ''
+							'mp4_url': '',
+							'id': jsondata['id_str']
 							}
 			elif 'text' in jsondata:
 				if 'media' in jsondata['entities']:
@@ -113,29 +117,33 @@ class twtr:
 							msg = {
 								'username': jsondata['user']['name'],
 								'message': jsondata['text'],
-								'media_url': [],
-								'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url']
+								'media_url': [jsondata['entities']['media'][0]['media_url']],
+								'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
+								'id': jsondata['id_str']
 								}
 						else:
 							msg = {
 								'username': jsondata['user']['name'],
 								'message': jsondata['text'],
 								'media_url': [jsondata['entities']['media'][0]['media_url']],
-								'mp4_url': ''
+								'mp4_url': '',
+								'id': jsondata['id_str']
 								}
 					else:
 						msg = {
 							'username': jsondata['user']['name'],
 							'message': jsondata['text'],
 							'media_url': jsondata['entities']['media'][0]['media_url'],
-							'mp4_url': []
+							'mp4_url': [],
+							'id': jsondata['id_str']
 							}
 				else:
 					msg = {
 						'username': jsondata['user']['name'],
 						'message': jsondata['text'],
 						'media_url': [],
-						'mp4_url': ''
+						'mp4_url': '',
+						'id': jsondata['id_str']
 						}
 			if len(msg) > 0:
 				hashid = hash(msg['message'])
