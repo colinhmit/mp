@@ -201,11 +201,13 @@ class TwitterStream:
         if len(self.subjs)>0:
             temp_subjs = dict(self.subjs)
             subj_scores = [temp_subjs[x]['score'] for x in temp_subjs]
-            
+            pctile = numpy.percentile(subj_scores, 10)
 
-        for sub in self.subs.keys():
-            if self.subs[sub]['score'] < 3:
-                del self.subs[sub]
+            labels = []
+            vectors = []
+            for subj in temp_subjs:
+                if temp_subjs[subj]['score'] > pctile:
+                    
 
         #RUN KMEANS CLUSTERING ON self.subs['vector']
         #CREATE CLUSTERS w/ AVG SCORE
