@@ -71,7 +71,8 @@ class TwitterStream:
                         'score': temp_trending[msg_key]['score'],
                         'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                         'media_url': temp_trending[msg_key]['media_url'],
-                        'mp4_url': temp_trending[msg_key]['mp4_url']
+                        'mp4_url': temp_trending[msg_key]['mp4_url'],
+                        'id': temp_trending[msg_key]['id']
                     }
                 else:
                     min_key = min(self.content, key=lambda x: self.content[x]['score'])
@@ -81,7 +82,8 @@ class TwitterStream:
                             'score': temp_trending[msg_key]['score'],
                             'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                             'media_url': temp_trending[msg_key]['media_url'],
-                            'mp4_url': temp_trending[msg_key]['mp4_url']
+                            'mp4_url': temp_trending[msg_key]['mp4_url'],
+                            'id': temp_trending[msg_key]['id']
                         }
 
             image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
