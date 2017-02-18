@@ -68,7 +68,8 @@ twitter_config = {
 	# 'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
 	#Number of distributor threads
-	'num_proc_threads': 25,
+	#'num_proc_threads': 25,
+	'num_proc_threads': 5,
 	'num_dist_threads': 1,
 
 	#ZMQ messaging port
@@ -126,10 +127,10 @@ server_config = {
     'twitter_num_featured': 12,
 
     #AWS Google API Key
-    'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
+    # 'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
 
     #DEV Google API Key
-    # 'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
+    'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
 
     #Google API Refs
     'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
@@ -140,12 +141,12 @@ server_config = {
     'schedule_live_range': 'Scraping Schedule!H2',
 
     #AWS Log Path
-    'twitter_log_path': '/home/ec2-user/mp/src/logs/twitter/',
-    'twitch_log_path': '/home/ec2-user/mp/src/logs/twitch/',
+    # 'twitter_log_path': '/home/ec2-user/mp/src/logs/twitter/',
+    # 'twitch_log_path': '/home/ec2-user/mp/src/logs/twitch/',
 
     #DEV Log Path
-    #'twitter_log_path': '/Users/colinh/Repositories/mp/src/logs/twitter/',
-    #'twitch_log_path': '/Users/colinh/Repositories/mp/src/logs/twitch/',
+    'twitter_log_path': '/Users/colinh/Repositories/mp/src/logs/twitter/',
+    'twitch_log_path': '/Users/colinh/Repositories/mp/src/logs/twitch/',
 
 	#Target stream allowed channels
 	'target_streams': ['trump'],
