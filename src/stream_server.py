@@ -14,9 +14,11 @@ import json
 import time
 import requests
 import re
+import zmq
 import copy
 import pickle
 import datetime
+import multiprocessing
 
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
@@ -29,6 +31,7 @@ from config.universal_config import *
 
 import streams.utils.twtr as twtr_
 from streams.utils.nlp import *
+from streams.utils.ml import *
 
 class StreamServer():
     def __init__(self, config):
@@ -86,6 +89,14 @@ class StreamServer():
 
         self.credentials = ServiceAccountCredentials.from_json_keyfile_name(self.config['sheets_key'], self.config['scopes'])
         self.service = build('sheets', 'v4', credentials=self.credentials)
+
+        context = zmq.Context()
+        self.subj_sock = context.socket(zmq.PUB)
+        self.subj_sock.bind("tcp://127.0.0.1:"+str(self.config['zmq_subj_port']))
+
+        self.cluster_sock = context.socket(zmq.SUB)
+        self.cluster_sock.bind("tcp://127.0.0.1:"+str(self.config['zmq_cluster_port']))
+        self.cluster_sock.setsockopt(zmq.SUBSCRIBE, "")
 
     #stream control
     def create_stream(self, stream, src):
@@ -303,6 +314,63 @@ class StreamServer():
 
             time.sleep(30)
 
+    def cluster_subjs(self):
+        context = zmq.Context()
+        recvr = context.socket(zmq.SUB)
+        recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_subj_port']))
+        recvr.setsockopt(zmq.SUBSCRIBE, "")
+
+        sendr = context.socket(zmq.PUB)
+        sendr.connect("tcp://127.0.0.1:"+str(self.config['zmq_cluster_port']))
+
+        for data in iter(recvr.recv, 'STOP'):
+            stream, subjs = pickle.loads(data)
+        
+            subj_scores = [subjs[x]['score'] for x in subjs]
+            pctile = numpy.percentile(numpy.array(subj_scores), self.config['subj_pctile'])
+
+            labels = []
+            vectors = []
+            for subj in subjs:
+                if subjs[subj]['score'] > pctile:
+                    labels.append(subj)
+                    vectors.append(subjs[subj]['vector'])
+
+            num_clusters = len(labels) / 5
+            kmeans_model = mlCluster(num_clusters)
+            clusters = kmeans_model.cluster(labels,vectors)
+            pickled_data = pickle.dumps((stream, clusters))
+            sendr.send(pickled_data)
+
+    def send_subjs(self):
+        send_loop = True
+        while send_loop:
+            if len(self.twitter_streams.keys()) > 0:
+                for stream_key in self.twitter_streams.keys():
+                    try:
+                        pickled_data = pickle.dumps((stream_key, self.twitter_streams[stream_key].get_subjs()))
+                        pp('///SENDING DATA///')
+                        pp(self.twitter_streams[stream_key].get_subjs().keys())
+                        self.subj_sock.send(pickled_data)
+                    except Exception, e:
+                        pp(e)
+
+            time.sleep(15)
+
+    def recv_clusters(self):
+        recv_loop = True
+        while recv_loop:
+            data = self.cluster_sock.recv()
+            stream, clusters = pickle.loads(data)
+            try:
+                self.twitter_streams[stream].set_clusters(clusters)
+                pp('///RECV CLUSTERS//')
+                for c in self.twitter_streams[stream].clusters:
+                    print self.twitter_streams[stream].clusters[c]
+                    print "\n"
+            except Exception, e:
+                pp(e)
+
     def filter_twitch(self):
         filter_loop = True
         while filter_loop:
@@ -326,6 +394,18 @@ class StreamServer():
                         pp(e)
 
             time.sleep(0.3)
+
+    def filter_content_twitter(self):
+        filter_loop = True
+        while filter_loop:
+            if len(self.twitter_streams.keys()) > 0:
+                for stream_key in self.twitter_streams.keys():
+                    try:
+                        self.twitter_streams[stream_key].filter_content()
+                    except Exception, e:
+                        pp(e)
+
+            time.sleep(5)
 
     def filter_content_twitter(self):
         filter_loop = True
@@ -514,8 +594,12 @@ if __name__ == '__main__':
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
     #refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
-    #Google API
+    #logging
     #logging_thread = threading.Thread(target = server.log_monitor).start()
+    #subj suggestions
+    subj_thread = threading.Thread(target = server.send_subjs).start()
+    cluster_thread = threading.Thread(target = server.recv_clusters).start()
+    multiprocessing.Process(target=server.cluster_subjs).start()
     #serve
     listen_thread = threading.Thread(target = server.listen).start()
     broadcast_twitch_thread = threading.Thread(target = server.broadcast, args = ('twitch',)).start()

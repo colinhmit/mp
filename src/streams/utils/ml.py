@@ -5,13 +5,11 @@ Created on Wed Aug 24 18:55:12 2016
 @author: colinh
 """
 from sklearn.cluster import KMeans 
-from numbers import Number
-from pandas import DataFrame
-import sys, codecs, numpy
+import numpy
 
 from functions_general import *
 
-class autovivify_list(dict):
+class autovivify(dict):
         '''Pickleable class to replicate the functionality of collections.defaultdict'''
         def __missing__(self, key):
                 value = self[key] = []
@@ -29,9 +27,23 @@ class autovivify_list(dict):
                         return -1 * x
                 raise ValueError
 
-def find_word_clusters(labels_array, cluster_labels):
-        '''Read the labels array and clusters label and return the set of words in each cluster'''
-        cluster_to_words = autovivify_list()
-        for c, i in enumerate(cluster_labels):
-                cluster_to_words[ i ].append( labels_array[c] )
-        return cluster_to_words
+class mlCluster:
+        def __init__(self, num_clusters): 
+                pp('Initializing mlCluster...')
+                self.model = KMeans(init='k-means++', n_clusters=num_clusters, n_init=10)
+                self.autovivify = autovivify()
+
+        def cluster(self, labels, vectors):
+                pp('fitting vectors')
+                self.model.fit(numpy.array(vectors))
+                cluster_labels = self.model.labels_
+                cluster_inertia = self.model.inertia_
+                pp('mapping vectors')
+                self.find_subj_clusters(labels, cluster_labels)
+                pp('done ml')
+                return self.autovivify
+
+        def find_subj_clusters(self, labels_array, cluster_labels):
+                '''Read the labels array and clusters label and return the set of words in each cluster'''
+                for c, i in enumerate(cluster_labels):
+                        self.autovivify[i].append(labels_array[c])

@@ -9,7 +9,6 @@ import datetime
 import re
 import zmq
 import pickle
-import numpy
 
 from utils.functions_general import *
 from utils.functions_matching import *
@@ -28,9 +27,16 @@ class TwitterStream:
         self.log_start_time = None
 
         self.subjs = {}
-        self.clusters = {}
+        self.clusters = None
 
         self.kill = False
+        self.init_sockets()
+
+    def init_sockets(self):
+        context = zmq.Context()
+        self.data_socket = context.socket(zmq.SUB)
+        self.data_socket.connect("tcp://127.0.0.1:"+str(self.config['zmq_sub_port']))
+        self.data_socket.setsockopt(zmq.SUBSCRIBE, "")
 
     def get_trending(self):
         return dict(self.clean_trending)
@@ -41,6 +47,13 @@ class TwitterStream:
     def get_content(self):
         return dict(self.content)
 
+    def get_subjs(self):
+        return dict(self.subjs)
+
+    def set_clusters(self, clusters):
+        self.clusters = clusters
+
+    #Threading processes
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
@@ -94,8 +107,8 @@ class TwitterStream:
             if (len(temp_trending[image_key]['media_url'])>0) and (temp_trending[image_key]['score']>self.default_image['score']):
                 self.default_image = {'image':temp_trending[image_key]['media_url'][0], 'score':temp_trending[image_key]['score']}
 
-            
-    def handle_match(self, matched_msg, msg, msgtime, user, media, mp4, svos):
+    #Matching Logic
+    def handle_match(self, matched_msg, msg, msgtime, user, media, mp4, svos, idstr):
         if user in self.trending[matched_msg]['users']:
             if self.config['debug']:
                 pp("&&& DUPLICATE"+matched_msg+" + "+msg+" &&&")
@@ -196,23 +209,6 @@ class TwitterStream:
                 except Exception, e:
                     pp(e)
 
-    def cluster_subjs(self):
-        #clean up subs
-        if len(self.subjs)>0:
-            temp_subjs = dict(self.subjs)
-            subj_scores = [temp_subjs[x]['score'] for x in temp_subjs]
-            pctile = numpy.percentile(subj_scores, 10)
-
-            labels = []
-            vectors = []
-            for subj in temp_subjs:
-                if temp_subjs[subj]['score'] > pctile:
-                    
-
-        #RUN KMEANS CLUSTERING ON self.subs['vector']
-        #CREATE CLUSTERS w/ AVG SCORE
-        #CREATE ABILITY TO GET X PLACE CLUSTER
-
     def get_match(self, msg, svos):
         matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
@@ -301,15 +297,12 @@ class TwitterStream:
 
         self.decay(msg, msgtime)
 
+    #Main func
     def run(self):
-        context = zmq.Context()
-        socket = context.socket(zmq.SUB)
-        socket.connect("tcp://127.0.0.1:"+str(self.config['zmq_sub_port']))
-        socket.setsockopt(zmq.SUBSCRIBE, "")
         config = self.config
         
         while not self.kill:
-            data = socket.recv()
+            data = self.data_socket.recv()
             msg = pickle.loads(data)
             if len(msg) == 0:
                 pp('Twitter connection was lost...')
