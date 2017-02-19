@@ -26,7 +26,17 @@ class TwitterStream:
         self.log_file = None
         self.log_start_time = None
 
+        self.subjs = {}
+        self.clusters = None
+
         self.kill = False
+        self.init_sockets()
+
+    def init_sockets(self):
+        context = zmq.Context()
+        self.data_socket = context.socket(zmq.SUB)
+        self.data_socket.connect("tcp://127.0.0.1:"+str(self.config['zmq_sub_port']))
+        self.data_socket.setsockopt(zmq.SUBSCRIBE, "")
 
     def get_trending(self):
         return dict(self.clean_trending)
@@ -37,6 +47,13 @@ class TwitterStream:
     def get_content(self):
         return dict(self.content)
 
+    def get_subjs(self):
+        return dict(self.subjs)
+
+    def set_clusters(self, clusters):
+        self.clusters = clusters
+
+    #Threading processes
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
@@ -89,7 +106,8 @@ class TwitterStream:
             image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
             if (len(temp_trending[image_key]['media_url'])>0) and (temp_trending[image_key]['score']>self.default_image['score']):
                 self.default_image = {'image':temp_trending[image_key]['media_url'][0], 'score':temp_trending[image_key]['score']}
-            
+
+    #Matching Logic
     def handle_match(self, matched_msg, msg, msgtime, user, media, mp4, svos, idstr):
         if user in self.trending[matched_msg]['users']:
             if self.config['debug']:
@@ -177,12 +195,28 @@ class TwitterStream:
                                 return key
         return None
 
+    def process_subjs(self, svos):
+        inc_subjs = [svo['subj'] for svo in svos]
+        for inc_subj in inc_subjs:
+            if inc_subj['lower'] not in self.subjs:
+                self.subjs[inc_subj['lower']] = {
+                    'vector': inc_subj['vector'],
+                    'score': 1
+                }
+            else:
+                try:
+                    self.subjs[inc_subj['lower']]['score'] += 1
+                except Exception, e:
+                    pp(e)
+
     def get_match(self, msg, svos):
         matched = fweb_compare(msg, self.trending.keys(), self.config['fo_compare_threshold'])
 
         if (len(matched) == 0):
             try:
-                return self.nlp_compare(svos) 
+                #!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                #return self.nlp_compare(svos) 
+                return None
             except Exception, e:
                 pp('Twitter SVO Matching Failed.')
                 pp(e)
@@ -234,7 +268,9 @@ class TwitterStream:
         media = msgdata['media_url']
         mp4 = msgdata['mp4_url']
         svos = msgdata['svos']
-        
+
+        self.process_subjs(svos)
+
         if self.log_file is not None:
             line = str(msgtime - self.log_start_time) + "*|*" + user + "*|*" + msg + "*|*" + str(media) + "*|*" + mp4
             self.log_file.write(line.encode('utf8') + "\n")
@@ -261,15 +297,12 @@ class TwitterStream:
 
         self.decay(msg, msgtime)
 
+    #Main func
     def run(self):
-        context = zmq.Context()
-        socket = context.socket(zmq.SUB)
-        socket.connect("tcp://127.0.0.1:"+str(self.config['zmq_sub_port']))
-        socket.setsockopt(zmq.SUBSCRIBE, "")
         config = self.config
         
         while not self.kill:
-            data = socket.recv()
+            data = self.data_socket.recv()
             msg = pickle.loads(data)
             if len(msg) == 0:
                 pp('Twitter connection was lost...')

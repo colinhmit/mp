@@ -15,9 +15,6 @@ class TwitchStream:
     def __init__(self, config, stream):
         self.config = config
         self.stream = stream
-        self.irc = irc_.irc(config)
-        self.socket = self.irc.get_irc_socket_object(stream)
-
         self.last_rcv_time = None
         self.trending = {}
         self.clean_trending = {}
@@ -25,10 +22,16 @@ class TwitchStream:
         self.log_start_time = None
 
         self.kill = False
+        self.init_sockets()
+
+    def init_sockets(self):
+        self.irc = irc_.irc(config)
+        self.data_socket = self.irc.get_irc_socket_object(stream)
 
     def get_trending(self):
         return self.clean_trending
 
+    #Threading Processes
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
@@ -46,6 +49,7 @@ class TwitchStream:
                     pp('Twitch filter trending failed on race condition.')
                     pp(e)
 
+    #Matching logic
     def handle_match(self, matched_msg, msg, msgtime, user):
         if user in self.trending[matched_msg]['users']:
             if self.config['debug']:
@@ -165,9 +169,10 @@ class TwitchStream:
 
         self.decay(msg, msgtime)
     
+    #Main func
     def run(self):
         irc = self.irc
-        sock = self.socket
+        sock = self.data_socket
         config = self.config
         
         while not self.kill:

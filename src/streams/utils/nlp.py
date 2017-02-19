@@ -19,7 +19,7 @@ class nlpParser:
 
     def parse_text(self,text):
         parsed_text = self.parser(unicode(text))
-        return self.findSVOs(parsed_text)
+        return self.find_subs(parsed_text)
 
     def flush(self):
         self.parser.vocab.strings.flush_oov()
@@ -166,3 +166,8 @@ class nlpParser:
                         #svos.append((sub,v,obj,verbNegated))
                         svos.append({'subj':sub.lower_,'verb':v.vector,'obj':obj.vector,'neg':verbNegated})
         return svos
+
+    def find_subs(self, tokens):
+        subs = [{'subj':{'lower':tok.lower_, 'vector':tok.vector}} for tok in tokens if tok.dep_ in self.SUBJECTS]
+        return subs
+
