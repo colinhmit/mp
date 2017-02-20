@@ -353,7 +353,7 @@ class StreamServer():
                             vectors.append(subjs[subj]['vector'])
 
                     if len(labels) > 1:
-                        num_clusters = max(1,int(len(labels) / 5))
+                        num_clusters = max(1,int(len(labels)/5))
                         kmeans_model = mlCluster(num_clusters)
                         clusters = kmeans_model.cluster(labels,vectors)
                         enriched_clusters = {}

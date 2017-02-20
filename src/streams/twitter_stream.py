@@ -212,8 +212,7 @@ class TwitterStream:
                                 return key
         return None
 
-    def process_subjs(self, svos):
-        inc_subjs = [svo['subj'] for svo in svos]
+    def process_subjs(self, inc_subjs):
         for inc_subj in inc_subjs:
             if inc_subj['lower'] not in self.subjs:
                 try:
@@ -234,9 +233,7 @@ class TwitterStream:
 
         if (len(matched) == 0):
             try:
-                #!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                #return self.nlp_compare(svos) 
-                return None
+                return self.nlp_compare(svos) 
             except Exception, e:
                 pp('Twitter SVO Matching Failed.')
                 pp(e)
@@ -288,8 +285,9 @@ class TwitterStream:
         media = msgdata['media_url']
         mp4 = msgdata['mp4_url']
         svos = msgdata['svos']
+        subjs = msgdata['subjs']
 
-        self.process_subjs(svos)
+        self.process_subjs(subjs)
 
         if self.log_file is not None:
             line = str(msgtime - self.log_start_time) + "*|*" + user + "*|*" + msg + "*|*" + str(media) + "*|*" + mp4

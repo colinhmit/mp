@@ -155,12 +155,13 @@ class twtr:
 					clean_msg = re.sub(r"[#@]", "", clean_msg)
 					clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
 					try:
-						svos = nlp.parse_text(clean_msg)
+						svos, subjs = nlp.parse_text(clean_msg)
 					except Exception, e:
 						svos = []
 					svomap[hashid] = svos
 
 				msg['svos'] = svos
+				msg['subjs'] = subjs
 
 				if len(svomap)>svorefresh:
 					svomap = {}
