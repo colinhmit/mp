@@ -207,7 +207,6 @@ class StreamClient():
                  
         clusters_output = {}
         [clusters_output.update(d) for d in clusters_dicts]
-        pp(clusters_output)
         return json.dumps({'clusters': clusters_output})
 
     def get_agg_streams(self, args):

@@ -22,10 +22,10 @@ class TwitchStream:
         self.log_start_time = None
 
         self.kill = False
-        self.init_sockets()
+        self.init_sockets(stream)
 
-    def init_sockets(self):
-        self.irc = irc_.irc(config)
+    def init_sockets(self, stream):
+        self.irc = irc_.irc(self.config)
         self.data_socket = self.irc.get_irc_socket_object(stream)
 
     def get_trending(self):
