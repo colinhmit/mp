@@ -19,6 +19,7 @@ import copy
 import pickle
 import datetime
 import multiprocessing
+import numpy
 
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
@@ -82,6 +83,11 @@ class StreamServer():
         featured_data_sock.bind((self.config['data_host'], self.config['featured_data_port']))
         featured_data_sock.listen(self.config['listeners'])
         self.featured_data_sock = featured_data_sock
+
+        analytics_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        analytics_data_sock.bind((self.config['data_host'], self.config['analytics_data_port']))
+        analytics_data_sock.listen(self.config['listeners'])
+        self.analytics_data_sock = analytics_data_sock
 
         self.sess = requests.Session()
         adapter = requests.adapters.HTTPAdapter(max_retries=5)
@@ -160,6 +166,15 @@ class StreamServer():
             output['twitter_featured'] =  self.twitter_manual_featured + [dict(x, image=self.get_default_image_helper(x['stream'][0], 'twitter')) for x in self.twitter_api_featured]
             output['twitch_featured'] = self.twitch_featured
             output['target_twitter_streams'] = self.target_twitter_streams
+
+        elif src == 'analytics':
+            output['analytics'] = {}
+            for stream in self.twitter_streams.keys():
+                try:
+                    output['analytics'][stream] = {}
+                    output['analytics'][stream]['clusters'] = self.twitter_streams[stream].get_clusters()
+                except Exception, e:
+                    pp(e)
 
         return pickle.dumps(output)
 
@@ -339,7 +354,13 @@ class StreamServer():
             num_clusters = len(labels) / 5
             kmeans_model = mlCluster(num_clusters)
             clusters = kmeans_model.cluster(labels,vectors)
-            pickled_data = pickle.dumps((stream, clusters))
+            enriched_clusters = {}
+            for k in clusters:
+                enriched_clusters[str(k)] = {
+                    'avgscore': numpy.mean([subjs[subj]['score'] for subj in clusters[k]]),
+                    'subjects': clusters[k]
+                }
+            pickled_data = pickle.dumps((stream, enriched_clusters))
             sendr.send(pickled_data)
 
     def send_subjs(self):
@@ -349,13 +370,11 @@ class StreamServer():
                 for stream_key in self.twitter_streams.keys():
                     try:
                         pickled_data = pickle.dumps((stream_key, self.twitter_streams[stream_key].get_subjs()))
-                        pp('///SENDING DATA///')
-                        pp(self.twitter_streams[stream_key].get_subjs().keys())
                         self.subj_sock.send(pickled_data)
                     except Exception, e:
                         pp(e)
 
-            time.sleep(15)
+            time.sleep(60)
 
     def recv_clusters(self):
         recv_loop = True
@@ -364,12 +383,20 @@ class StreamServer():
             stream, clusters = pickle.loads(data)
             try:
                 self.twitter_streams[stream].set_clusters(clusters)
-                pp('///RECV CLUSTERS//')
-                for c in self.twitter_streams[stream].clusters:
-                    print self.twitter_streams[stream].clusters[c]
-                    print "\n"
             except Exception, e:
                 pp(e)
+
+    def reset_subjs(self):
+        reset_loop = True
+        while reset_loop:
+            if len(self.twitter_streams.keys()) > 0:
+                for stream_key in self.twitter_streams.keys():
+                    try:
+                        self.twitter_streams[stream_key].reset_subjs()
+                    except Exception, e:
+                        pp(e)
+
+            time.sleep(600)
 
     def filter_twitch(self):
         filter_loop = True
@@ -527,6 +554,8 @@ class StreamServer():
             timeout = 1
         elif src == 'featured':
             timeout = 1200
+        elif src == 'analytics':
+            timeout = 60
 
         connected = True
         while connected:
@@ -544,6 +573,8 @@ class StreamServer():
             sock = self.twitter_data_sock
         elif src == 'featured':
             sock = self.featured_data_sock
+        elif src == 'analytics':
+            sock = self.analytics_data_sock
 
         pp('Now broadcasting for: ' + src + '...')
         broadcasting = True
@@ -593,10 +624,11 @@ if __name__ == '__main__':
     filter_content_twitter_thread = threading.Thread(target = server.filter_content_twitter).start()
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
-    #refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
+    refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
     #logging
     #logging_thread = threading.Thread(target = server.log_monitor).start()
     #subj suggestions
+    reset_subj_thread = threading.Thread(target = server.reset_subjs).start()
     subj_thread = threading.Thread(target = server.send_subjs).start()
     cluster_thread = threading.Thread(target = server.recv_clusters).start()
     multiprocessing.Process(target=server.cluster_subjs).start()
@@ -605,6 +637,7 @@ if __name__ == '__main__':
     broadcast_twitch_thread = threading.Thread(target = server.broadcast, args = ('twitch',)).start()
     broadcast_twitter_thread = threading.Thread(target = server.broadcast, args = ('twitter',)).start()
     broadcast_featured_thread = threading.Thread(target = server.broadcast, args = ('featured',)).start()
+    broadcast_analytics_thread = threading.Thread(target = server.broadcast, args = ('analytics',)).start()
     #cleanup thread
     garbage_thread = threading.Thread(target = server.garbage_cleanup).start()
     monitor_thread = threading.Thread(target = server.monitor_twitter).start()

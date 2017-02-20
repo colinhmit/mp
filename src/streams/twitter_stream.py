@@ -50,8 +50,14 @@ class TwitterStream:
     def get_subjs(self):
         return dict(self.subjs)
 
+    def reset_subjs(self):
+        self.subjs = {}
+
     def set_clusters(self, clusters):
         self.clusters = clusters
+
+    def get_clusters(self):
+        return dict(self.clusters)
 
     #Threading processes
     def render_trending(self):
@@ -199,10 +205,13 @@ class TwitterStream:
         inc_subjs = [svo['subj'] for svo in svos]
         for inc_subj in inc_subjs:
             if inc_subj['lower'] not in self.subjs:
-                self.subjs[inc_subj['lower']] = {
-                    'vector': inc_subj['vector'],
-                    'score': 1
-                }
+                try:
+                    self.subjs[inc_subj['lower']] = {
+                        'vector': inc_subj['vector'],
+                        'score': 1
+                    }
+                except Exception, e:
+                    pp(e)
             else:
                 try:
                     self.subjs[inc_subj['lower']]['score'] += 1

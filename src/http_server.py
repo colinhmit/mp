@@ -44,6 +44,8 @@ class WebServer(Resource):
             return self.stream_client.get_agg_streams(args)
         elif path[0:8] == '/content':
             return self.stream_client.get_agg_content(args)
+        elif path[0:10] == '/analytics':
+            return self.stream_client.get_agg_analytics(args)
         elif path[0:5] == '/top/':
             if path[5:12] == 'twitter':
                 return self.get_top_twitter_streams(args)
@@ -79,6 +81,8 @@ class StreamClient():
         self.twitter_featured = []
         self.target_twitter_streams = []
 
+        self.analytics = {}
+
         #CJK regex
         self.pattern = re.compile('[^\w\s\'\"!.,$&?:;_-]+')
 
@@ -100,6 +104,10 @@ class StreamClient():
         featured_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         featured_data_sock.connect((config['data_host'], config['featured_data_port']))
         self.featured_data_sock = featured_data_sock
+
+        analytics_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        analytics_data_sock.connect((config['data_host'], config['analytics_data_port']))
+        self.analytics_data_sock = analytics_data_sock
 
     #cpanel response
     def handle_cpanel(self, src, args):
@@ -188,6 +196,20 @@ class StreamClient():
 
         return json.dumps({'content': content_output})
 
+    def get_agg_analytics(self, args):
+        config = self.config
+        clusters_dicts = []
+
+        if ('twitter' in args) and (len(args['twitter'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+                clusters = self.analytics.get(stream_id,{}).get('clusters',{})
+                clusters_dicts.append(clusters)
+                 
+        clusters_output = {}
+        [clusters_output.update(d) for d in clusters_dicts]
+        pp(clusters_output)
+        return json.dumps({'clusters': clusters_output})
+
     def get_agg_streams(self, args):
         config = self.config
         trend_dicts = []
@@ -207,22 +229,13 @@ class StreamClient():
                 trend_images.append(self.twitch_streams.get(stream_id,{}).get('default_image',''))
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
-            #HACKY WORKAROUND FOR CONTENT
-            if ('contenttest' in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]):
-                content_time = 1800
-                curr_time = datetime.datetime.now()
-                for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
-                    content_dict = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": datetime.datetime.now(), "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
-                    content_dict = {msg_k: {'score':50, 'first_rcv_time': datetime.datetime.fromtimestamp(msg_v['score']).isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url']} for msg_k, msg_v in content_dict.items() if (curr_time - msg_v['last_mtch_time']).total_seconds() < content_time}
-                    trend_dicts.append(content_dict)
-            else:
-                for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
-                    if stream_id not in self.twitter_streams:
-                        self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
-                        self.request_stream(stream_id,'twitter')
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+                if stream_id not in self.twitter_streams:
+                    self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.request_stream(stream_id,'twitter')
 
-                    trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
-                    trend_images.append(self.twitter_streams.get(stream_id,{}).get('default_image',''))
+                trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+                trend_images.append(self.twitter_streams.get(stream_id,{}).get('default_image',''))
 
         trending_output = {}
         [trending_output.update(d) for d in trend_dicts]
@@ -261,6 +274,8 @@ class StreamClient():
             sock = self.twitter_data_sock
         elif src == 'featured':
             sock = self.featured_data_sock
+        elif src == 'analytics':
+            sock = self.analytics_data_sock
 
         data = ''
         while len(data) < bytes:
@@ -275,7 +290,6 @@ class StreamClient():
         self.recv_featured = True
 
         while self.recv_featured:
-
             raw_len = self.recv_helper(4, 'featured')
             msg_len = struct.unpack('>I', raw_len)[0]
             # Read the message data
@@ -285,6 +299,19 @@ class StreamClient():
             self.twitch_featured = pickle_data['twitch_featured']
             self.twitter_featured = pickle_data['twitter_featured']
             self.target_twitter_streams = pickle_data['target_twitter_streams']
+
+    def recv_analytics_data(self):
+        config = self.config
+        self.recv_analytics = True
+
+        while self.recv_analytics:
+            raw_len = self.recv_helper(4, 'analytics')
+            msg_len = struct.unpack('>I', raw_len)[0]
+            # Read the message data
+            inc_pickle_data = self.recv_helper(msg_len, 'analytics')
+
+            pickle_data = pickle.loads(inc_pickle_data)
+            self.analytics = pickle_data['analytics']
 
     def recv_twitch_data(self):
         config = self.config
@@ -330,4 +357,5 @@ if __name__ == '__main__':
     recv_twitch_thread = threading.Thread(target = client.recv_twitch_data).start()
     recv_twitter_thread = threading.Thread(target = client.recv_twitter_data).start()
     recv_featured_thread = threading.Thread(target = client.recv_featured_data).start()
+    recv_analytics_thread = threading.Thread(target = client.recv_analytics_data).start()
     client.run()

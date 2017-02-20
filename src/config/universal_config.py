@@ -69,7 +69,7 @@ twitter_config = {
 
 	#Number of distributor threads
 	#'num_proc_threads': 25,
-	'num_proc_threads': 5,
+	'num_proc_threads': 15,
 	'num_dist_threads': 1,
 
 	#ZMQ messaging port
@@ -118,6 +118,7 @@ server_config = {
     'twitch_data_port': 8016,
     'twitter_data_port': 8017,
     'featured_data_port': 8018,
+    'analytics_data_port': 8019,
 
     'zmq_subj_port': 8011,
     'zmq_cluster_port': 8012,
@@ -136,7 +137,7 @@ server_config = {
     'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
 
     #DEV Google API Key
-    #'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
+    # 'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
 
     #Google API Refs
     'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
@@ -189,6 +190,7 @@ client_config = {
     'twitch_data_port': 8016,
     'twitter_data_port': 8017,
     'featured_data_port': 8018,
+    'analytics_data_port': 8019,
 
     # if set to true will display any data received
     'debug': False,
