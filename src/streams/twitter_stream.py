@@ -27,7 +27,7 @@ class TwitterStream:
         self.log_start_time = None
 
         self.subjs = {}
-        self.clusters = None
+        self.clusters = {}
 
         self.kill = False
         self.init_sockets()

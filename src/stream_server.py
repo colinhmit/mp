@@ -340,7 +340,7 @@ class StreamServer():
 
         for data in iter(recvr.recv, 'STOP'):
             stream, subjs = pickle.loads(data)
-            if len(subjs) > 1:
+            if len(subjs) > 0:
                 subj_scores = [subjs[x]['score'] for x in subjs]
                 pctile = numpy.percentile(numpy.array(subj_scores), self.config['subj_pctile'])
 
@@ -351,17 +351,18 @@ class StreamServer():
                         labels.append(subj)
                         vectors.append(subjs[subj]['vector'])
 
-                num_clusters = max(1,int(len(labels) / 5))
-                kmeans_model = mlCluster(num_clusters)
-                clusters = kmeans_model.cluster(labels,vectors)
-                enriched_clusters = {}
-                for k in clusters:
-                    enriched_clusters[str(k)] = {
-                        'avgscore': numpy.mean([subjs[subj]['score'] for subj in clusters[k]]),
-                        'subjects': clusters[k]
-                    }
-                pickled_data = pickle.dumps((stream, enriched_clusters))
-                sendr.send(pickled_data)
+                if len(labels) > 1:
+                    num_clusters = max(1,int(len(labels) / 5))
+                    kmeans_model = mlCluster(num_clusters)
+                    clusters = kmeans_model.cluster(labels,vectors)
+                    enriched_clusters = {}
+                    for k in clusters:
+                        enriched_clusters[str(k)] = {
+                            'avgscore': numpy.mean([subjs[subj]['score'] for subj in clusters[k]]),
+                            'subjects': clusters[k]
+                        }
+                    pickled_data = pickle.dumps((stream, enriched_clusters))
+                    sendr.send(pickled_data)
 
     def send_subjs(self):
         send_loop = True
