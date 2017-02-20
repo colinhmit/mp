@@ -86,21 +86,10 @@ class TwitterStream:
 
             temp_trending = dict(self.trending)
             for msg_key in temp_trending:
-                if msg_key in self.content:
-                    self.content[msg_key]['score'] = max(self.content[msg_key]['score'],temp_trending[msg_key]['score'])
-                    self.content[msg_key]['last_mtch_time'] = temp_trending[msg_key]['last_mtch_time']
-                elif len(self.content)<self.config['content_max_size']:
-                    self.content[msg_key] = {
-                        'score': temp_trending[msg_key]['score'],
-                        'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
-                        'media_url': temp_trending[msg_key]['media_url'],
-                        'mp4_url': temp_trending[msg_key]['mp4_url'],
-                        'id': temp_trending[msg_key]['id']
-                    }
-                else:
-                    min_key = min(self.content, key=lambda x: self.content[x]['score'])
-                    if temp_trending[msg_key]['score'] > self.content[min_key]['score']:
-                        del self.content[min_key]
+                matched = fweb_compare(msg_key, self.content.keys(), self.config['fo_compare_threshold'])
+
+                if (len(matched) == 0):
+                    if len(self.content)<self.config['content_max_size']:
                         self.content[msg_key] = {
                             'score': temp_trending[msg_key]['score'],
                             'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
@@ -108,6 +97,28 @@ class TwitterStream:
                             'mp4_url': temp_trending[msg_key]['mp4_url'],
                             'id': temp_trending[msg_key]['id']
                         }
+                    else:
+                        min_key = min(self.content, key=lambda x: self.content[x]['score'])
+                        if temp_trending[msg_key]['score'] > self.content[min_key]['score']:
+                            del self.content[min_key]
+                            self.content[msg_key] = {
+                                'score': temp_trending[msg_key]['score'],
+                                'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
+                                'media_url': temp_trending[msg_key]['media_url'],
+                                'mp4_url': temp_trending[msg_key]['mp4_url'],
+                                'id': temp_trending[msg_key]['id']
+                            }
+
+                elif len(matched) == 1:
+                    matched_msg = matched[0][0]
+                    self.content[matched_msg]['score'] = max(self.content[matched_msg]['score'],temp_trending[msg_key]['score'])
+                    self.content[matched_msg]['last_mtch_time'] = temp_trending[msg_key]['last_mtch_time']
+
+                else:
+                    matched_msgs = [x[0] for x in matched]
+                    (matched_msg, score) = fweo_tsort_compare(msg, matched_msgs)
+                    self.content[matched_msg]['score'] = max(self.content[matched_msg]['score'],temp_trending[msg_key]['score'])
+                    self.content[matched_msg]['last_mtch_time'] = temp_trending[msg_key]['last_mtch_time']
 
             image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
             if (len(temp_trending[image_key]['media_url'])>0) and (temp_trending[image_key]['score']>self.default_image['score']):
