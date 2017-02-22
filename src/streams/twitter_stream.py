@@ -218,13 +218,15 @@ class TwitterStream:
                 try:
                     self.subjs[inc_subj['lower']] = {
                         'vector': inc_subj['vector'],
-                        'score': 1
+                        'score': 1,
+                        'adjs': inc_subj['adjs']
                     }
                 except Exception, e:
                     pp(e)
             else:
                 try:
                     self.subjs[inc_subj['lower']]['score'] += 1
+                    self.subjs[inc_subj['lower']]['adjs'] += inc_subj['adjs']
                 except Exception, e:
                     pp(e)
 
@@ -288,6 +290,10 @@ class TwitterStream:
         subjs = msgdata['subjs']
 
         self.process_subjs(subjs)
+
+        # pp('////////')
+        # pp(msg)
+        # pp([(x['lower'], x['adjs']) for x in subjs])
 
         if self.log_file is not None:
             line = str(msgtime - self.log_start_time) + "*|*" + user + "*|*" + msg + "*|*" + str(media) + "*|*" + mp4

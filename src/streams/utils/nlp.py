@@ -13,14 +13,15 @@ class nlpParser:
         pp('Initializing nlpParser...')
         self.SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
         self.OBJECTS = ["dobj", "dative", "attr", "oprd"]
+        self.ADJECTIVES = ["amod", "acomp"]
         self.parser = spacy.load('en')
         self.parser.vocab.strings.set_frozen(True)
         pp('Initialized nlpParser.')
 
     def parse_text(self,text):
         parsed_text = self.parser(unicode(text))
-        svos = self.find_SVOs(parsed_text)
-        subjs = self.find_subs(parsed_text)
+        svos = self.parse_SVOs(parsed_text)
+        subjs = self.parse_subjs(parsed_text)
         return (svos, subjs)
 
     def flush(self):
@@ -131,7 +132,7 @@ class nlpParser:
         if len(subs) > 0:
             subs.extend(self.get_subs_from_conjs(subs))
         else:
-            found_subs, verb_negated = self.findSubs(v)
+            found_subs, verb_negated = self.find_subs(v)
             subs.extend(found_subs)
         return subs, verb_negated
 
@@ -154,7 +155,7 @@ class nlpParser:
             objs.extend(self.get_objs_from_conjs(objs))
         return v, objs
 
-    def find_SVOs(self,tokens):
+    def parse_SVOs(self,tokens):
         svos = []
         verbs = [tok for tok in tokens if tok.pos_ == "VERB" and tok.dep_ != "aux"]
         for v in verbs:
@@ -169,7 +170,8 @@ class nlpParser:
                         svos.append({'subj':sub.lower_,'verb':v.vector,'obj':obj.vector,'neg':verb_negated})
         return svos
 
-    def find_subs(self, tokens):
-        subs = [{'lower':tok.lower_, 'vector':tok.vector} for tok in tokens if tok.dep_ in self.SUBJECTS]
+    def parse_subjs(self, tokens):
+        adjs = [tok.lower_ for tok in tokens if tok.dep_ in self.ADJECTIVES]
+        subs = [{'lower':tok.lower_, 'vector':tok.vector, 'adjs': adjs} for tok in tokens if tok.dep_ in self.SUBJECTS]
         return subs
 

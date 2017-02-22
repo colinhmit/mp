@@ -360,7 +360,8 @@ class StreamServer():
                         for k in clusters:
                             enriched_clusters[str(k)] = {
                                 'avgscore': numpy.mean([subjs[subj]['score'] for subj in clusters[k]]),
-                                'subjects': clusters[k]
+                                'subjects': clusters[k],
+                                'adjs': [item for sublist in (subjs[subj]['adjs'] for subj in clusters[k]) for item in sublist]
                             }
                         pickled_data = pickle.dumps((stream, enriched_clusters))
                         sendr.send(pickled_data)
@@ -628,7 +629,7 @@ if __name__ == '__main__':
     filter_content_twitter_thread = threading.Thread(target = server.filter_content_twitter).start()
     render_twitter_thread = threading.Thread(target = server.render_twitter).start()
     #featured
-    refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
+    # refresh_featured_thread = threading.Thread(target = server.refresh_featured).start()
     #logging
     #logging_thread = threading.Thread(target = server.log_monitor).start()
     #subj suggestions

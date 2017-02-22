@@ -47,18 +47,18 @@ twitter_config = {
 	# 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                     
 	# DEV TWITTER API
-    'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
-	'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+ #    'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+	# 'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
 
-	'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
-	'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
+	# 'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+	# 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
 	#DEV TWITTER API 2
- #    'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
-	# 'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
+    'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
+	'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
 
-	# 'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
-	# 'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
+	'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
+	'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
 
 	#DEV TWITTER API 3
 	# 'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
@@ -69,7 +69,7 @@ twitter_config = {
 
 	#Number of distributor threads
 	#'num_proc_threads': 25,
-	'num_proc_threads': 15,
+	'num_proc_threads': 1,
 	'num_dist_threads': 1,
 
 	#ZMQ messaging port
@@ -134,10 +134,10 @@ server_config = {
     'subj_pctile': 35,
 
     #AWS Google API Key
-    'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
+    # 'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
 
     #DEV Google API Key
-    # 'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
+    'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
 
     #Google API Refs
     'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
@@ -148,12 +148,12 @@ server_config = {
     'schedule_live_range': 'Scraping Schedule!H2',
 
     #AWS Log Path
-    'twitter_log_path': '/home/ec2-user/mp/src/logs/twitter/',
-    'twitch_log_path': '/home/ec2-user/mp/src/logs/twitch/',
+    # 'twitter_log_path': '/home/ec2-user/mp/src/logs/twitter/',
+    # 'twitch_log_path': '/home/ec2-user/mp/src/logs/twitch/',
 
     #DEV Log Path
-    # 'twitter_log_path': '/Users/colinh/Repositories/mp/src/logs/twitter/',
-    # 'twitch_log_path': '/Users/colinh/Repositories/mp/src/logs/twitch/',
+    'twitter_log_path': '/Users/colinh/Repositories/mp/src/logs/twitter/',
+    'twitch_log_path': '/Users/colinh/Repositories/mp/src/logs/twitch/',
 
 	#Target stream allowed channels
 	'target_streams': ['trump'],
@@ -178,7 +178,7 @@ client_config = {
     #DEV Hosts
     'request_host': '127.0.0.1',
     'data_host': '127.0.0.1',
-    'port': 80,
+    'port': 4808,
 
     # #AWS DEV Hosts
     # 'request_host': '35.166.70.54',
