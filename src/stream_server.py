@@ -358,7 +358,7 @@ class StreamServer():
                         clusters = kmeans_model.cluster(labels,vectors)
                         enriched_clusters = {}
                         for k in clusters:
-                            enriched_clusters[str(k)] = {
+                            enriched_clusters[stream + "_" + str(k)] = {
                                 'avgscore': numpy.mean([subjs[subj]['score'] for subj in clusters[k]]),
                                 'subjects': clusters[k],
                                 'adjs': [item for sublist in (subjs[subj]['adjs'] for subj in clusters[k]) for item in sublist]

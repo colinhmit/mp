@@ -204,10 +204,23 @@ class StreamClient():
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
                 clusters = self.analytics.get(stream_id,{}).get('clusters',{})
                 clusters_dicts.append(clusters)
-                 
+
         clusters_output = {}
         [clusters_output.update(d) for d in clusters_dicts]
-        return json.dumps({'clusters': clusters_output})
+
+        if ('keyword' in args) and (len(args['keyword'][0])>0):
+            final_output = {}
+            keywords = [self.pattern.sub('',x).lower() for x in args['keyword'][0].split(',')]
+            for cluster_key in clusters_output:
+                if set(clusters_output[cluster_key]['subjects']).isdisjoint(keywords):
+                    pass
+                else:
+                    final_output[cluster_key] = clusters_output[cluster_key]
+        else:
+            final_output = clusters_output
+
+
+        return json.dumps({'clusters': final_output})
 
     def get_agg_streams(self, args):
         config = self.config

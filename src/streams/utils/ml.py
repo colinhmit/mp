@@ -5,6 +5,7 @@ Created on Wed Aug 24 18:55:12 2016
 @author: colinh
 """
 from sklearn.cluster import KMeans 
+from hdbscan import HDBSCAN
 import numpy
 
 from functions_general import *
@@ -29,14 +30,16 @@ class autovivify(dict):
 
 class mlCluster:
         def __init__(self, num_clusters): 
-                self.model = KMeans(init='k-means++', n_clusters=num_clusters, n_init=10)
+                self.model = HDBSCAN(min_cluster_size=3)
+                #self.model = KMeans(init='k-means++', n_clusters=num_clusters, n_init=10)
                 self.autovivify = autovivify()
 
         def cluster(self, labels, vectors):
                 self.model.fit(numpy.array(vectors))
                 cluster_labels = self.model.labels_
-                cluster_inertia = self.model.inertia_
+                #cluster_inertia = self.model.inertia_
                 self.find_subj_clusters(labels, cluster_labels)
+                pp('done hdbscanning')
                 return self.autovivify
 
         def find_subj_clusters(self, labels_array, cluster_labels):

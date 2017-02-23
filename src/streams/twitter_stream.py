@@ -116,7 +116,7 @@ class TwitterStream:
 
                 else:
                     matched_msgs = [x[0] for x in matched]
-                    (matched_msg, score) = fweo_tsort_compare(msg, matched_msgs)
+                    (matched_msg, score) = fweo_tsort_compare(msg_key, matched_msgs)
                     self.content[matched_msg]['score'] = max(self.content[matched_msg]['score'],temp_trending[msg_key]['score'])
                     self.content[matched_msg]['last_mtch_time'] = temp_trending[msg_key]['last_mtch_time']
 

@@ -157,7 +157,7 @@ class twtr:
 					try:
 						svos, subjs = nlp.parse_text(clean_msg)
 					except Exception, e:
-						pp(e)
+						#pp(e)
 						svos = []
 						subjs = []
 					svomap[hashid] = svos
