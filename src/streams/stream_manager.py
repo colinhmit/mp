@@ -12,6 +12,7 @@ import time
 import zmq
 import requests
 import datetime
+import pickle
 
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
@@ -271,7 +272,7 @@ class StreamManager():
     # Dataserver connections
     def send_subjs(self):
         self.send_subjs_loop = True
-        while self.send_subj_loop:
+        while self.send_subjs_loop:
             if len(self.twitter_streams.keys()) > 0:
                 for stream_key in self.twitter_streams.keys():
                     try:

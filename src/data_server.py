@@ -15,10 +15,11 @@ import multiprocessing
 import numpy
 
 from streams.utils.ml import mlCluster, autovivify
+from streams.utils.functions_general import *
 
 class DataServer():
     def __init__(self, config):
-        pp('Initializing Dat Server...')
+        pp('Initializing Data Server...')
         self.config = config
         self.init_threads()
 

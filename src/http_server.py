@@ -87,26 +87,24 @@ class StreamClient():
         self.run()
 
     def init_sockets(self):
-        config = self.config
-
         request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        request_sock.connect((config['request_host'], config['request_port']))
+        request_sock.connect((self.config['request_host'], self.config['request_port']))
         self.request_sock = request_sock
 
         twitch_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        twitch_data_sock.connect((config['data_host'], config['twitch_data_port']))
+        twitch_data_sock.connect((self.config['data_host'], self.config['twitch_data_port']))
         self.twitch_data_sock = twitch_data_sock
 
         twitter_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        twitter_data_sock.connect((config['data_host'], config['twitter_data_port']))
+        twitter_data_sock.connect((self.config['data_host'], self.config['twitter_data_port']))
         self.twitter_data_sock = twitter_data_sock
 
         featured_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        featured_data_sock.connect((config['data_host'], config['featured_data_port']))
+        featured_data_sock.connect((self.config['data_host'], self.config['featured_data_port']))
         self.featured_data_sock = featured_data_sock
 
         analytics_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        analytics_data_sock.connect((config['data_host'], config['analytics_data_port']))
+        analytics_data_sock.connect((self.config['data_host'], self.config['analytics_data_port']))
         self.analytics_data_sock = analytics_data_sock
 
     def init_threads(self):

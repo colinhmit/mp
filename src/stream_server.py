@@ -15,8 +15,8 @@ import datetime
 import gc
 
 from config.universal_config import *
+from streams.utils.functions_general import *
 
-from streams.stream_manager 
 from streams.stream_manager import StreamManager
 from input_server import InputServer
 from data_server import DataServer
@@ -25,16 +25,17 @@ class StreamServer():
     def __init__(self, config, inputconfig, streamconfig, dataconfig):
         pp('Initializing Stream Server...')
         self.config = config
-        self.init_sockets()
-
         self.pattern = re.compile('[^\w\s\'\"!.,$&?:;_-]+')
 
         #init twitter
         self.target_twitter_streams = self.config['init_twitter_streams']
 
-        self.input_server = InputServer(input_config, self.target_twitter_streams)
-        self.stream_manager = StreamManager(stream_config, self.input_server.irc, self.input_server.twtr, self.target_twitter_streams)
-        self.data_server = DataServer(data_config)
+        self.input_server = InputServer(inputconfig, self.target_twitter_streams)
+        self.stream_manager = StreamManager(streamconfig, self.input_server.irc, self.input_server.twtr, self.target_twitter_streams)
+        self.data_server = DataServer(dataconfig)
+
+        self.init_sockets()
+        self.init_threads()
         
     def init_sockets(self):
         request_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -96,7 +97,7 @@ class StreamServer():
 
         elif src == 'featured':
             output['twitter_featured'] =  self.stream_manager.twitter_manual_featured + [dict(x, image=self.get_default_image_helper(x['stream'][0], 'twitter')) for x in self.stream_manager.twitter_api_featured]
-            output['twitch_featured'] = self.stream_manager.twitch_featured
+            output['twitch_featured'] = self.stream_manager.twitch_api_featured
             output['target_twitter_streams'] = self.target_twitter_streams
 
         elif src == 'analytics':
@@ -236,4 +237,4 @@ class StreamServer():
                 
 if __name__ == '__main__':
     #init
-    server = StreamServer(server_config)
+    server = StreamServer(server_config, input_config, stream_config, data_config)
