@@ -29,17 +29,18 @@ class autovivify(dict):
                 raise ValueError
 
 class mlCluster:
-        def __init__(self, num_clusters): 
-                self.model = HDBSCAN(min_cluster_size=3)
-                #self.model = KMeans(init='k-means++', n_clusters=num_clusters, n_init=10)
+        def __init__(self, ml_typ, val):
+                self.model = None
+                if ml_typ == "hdb":
+                        self.model = HDBSCAN(min_cluster_size=val)
+                elif ml_typ == "kmeans":
+                        self.model = KMeans(init='k-means++', n_clusters=val, n_init=10)
                 self.autovivify = autovivify()
 
         def cluster(self, labels, vectors):
                 self.model.fit(numpy.array(vectors))
                 cluster_labels = self.model.labels_
-                #cluster_inertia = self.model.inertia_
                 self.find_subj_clusters(labels, cluster_labels)
-                pp('done hdbscanning')
                 return self.autovivify
 
         def find_subj_clusters(self, labels_array, cluster_labels):

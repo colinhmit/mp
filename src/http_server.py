@@ -4,7 +4,6 @@ Created on Wed Aug 24 19:22:30 2016
 
 @author: colinh
 """
-
 import socket
 import threading
 import logging
@@ -17,8 +16,6 @@ import re
 import pickle
 import operator
 import datetime
-
-logging.basicConfig()
 
 from twisted.internet import reactor
 from twisted.web.resource import Resource
@@ -86,6 +83,9 @@ class StreamClient():
         #CJK regex
         self.pattern = re.compile('[^\w\s\'\"!.,$&?:;_-]+')
 
+        self.init_threads()
+        self.run()
+
     def init_sockets(self):
         config = self.config
 
@@ -108,6 +108,12 @@ class StreamClient():
         analytics_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         analytics_data_sock.connect((config['data_host'], config['analytics_data_port']))
         self.analytics_data_sock = analytics_data_sock
+
+    def init_threads(self):
+        recv_twitch_thread = threading.Thread(target = self.recv_twitch_data).start()
+        recv_twitter_thread = threading.Thread(target = self.recv_twitter_data).start()
+        recv_featured_thread = threading.Thread(target = self.recv_featured_data).start()
+        recv_analytics_thread = threading.Thread(target = self.recv_analytics_data).start()
 
     #cpanel response
     def handle_cpanel(self, src, args):
@@ -365,9 +371,4 @@ class StreamClient():
         reactor.run()
 
 if __name__ == '__main__':
-    client = StreamClient(client_config)
-    recv_twitch_thread = threading.Thread(target = client.recv_twitch_data).start()
-    recv_twitter_thread = threading.Thread(target = client.recv_twitter_data).start()
-    recv_featured_thread = threading.Thread(target = client.recv_featured_data).start()
-    recv_analytics_thread = threading.Thread(target = client.recv_analytics_data).start()
-    client.run()
+    client = StreamClient(http_config)

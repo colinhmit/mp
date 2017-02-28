@@ -4,78 +4,86 @@ Created on Wed Aug 24 18:55:12 2016
 
 @author: colinh
 """
-
-import socket, re, time, sys
+import socket
+import re
+import threading
+import zmq
 from functions_general import *
-import thread
 
 class irc:
-	
-	def __init__(self, config):
-		self.config = config
+    def __init__(self, config):
+        self.config = config
+        self.streams = []
+        self.set_irc_socket()
 
-	def check_for_message(self, data):
-		if re.match(r'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local) PRIVMSG #[a-zA-Z0-9_]+ :.+$', data):
-			return True
+        self.stream_conn = threading.Thread(target = self.stream_connection)
+        self.stream_conn.start()
 
-	def check_for_connected(self, data):
-		if re.match(r'^:.+ 001 .+ :connected to TMI$', data):
-			return True
+    def set_irc_socket(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.settimeout(10)
 
-	def check_for_ping(self, data):
-		if data[:4] == "PING": 
-			self.sock.send('PONG')
+        try:
+            self.sock.connect((self.config['server'], self.config['port']))
+        except:
+            pp('Cannot connect to server (%s:%s).' % (self.config['server'], self.config['port']), 'error')
 
-	def get_message(self, data):
-		return {
-			'channel': re.findall(r'^:.+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+.+ PRIVMSG (.*?) :', data)[0],
-			'username': re.findall(r'^:([a-zA-Z0-9_]+)\!', data)[0],
-			'message': re.findall(r'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0].decode('utf8')
-		}
+        self.sock.settimeout(None)
+        self.sock.send('USER %s\r\n' % self.config['username'])
+        self.sock.send('PASS %s\r\n' % self.config['oauth_password'])
+        self.sock.send('NICK %s\r\n' % self.config['username'])
 
-	def check_login_status(self, data):
-		if re.match(r'^:(testserver\.local|tmi\.twitch\.tv) NOTICE \* :Login unsuccessful\r\n$', data):
-			return False
-		else:
-			return True
+        if self.check_login_status():
+            pass
+        else:
+            pp('Login unsuccessful. (hint: make sure your oauth token is set in self.config/self.config.py).', 'error')
 
-	def send_message(self, channel, message):
-		self.sock.send('PRIVMSG %s :%s\n' % (channel, message.encode('utf-8')))
+        for stream in self.streams:
+            self.sock.send('JOIN #%s\r\n' % stream)
+    
+    def stream_connection(self):
+        context = zmq.Context()
+        self.pipe = context.socket(zmq.PUSH)
 
-	def get_irc_socket_object(self, channel):
-		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		sock.settimeout(10)
+        connected = False
+        while not connected:
+            try:
+                self.pipe.bind("tcp://127.0.0.1:"+str(self.config['zmq_irc_port']))
+                connected = True
+            except Exception, e:
+                pass
 
-		self.sock = sock
+        self.alive = True
+        while self.alive:
+            data = self.sock.recv(self.config['socket_buffer_size']).rstrip()
+            if len(data) == 0:
+                self.set_irc_socket()
+            self.check_for_ping(data)
+            if self.check_for_message(data):
+                self.pipe.send_string("%s%s" % ("|src:twitch|", data.decode('utf-8')))
+    
+    def check_for_message(self, data):
+        if re.match(r'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local) PRIVMSG #[a-zA-Z0-9_]+ :.+$', data):
+            return True
 
-		try:
-			sock.connect((self.config['server'], self.config['port']))
-		except:
-			pp('Cannot connect to server (%s:%s).' % (self.config['server'], self.config['port']), 'error')
-			sys.exit()
+    def check_for_ping(self, data):
+        if data[:4] == "PING": 
+            self.sock.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
 
-		sock.settimeout(None)
+    def check_login_status(self):
+        data = self.sock.recv(1024)
+        if re.match(r'^:(testserver\.local|tmi\.twitch\.tv) NOTICE \* :Login unsuccessful\r\n$', data):
+            return False
+        else:
+            return True
 
-		sock.send('USER %s\r\n' % self.config['username'])
-		sock.send('PASS %s\r\n' % self.config['oauth_password'])
-		sock.send('NICK %s\r\n' % self.config['username'])
+    def join_stream(self, stream):
+        if stream not in self.streams:
+            pp('Joining stream %s' % stream)
+            self.streams.append(stream)
+            self.sock.send('JOIN #%s\r\n' % stream)
 
-		if self.check_login_status(sock.recv(1024)):
-			#pp('Login successful.')
-			pass
-		else:
-			pp('Login unsuccessful. (hint: make sure your oauth token is set in self.config/self.config.py).', 'error')
-			sys.exit()
-
-		self.join_channel(channel)
-		return sock
-
-	def join_channel(self, channel):
-		#pp('Joining channel %s.' % channel)
-		self.sock.send('JOIN #%s\r\n' % channel)
-		#pp('Joined channel.')
-
-	def leave_channel(self, channel):
-		pp('Leaving chanel %s,' % channel)
-		self.sock.send('PART %s\r\n' % channel)
-		pp('Left channel.')
+    def leave_stream(self, stream):
+        if stream in self.streams:
+            self.streams.remove(stream)
+            self.sock.send('PART %s\r\n' % stream)

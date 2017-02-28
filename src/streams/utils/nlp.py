@@ -9,7 +9,7 @@ from functions_general import *
 
 class nlpParser:
 
-    def __init__(self): 
+    def __init__(self):
         pp('Initializing nlpParser...')
         self.SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
         self.OBJECTS = ["dobj", "dative", "attr", "oprd"]
@@ -174,4 +174,3 @@ class nlpParser:
         adjs = [tok.lower_ for tok in tokens if tok.dep_ in self.ADJECTIVES]
         subs = [{'lower':tok.lower_, 'vector':tok.vector, 'adjs': adjs} for tok in tokens if tok.dep_ in self.SUBJECTS]
         return subs
-
