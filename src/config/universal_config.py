@@ -199,7 +199,7 @@ http_config = {
     #DEV Hosts
     'request_host': '127.0.0.1',
     'data_host': '127.0.0.1',
-    'port': 4808,
+    'port': 80,
 
     #Ports
     'request_port': 8008,
