@@ -32,7 +32,7 @@ class StreamServer():
 
         self.input_server = InputServer(inputconfig, self.target_twitter_streams)
         self.stream_manager = StreamManager(streamconfig, self.input_server.irc, self.input_server.twtr, self.target_twitter_streams)
-        #self.data_server = DataServer(dataconfig)
+        self.data_server = DataServer(dataconfig)
 
         self.init_sockets()
         self.init_threads()
