@@ -82,10 +82,10 @@ class StreamManager():
         #logging_thread = threading.Thread(target = self.log_monitor).start()
     
         #subj suggestions
-        reset_subj_twitch_thread = threading.Thread(target = self.reset_subjs_twitch).start()
-        reset_subj_twitter_thread = threading.Thread(target = self.reset_subjs_twitter).start()
-        subj_thread = threading.Thread(target = self.send_subjs).start()
-        cluster_thread = threading.Thread(target = self.recv_clusters).start()
+        #reset_subj_twitch_thread = threading.Thread(target = self.reset_subjs_twitch).start()
+        #reset_subj_twitter_thread = threading.Thread(target = self.reset_subjs_twitter).start()
+        #subj_thread = threading.Thread(target = self.send_subjs).start()
+        #cluster_thread = threading.Thread(target = self.recv_clusters).start()
    
         #cleanup thread
         garbage_thread = threading.Thread(target = self.garbage_cleanup).start()
