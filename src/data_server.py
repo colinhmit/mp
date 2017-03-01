@@ -63,4 +63,5 @@ class DataServer():
                         sendr.send(pickled_data)
                         gc.collect()
             except Exception, e:
-                pp(e)
+                pass
+                #pp(e)

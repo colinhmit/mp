@@ -199,7 +199,7 @@ class StreamServer():
         if src == 'twitch':
             timeout = 0.3
         elif src == 'twitter':
-            timeout = 1
+            timeout = 0.7
         elif src == 'featured':
             timeout = 1200
         elif src == 'analytics':

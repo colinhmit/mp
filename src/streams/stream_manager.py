@@ -371,7 +371,7 @@ class StreamManager():
                     except Exception, e:
                         pp(e)
 
-            time.sleep(5)
+            time.sleep(15)
 
     def filter_trending_twitter(self):
         self.filter_trending_twitter_loop = True
