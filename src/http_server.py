@@ -78,7 +78,8 @@ class StreamClient():
         self.twitter_featured = []
         self.target_twitter_streams = []
 
-        self.analytics = {}
+        self.twitter_analytics = {}
+        self.twitch_analytics = {}
 
         #CJK regex
         self.pattern = re.compile('[^\w\s\'\"!.,$&?:;_-]+')
@@ -206,7 +207,12 @@ class StreamClient():
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
-                clusters = self.analytics.get(stream_id,{}).get('clusters',{})
+                clusters = self.twitter_analytics.get(stream_id,{}).get('clusters',{})
+                clusters_dicts.append(clusters)
+
+        if ('twitch' in args) and (len(args['twitch'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
+                clusters = self.twitch_analytics.get(stream_id,{}).get('clusters',{})
                 clusters_dicts.append(clusters)
 
         clusters_output = {}
@@ -327,7 +333,8 @@ class StreamClient():
             inc_pickle_data = self.recv_helper(msg_len, 'analytics')
 
             pickle_data = pickle.loads(inc_pickle_data)
-            self.analytics = pickle_data['analytics']
+            self.twitter_analytics = pickle_data['twitter_analytics']
+            self.twitch_analytics = pickle_data['twitch_analytics']
 
     def recv_twitch_data(self):
         config = self.config

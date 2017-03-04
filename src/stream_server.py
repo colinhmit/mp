@@ -32,7 +32,7 @@ class StreamServer():
 
         self.input_server = InputServer(inputconfig, self.target_twitter_streams)
         self.stream_manager = StreamManager(streamconfig, self.input_server.irc, self.input_server.twtr, self.target_twitter_streams)
-        self.data_server = DataServer(dataconfig)
+        #self.data_server = DataServer(dataconfig)
 
         self.init_sockets()
         self.init_threads()
@@ -101,11 +101,18 @@ class StreamServer():
             output['target_twitter_streams'] = self.target_twitter_streams
 
         elif src == 'analytics':
-            output['analytics'] = {}
+            output['twitter_analytics'] = {}
             for stream in self.stream_manager.twitter_streams.keys():
                 try:
-                    output['analytics'][stream] = {}
-                    output['analytics'][stream]['clusters'] = self.stream_manager.twitter_streams[stream].get_clusters()
+                    output['twitter_analytics'][stream] = {}
+                    output['twitter_analytics'][stream]['clusters'] = self.stream_manager.twitter_streams[stream].get_clusters()
+                except Exception, e:
+                    pp(e)
+            output['twitch_analytics'] = {}
+            for stream in self.stream_manager.twitch_streams.keys():
+                try:
+                    output['twitch_analytics'][stream] = {}
+                    output['twitch_analytics'][stream]['clusters'] = self.stream_manager.twitter_streams[stream].get_clusters()
                 except Exception, e:
                     pp(e)
 
