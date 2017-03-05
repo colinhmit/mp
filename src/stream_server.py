@@ -112,7 +112,7 @@ class StreamServer():
             for stream in self.stream_manager.twitch_streams.keys():
                 try:
                     output['twitch_analytics'][stream] = {}
-                    output['twitch_analytics'][stream]['clusters'] = self.stream_manager.twitter_streams[stream].get_clusters()
+                    output['twitch_analytics'][stream]['clusters'] = self.stream_manager.twitch_streams[stream].get_clusters()
                 except Exception, e:
                     pp(e)
 
@@ -139,7 +139,13 @@ class StreamServer():
                 pp(('Connection lost by: ' + str(client_address)))
                 connected = False
             else:
-                jsondata = json.loads(data)
+                try:
+                    jsondata = json.loads(data)
+                except Exception, e:
+                    pp(e)
+                    pp(data)
+                    jsondata = {}
+                
 
                 if 'twitch' in jsondata:
                     if 'add' in jsondata['twitch']:
