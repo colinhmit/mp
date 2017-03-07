@@ -73,13 +73,16 @@ class StreamClient():
 
         self.twitch_streams = {}
         self.twitter_streams = {}
+        self.reddit_streams = {}
 
         self.twitch_featured = []
         self.twitter_featured = []
         self.target_twitter_streams = []
+        self.target_reddit_streams = []
 
         self.twitter_analytics = {}
         self.twitch_analytics = {}
+        self.reddit_analytics = {}
 
         #CJK regex
         self.pattern = re.compile('[^\w\s\'\"!.,$&?:;_-]+')
@@ -100,6 +103,10 @@ class StreamClient():
         twitter_data_sock.connect((self.config['data_host'], self.config['twitter_data_port']))
         self.twitter_data_sock = twitter_data_sock
 
+        reddit_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        reddit_data_sock.connect((self.config['data_host'], self.config['reddit_data_port']))
+        self.reddit_data_sock = reddit_data_sock
+
         featured_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         featured_data_sock.connect((self.config['data_host'], self.config['featured_data_port']))
         self.featured_data_sock = featured_data_sock
@@ -111,6 +118,7 @@ class StreamClient():
     def init_threads(self):
         recv_twitch_thread = threading.Thread(target = self.recv_twitch_data).start()
         recv_twitter_thread = threading.Thread(target = self.recv_twitter_data).start()
+        recv_reddit_thread = threading.Thread(target = self.recv_reddit_data).start()
         recv_featured_thread = threading.Thread(target = self.recv_featured_data).start()
         recv_analytics_thread = threading.Thread(target = self.recv_analytics_data).start()
 
@@ -148,6 +156,8 @@ class StreamClient():
             output = self.twitch_streams.keys()
         elif src == 'twitter':
             output = self.twitter_streams.keys()
+        elif src == 'reddit':
+            output = self.reddit_streams.keys()
 
         return json.dumps(output)
 
@@ -159,7 +169,6 @@ class StreamClient():
         self.request_sock.send(json.dumps(request))
 
     def get_top_twitter_streams(self, args):
-        config = self.config
         trend_dicts = []
         image_output = 'https://media.giphy.com/media/Nwz6NZkToYC4M/giphy.gif'
 
@@ -178,21 +187,32 @@ class StreamClient():
         return json.dumps({'default_image':image_output, 'trending': trending_output})
 
     def get_agg_content(self, args):
-        config = self.config
         content_dicts = []
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
                 if stream_id not in self.twitter_streams:
-                    self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": datetime.datetime.now(), "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
                     self.request_stream(stream_id,'twitter')
 
                 try:
-                    content = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
+                    content = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": datetime.datetime.now(), "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
                     content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in content.items()})
                 except Exception, e:
                     pp(e)
-                
+
+        if ('reddit' in args) and (len(args['reddit'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
+                if stream_id not in self.reddit_streams:
+                    self.reddit_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_reddit_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": datetime.datetime.now(), "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.request_stream(stream_id,'reddit')
+
+                try:
+                    content = self.reddit_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_reddit_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": datetime.datetime.now(), "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
+                    content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in content.items()})
+                except Exception, e:
+                    pp(e)
+
         content_output = {}
         [content_output.update(d) for d in content_dicts]
 
@@ -205,7 +225,6 @@ class StreamClient():
         return json.dumps({'content': content_output})
 
     def get_agg_analytics(self, args):
-        config = self.config
         clusters_dicts = []
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
@@ -216,6 +235,11 @@ class StreamClient():
         if ('twitch' in args) and (len(args['twitch'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
                 clusters = self.twitch_analytics.get(stream_id,{}).get('clusters',{})
+                clusters_dicts.append(clusters)
+
+        if ('reddit' in args) and (len(args['reddit'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
+                clusters = self.reddit_analytics.get(stream_id,{}).get('clusters',{})
                 clusters_dicts.append(clusters)
 
         clusters_output = {}
@@ -236,7 +260,6 @@ class StreamClient():
         return json.dumps({'clusters': final_output})
 
     def get_agg_streams(self, args):
-        config = self.config
         trend_dicts = []
         trend_images = []
 
@@ -254,13 +277,26 @@ class StreamClient():
                 trend_images.append(self.twitch_streams.get(stream_id,{}).get('default_image',''))
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
-            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
-                if stream_id not in self.twitter_streams:
-                    self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
-                    self.request_stream(stream_id,'twitter')
+            if ('reddittest' in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]):
+                for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+                    trend_dicts.append(self.reddit_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_reddit_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+            else:
+                for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+                    if stream_id not in self.twitter_streams:
+                        self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                        self.request_stream(stream_id,'twitter')
 
-                trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
-                trend_images.append(self.twitter_streams.get(stream_id,{}).get('default_image',''))
+                    trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+                    trend_images.append(self.twitter_streams.get(stream_id,{}).get('default_image',''))
+
+        if ('reddit' in args) and (len(args['reddit'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
+                if stream_id not in self.reddit_streams:
+                    self.reddit_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_reddit_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.request_stream(stream_id,'reddit')
+
+                trend_dicts.append(self.reddit_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_reddit_streams)): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+                trend_images.append(self.reddit_streams.get(stream_id,{}).get('default_image',''))
 
         trending_output = {}
         [trending_output.update(d) for d in trend_dicts]
@@ -297,6 +333,8 @@ class StreamClient():
             sock = self.twitch_data_sock
         elif src == 'twitter':
             sock = self.twitter_data_sock
+        elif src == 'reddit':
+            sock = self.reddit_data_sock
         elif src == 'featured':
             sock = self.featured_data_sock
         elif src == 'analytics':
@@ -311,7 +349,6 @@ class StreamClient():
         return data
 
     def recv_featured_data(self):
-        config = self.config
         self.recv_featured = True
 
         while self.recv_featured:
@@ -326,7 +363,6 @@ class StreamClient():
             self.target_twitter_streams = pickle_data['target_twitter_streams']
 
     def recv_analytics_data(self):
-        config = self.config
         self.recv_analytics = True
 
         while self.recv_analytics:
@@ -340,7 +376,6 @@ class StreamClient():
             self.twitch_analytics = pickle_data['twitch_analytics']
 
     def recv_twitch_data(self):
-        config = self.config
         self.recv_twitch = True
 
         while self.recv_twitch:
@@ -353,7 +388,6 @@ class StreamClient():
             self.twitch_streams = pickle_data['twitch_streams']
 
     def recv_twitter_data(self):
-        config = self.config
         self.recv_twitter = True
 
         while self.recv_twitter:
@@ -365,6 +399,19 @@ class StreamClient():
 
             pickle_data = pickle.loads(inc_pickle_data)
             self.twitter_streams = pickle_data['twitter_streams']
+
+    def recv_reddit_data(self):
+        self.recv_reddit = True
+
+        while self.recv_reddit:
+
+            raw_len = self.recv_helper(4, 'reddit')
+            msg_len = struct.unpack('>I', raw_len)[0]
+            # Read the message data
+            inc_pickle_data = self.recv_helper(msg_len, 'reddit')
+
+            pickle_data = pickle.loads(inc_pickle_data)
+            self.reddit_streams = pickle_data['reddit_streams']
 
     def run(self):
         pp('Initializing Web Server...')

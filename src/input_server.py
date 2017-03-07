@@ -17,16 +17,18 @@ import gc
 #import utils
 from streams.utils.irc import irc
 from streams.utils.twtr import twtr
+from streams.utils.rddt import rddt
 from streams.utils.nlp import nlpParser
 from streams.utils.functions_general import *
 
 class InputServer:
-    def __init__(self, config, init_twitter_streams):
+    def __init__(self, config, init_twitter_streams, init_reddit_streams):
         pp('Initializing Input Server...')
         self.config = config
 
         self.irc = irc(self.config['irc_config'])
         self.twtr = twtr(self.config['twtr_config'], init_twitter_streams)
+        self.rddt = rddt(self.config['rddt_config'], init_reddit_streams)
 
         self.nlp_parser = nlpParser()
 
@@ -42,6 +44,7 @@ class InputServer:
         recvr = context.socket(zmq.PULL)
         recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_irc_port']))
         recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_twtr_port']))
+        recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_rddt_port']))
 
         sendr = context.socket(zmq.PUB)
         sendr.connect("tcp://127.0.0.1:"+str(self.config['zmq_pub_port']))
@@ -51,7 +54,6 @@ class InputServer:
 
         for data in iter(recvr.recv_string, 'STOP'):
             src, msg = self.parse_data(data)
-
             if len(msg) > 0:
                 hashid = hash(msg['message'])
 
@@ -108,6 +110,16 @@ class InputServer:
                 'media_url': [],
                 'mp4_url': '',
                 'id': ''
+                }
+        elif data[0:12] == "|src:reddit|":
+            jsondata = json.loads(data[12:])
+            src = "|src:reddit|"
+            msg = {
+                'username': jsondata['username'],
+                'message': jsondata['message'],
+                'media_url': [jsondata['media_url']],
+                'mp4_url': '',
+                'id': jsondata['id']
                 }
         elif data[0:13] == "|src:twitter|":
             jsondata = json.loads(data[13:])
