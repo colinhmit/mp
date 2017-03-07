@@ -120,7 +120,8 @@ class RedditStream(strm):
             msg_data = pickle.loads(raw_data[self.config['zmq_cutoff']:])
             if len(msg_data) == 0:
                 pp('Twitter connection was lost...')
-            if self.stream in msg_data['message'].lower():
+            if self.stream == msg_data['subreddit']:
+                pp(msg_data['message'])
                 messagetime = datetime.datetime.now()
                 self.process_message(msg_data, messagetime)  
                 self.last_rcv_time = messagetime

@@ -115,6 +115,7 @@ class InputServer:
             jsondata = json.loads(data[12:])
             src = "|src:reddit|"
             msg = {
+                'subreddit': jsondata['subreddit'],
                 'username': jsondata['username'],
                 'message': jsondata['message'],
                 'media_url': [jsondata['media_url']],

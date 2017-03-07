@@ -112,6 +112,7 @@ class StreamServer():
                     output['reddit_streams'][stream]['content'] = self.stream_manager.reddit_streams[stream].get_content()
                 except Exception, e:
                     pp(e)
+            pp(output)
 
         elif src == 'featured':
             output['twitter_featured'] =  self.stream_manager.twitter_manual_featured + [dict(x, image=self.get_default_image_helper(x['stream'][0], 'twitter')) for x in self.stream_manager.twitter_api_featured]

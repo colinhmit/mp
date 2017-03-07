@@ -59,21 +59,41 @@ class rddt:
 
         scraping = True
         while scraping:
-            for submission in subreddit.hot(limit=1000):
+            maxdiff = 0
+            maxsubmission = None
+            pp('//starting loop//')
+            pp('init hotlist')
+            subreddithot = subreddit.hot(limit=100)
+            pp('looop')
+            for submission in subreddithot:
                 if submission.id not in subcontent:
                     subcontent[submission.id] = submission.score
                 else:
-                    num_msgs = submission.score - subcontent[submission.id]
-                    if num_msgs > 0:
-                        data = {
-                                'username': submission.author.name,
-                                'message': submission.title,
-                                'media_url': submission.url,
-                                'id': submission.id
-                                }
-                        self.Q.put(json.dumps(data))
+                    if (submission.score - subcontent[submission.id])>maxdiff:
+                        maxdiff = submission.score - subcontent[submission.id]
+                        maxsubmission = submission
                     subcontent[submission.id] = submission.score
-
+            pp('maxsubmission')
+            if maxsubmission:
+                if not maxsubmission.author:
+                    data = {
+                            'subreddit': stream,
+                            'username': 'deleted',
+                            'message': maxsubmission.title,
+                            'media_url': maxsubmission.url,
+                            'id': maxsubmission.id
+                            }
+                else:
+                    data = {
+                            'subreddit': stream,
+                            'username': maxsubmission.author.name,
+                            'message': maxsubmission.title,
+                            'media_url': maxsubmission.url,
+                            'id': maxsubmission.id
+                            }
+                self.Q.put(json.dumps(data))                    
+            pp('done')
+            
     def join_stream(self, stream):
         if stream not in self.streams:
             pp('Joining stream %s' % stream)
