@@ -171,7 +171,7 @@ class StreamClient():
 
         if ('filter' in args) and (len(args['filter'][0])>0):
             for keyword in args['filter'][0].split(','):
-                for msg in trending_output:
+                for msg in trending_output.keys():
                     if keyword.lower() in msg.lower():
                         del trending_output[msg]
 
@@ -198,9 +198,17 @@ class StreamClient():
 
         if ('filter' in args) and (len(args['filter'][0])>0):
             for keyword in args['filter'][0].split(','):
-                for msg in content_output:
+                for msg in content_output.keys():
                     if keyword.lower() in msg.lower():
                         del content_output[msg]
+
+        if ('limit' in args) and (len(args['limit'][0])>0):
+            limit = int(args['limit'][0])
+            msgkeys = sorted(content_output, key = lambda x:content_output[x]['score'], reverse=True)
+            msgkeys = msgkeys[0:limit]
+            for msg in content_output.keys():
+                if msg not in msgkeys:
+                    del content_output[msg]
 
         return json.dumps({'content': content_output})
 
@@ -267,7 +275,7 @@ class StreamClient():
 
         if ('filter' in args) and (len(args['filter'][0])>0):
             for keyword in args['filter'][0].split(','):
-                for msg in trending_output:
+                for msg in trending_output.keys():
                     if keyword.lower() in msg.lower():
                         del trending_output[msg]
 
