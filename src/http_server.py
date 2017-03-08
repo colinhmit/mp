@@ -188,28 +188,33 @@ class StreamClient():
 
     def get_agg_content(self, args):
         content_dicts = []
+        horizon = 7200
+        timestamp = datetime.datetime.now()
+
+        if ('horizon' in args) and (len(args['horizon'][0])>0):
+            horizon = int(args['horizon'][0])
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
                 if stream_id not in self.twitter_streams:
-                    self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": datetime.datetime.now(), "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.twitter_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
                     self.request_stream(stream_id,'twitter')
 
                 try:
-                    content = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": datetime.datetime.now(), "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
-                    content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in content.items()})
+                    content = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_twitter_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
+                    content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in content.items() if (timestamp - msg_v['last_match_time']).total_seconds() <= horizon})
                 except Exception, e:
                     pp(e)
 
         if ('reddit' in args) and (len(args['reddit'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
                 if stream_id not in self.reddit_streams:
-                    self.reddit_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_reddit_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": datetime.datetime.now(), "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.reddit_streams[stream_id] = {'default_image':"https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", 'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_reddit_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
                     self.request_stream(stream_id,'reddit')
 
                 try:
-                    content = self.reddit_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_reddit_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": datetime.datetime.now(), "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
-                    content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in content.items()})
+                    content = self.reddit_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.target_reddit_streams)): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
+                    content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in content.items() if (timestamp - msg_v['last_match_time']).total_seconds() <= horizon})
                 except Exception, e:
                     pp(e)
 
@@ -221,6 +226,14 @@ class StreamClient():
                 for msg in content_output:
                     if keyword.lower() in msg.lower():
                         del content_output[msg]
+
+        if ('limit' in args) and (len(args['limit'][0])>0):
+            limit = int(args['limit'][0])
+            msgkeys = sorted(content_output, key = lambda x:content_output[x]['score'], reverse=True)
+            msgkeys = msgkeys[0:limit]
+            for msg in content_output.keys():
+                if msg not in msgkeys:
+                    del content_output[msg]
 
         return json.dumps({'content': content_output})
 

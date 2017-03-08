@@ -59,12 +59,12 @@ class rddt:
 
         scraping = True
         while scraping:
+            if len(subcontent)>1000:
+                subcontent = {}
+
             maxdiff = 0
             maxsubmission = None
-            pp('//starting loop//')
-            pp('init hotlist')
             subreddithot = subreddit.hot(limit=100)
-            pp('looop')
             for submission in subreddithot:
                 if submission.id not in subcontent:
                     subcontent[submission.id] = submission.score
@@ -73,7 +73,6 @@ class rddt:
                         maxdiff = submission.score - subcontent[submission.id]
                         maxsubmission = submission
                     subcontent[submission.id] = submission.score
-            pp('maxsubmission')
             if maxsubmission:
                 if not maxsubmission.author:
                     data = {
@@ -92,8 +91,24 @@ class rddt:
                             'id': maxsubmission.id
                             }
                 self.Q.put(json.dumps(data))                    
-            pp('done')
             
+    def refresh_streams(self):
+        pp('Refreshing streams...')
+        if self.stream_conn.is_alive():
+            self.stream_conn.terminate()
+        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        if len(self.streams)>0:
+            self.stream_conn.start()
+
+    def reset_streams(self):
+        pp('Resetting streams...')
+        self.streams = self.init_streams
+        if self.stream_conn.is_alive():
+            self.stream_conn.terminate()
+        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        if len(self.streams)>0:
+            self.stream_conn.start()
+
     def join_stream(self, stream):
         if stream not in self.streams:
             pp('Joining stream %s' % stream)
@@ -113,3 +128,16 @@ class rddt:
                 self.stream_conn.start()
             else:
                 pp('No streams to stream from...')
+
+    def batch_streams(self, streams_to_add, streams_to_remove):
+        if self.stream_conn.is_alive():
+            self.stream_conn.terminate()
+        for stream in streams_to_remove:
+            if stream in self.streams:
+                self.streams.remove(stream)
+        for stream in streams_to_add:
+            if stream not in self.streams:
+                self.streams.append(stream)
+        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        if len(self.streams)>0:
+            self.stream_conn.start()

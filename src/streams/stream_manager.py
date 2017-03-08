@@ -87,7 +87,7 @@ class StreamManager():
         render_reddit_thread = threading.Thread(target = self.render_reddit).start()
     
         #featured
-        #refresh_featured_thread = threading.Thread(target = self.refresh_featured).start()
+        refresh_featured_thread = threading.Thread(target = self.refresh_featured).start()
     
         #logging
         #logging_thread = threading.Thread(target = self.log_monitor).start()
@@ -108,25 +108,28 @@ class StreamManager():
         threading.Thread(target=self.add_stream, args=(stream,src)).start()
 
     def add_stream(self, stream, src):
-        if src == 'twitch':
-            if stream not in self.twitch_streams:
-                self.twitch_streams[stream] = None 
-                self.irc.join_stream(stream)
-                self.twitch_streams[stream] = TwitchStream(self.config['twitch_config'], stream)
-                self.twitch_streams[stream].run()
-        elif src == 'twitter':
-            if stream not in self.twitter_streams:
-                self.twitter_streams[stream] = None 
-                self.twtr.join_stream(stream)
-                self.twitter_streams[stream] = TwitterStream(self.config['twitter_config'], stream)
-                self.twitter_streams[stream].run()
-        elif src == 'reddit':
-            if stream not in self.reddit_streams:
-                self.reddit_streams[stream] = None 
-                self.rddt.join_stream(stream)
-                self.reddit_streams[stream] = RedditStream(self.config['reddit_config'], stream)
-                self.reddit_streams[stream].run()
-
+        try:
+            if src == 'twitch':
+                if stream not in self.twitch_streams:
+                    self.twitch_streams[stream] = None 
+                    self.irc.join_stream(stream)
+                    self.twitch_streams[stream] = TwitchStream(self.config['twitch_config'], stream)
+                    self.twitch_streams[stream].run()
+            elif src == 'twitter':
+                if stream not in self.twitter_streams:
+                    self.twitter_streams[stream] = None 
+                    self.twtr.join_stream(stream)
+                    self.twitter_streams[stream] = TwitterStream(self.config['twitter_config'], stream)
+                    self.twitter_streams[stream].run()
+            elif src == 'reddit':
+                if stream not in self.reddit_streams:
+                    self.reddit_streams[stream] = None 
+                    self.rddt.join_stream(stream)
+                    self.reddit_streams[stream] = RedditStream(self.config['reddit_config'], stream)
+                    self.reddit_streams[stream].run()
+        except Exception, e:
+            pp(e)
+        
     def delete_stream(self, stream, src):
         if src == 'twitch':
             if stream in self.twitch_streams:

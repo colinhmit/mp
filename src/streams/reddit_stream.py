@@ -121,7 +121,6 @@ class RedditStream(strm):
             if len(msg_data) == 0:
                 pp('Twitter connection was lost...')
             if self.stream == msg_data['subreddit']:
-                pp(msg_data['message'])
                 messagetime = datetime.datetime.now()
                 self.process_message(msg_data, messagetime)  
                 self.last_rcv_time = messagetime

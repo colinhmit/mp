@@ -111,7 +111,6 @@ class twtr:
                 pp('No streams to stream from...')
 
     def batch_streams(self, streams_to_add, streams_to_remove):
-        pp('Batching streams. Adding: '+str(streams_to_add)+', Deleting: '+str(streams_to_remove))
         if self.stream_conn.is_alive():
             self.stream_obj.disconnect()
             self.stream_conn.terminate()

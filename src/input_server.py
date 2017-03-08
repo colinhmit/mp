@@ -124,19 +124,35 @@ class InputServer:
                 }
         elif data[0:13] == "|src:twitter|":
             jsondata = json.loads(data[13:])
-            src = "|src:twitter|"
-            if 'retweeted_status' in jsondata:
-                if 'text' in jsondata['retweeted_status']:
-                    if 'media' in jsondata['retweeted_status']['entities']:
-                        if 'extended_entities' in jsondata:
-                            if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
-                                msg = {
-                                    'username': jsondata['user']['name'],
-                                    'message': jsondata['retweeted_status']['text'],
-                                    'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
-                                    'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
-                                    'id': jsondata['id_str']
-                                    }
+            if not jsondata.get('possibly_sensitive', False):
+                urls = jsondata.get('entities',{}).get('urls',[])
+                for url in [x['expanded_url'] for x in urls]:
+                    if url:
+                        for blacklink in self.config['blacklinks']:
+                            if blacklink in url:
+                                pp(url)
+                                return src, {}
+                src = "|src:twitter|"
+                if 'retweeted_status' in jsondata:
+                    if 'text' in jsondata['retweeted_status']:
+                        if 'media' in jsondata['retweeted_status']['entities']:
+                            if 'extended_entities' in jsondata:
+                                if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
+                                    msg = {
+                                        'username': jsondata['user']['name'],
+                                        'message': jsondata['retweeted_status']['text'],
+                                        'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
+                                        'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
+                                        'id': jsondata['id_str']
+                                        }
+                                else:
+                                    msg = {
+                                        'username': jsondata['user']['name'],
+                                        'message': jsondata['retweeted_status']['text'],
+                                        'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
+                                        'mp4_url': '',
+                                        'id': jsondata['id_str']
+                                        }
                             else:
                                 msg = {
                                     'username': jsondata['user']['name'],
@@ -149,52 +165,44 @@ class InputServer:
                             msg = {
                                 'username': jsondata['user']['name'],
                                 'message': jsondata['retweeted_status']['text'],
-                                'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
+                                'media_url': [],
                                 'mp4_url': '',
                                 'id': jsondata['id_str']
                                 }
-                    else:
-                        msg = {
-                            'username': jsondata['user']['name'],
-                            'message': jsondata['retweeted_status']['text'],
-                            'media_url': [],
-                            'mp4_url': '',
-                            'id': jsondata['id_str']
-                            }
-            elif 'text' in jsondata:
-                if 'media' in jsondata['entities']:
-                    if 'extended_entities' in jsondata:
-                        if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
-                            msg = {
-                                'username': jsondata['user']['name'],
-                                'message': jsondata['text'],
-                                'media_url': [jsondata['entities']['media'][0]['media_url']],
-                                'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
-                                'id': jsondata['id_str']
-                                }
+                elif 'text' in jsondata:
+                    if 'media' in jsondata['entities']:
+                        if 'extended_entities' in jsondata:
+                            if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
+                                msg = {
+                                    'username': jsondata['user']['name'],
+                                    'message': jsondata['text'],
+                                    'media_url': [jsondata['entities']['media'][0]['media_url']],
+                                    'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
+                                    'id': jsondata['id_str']
+                                    }
+                            else:
+                                msg = {
+                                    'username': jsondata['user']['name'],
+                                    'message': jsondata['text'],
+                                    'media_url': [jsondata['entities']['media'][0]['media_url']],
+                                    'mp4_url': '',
+                                    'id': jsondata['id_str']
+                                    }
                         else:
                             msg = {
                                 'username': jsondata['user']['name'],
                                 'message': jsondata['text'],
-                                'media_url': [jsondata['entities']['media'][0]['media_url']],
-                                'mp4_url': '',
+                                'media_url': jsondata['entities']['media'][0]['media_url'],
+                                'mp4_url': [],
                                 'id': jsondata['id_str']
                                 }
                     else:
                         msg = {
                             'username': jsondata['user']['name'],
                             'message': jsondata['text'],
-                            'media_url': jsondata['entities']['media'][0]['media_url'],
-                            'mp4_url': [],
+                            'media_url': [],
+                            'mp4_url': '',
                             'id': jsondata['id_str']
                             }
-                else:
-                    msg = {
-                        'username': jsondata['user']['name'],
-                        'message': jsondata['text'],
-                        'media_url': [],
-                        'mp4_url': '',
-                        'id': jsondata['id_str']
-                        }
 
         return src, msg

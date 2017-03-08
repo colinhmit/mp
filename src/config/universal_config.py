@@ -14,8 +14,10 @@ input_config = {
     'zmq_sub_port': 8006,
 
     # Number of distributor threads
-    'num_proc_threads': 15,
+    'num_proc_threads': 20,
     'num_dist_threads': 1,
+
+    'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
 
     # IRC Config
     'irc_config': {
@@ -44,18 +46,18 @@ input_config = {
         # 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                         
         # AWS DEV Twitter API Login
-        # 'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
-        # 'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+        'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+        'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
 
-        # 'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
-        # 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
+        'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+        'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
         # Dev #2 Twitter API Login
-        'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
-        'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
+        # 'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
+        # 'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
 
-        'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
-        'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
+        # 'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
+        # 'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt',
 
         # Dev #3 Twitter API Login
         # 'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
@@ -93,9 +95,9 @@ stream_config = {
 
     # Google Setup
     #AWS Google API Key
-    # 'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
+    'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
     #DEV Google API Key
-    'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
+    # 'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
     'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
     'spreadsheetID': '1lz4g3-WvT8EjVc2hogalhnGQmkMb1d1fIvatpLUsano',
     'featured_data_range': 'Twitter Featured!A2:E',
@@ -104,11 +106,11 @@ stream_config = {
     'schedule_live_range': 'Scraping Schedule!H2',
 
     #AWS Log Path
-    # 'twitter_log_path': '/home/ec2-user/mp/src/logs/twitter/',
-    # 'twitch_log_path': '/home/ec2-user/mp/src/logs/twitch/',
+    'twitter_log_path': '/home/ec2-user/mp/src/logs/twitter/',
+    'twitch_log_path': '/home/ec2-user/mp/src/logs/twitch/',
     #DEV Log Path
-    'twitter_log_path': '/Users/colinh/Repositories/mp/src/logs/twitter/',
-    'twitch_log_path': '/Users/colinh/Repositories/mp/src/logs/twitch/',
+    # 'twitter_log_path': '/Users/colinh/Repositories/mp/src/logs/twitter/',
+    # 'twitch_log_path': '/Users/colinh/Repositories/mp/src/logs/twitch/',
 
     # Twitch Stream Config
     'twitch_config': {
@@ -166,8 +168,8 @@ stream_config = {
         'decay_time_base': 0.2,
 
         #twitter content cutoff
-        'content_max_time': 1800,
-        'content_max_size': 20
+        'content_max_time': 7200,
+        'content_max_size': 50
     },
 
     # Twitter Stream Config
@@ -198,8 +200,8 @@ stream_config = {
         'decay_time_base': 0.2,
 
         #twitter content cutoff
-        'content_max_time': 1800,
-        'content_max_size': 20
+        'content_max_time': 7200,
+        'content_max_size': 50
     }
 }
 
@@ -215,7 +217,7 @@ data_config = {
 
 server_config = {
     # Twitter initialized target streams
-    'init_twitter_streams': ['clinton'],
+    'init_twitter_streams': ['trump'],
     'init_reddit_streams': ['soccer'],
 
     'request_host': '',
@@ -245,7 +247,7 @@ http_config = {
     #DEV Hosts
     'request_host': '127.0.0.1',
     'data_host': '127.0.0.1',
-    'port': 4808,
+    'port': 80,
 
     #Ports
     'request_port': 8008,

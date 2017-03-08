@@ -112,7 +112,6 @@ class StreamServer():
                     output['reddit_streams'][stream]['content'] = self.stream_manager.reddit_streams[stream].get_content()
                 except Exception, e:
                     pp(e)
-            pp(output)
 
         elif src == 'featured':
             output['twitter_featured'] =  self.stream_manager.twitter_manual_featured + [dict(x, image=self.get_default_image_helper(x['stream'][0], 'twitter')) for x in self.stream_manager.twitter_api_featured]
@@ -224,6 +223,27 @@ class StreamServer():
                             del self.stream_manager.twitter_streams[stream]
 
                         self.input_server.twtr.reset_streams()  
+
+                if 'reddit' in jsondata:
+                    if 'add' in jsondata['reddit']:
+                        for stream in jsondata['reddit']['add']:
+                            if (stream not in self.stream_manager.reddit_streams) and (len(stream)>0):
+                                self.stream_manager.create_stream(stream, 'reddit')
+
+                    if 'delete' in jsondata['reddit']:
+                        for stream in jsondata['reddit']['delete']:
+                            if stream in self.stream_manager.reddit_streams:
+                                self.stream_manager.delete_stream(stream, 'reddit')
+
+                    if 'refresh' in jsondata['reddit']:
+                        self.input_server.rddt.refresh_streams()
+
+                    if 'reset' in jsondata['twitter']:
+                        for stream in self.stream_manager.reddit_streams.keys():
+                            self.stream_manager.reddit_streams[stream].kill = True
+                            del self.stream_manager.reddit_streams[stream]
+
+                        self.input_server.rddt.reset_streams() 
 
     def listen(self):
         sock = self.request_sock
