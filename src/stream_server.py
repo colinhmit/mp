@@ -29,9 +29,10 @@ class StreamServer():
 
         #init twitter
         self.target_twitter_streams = self.config['init_twitter_streams']
+        self.target_reddit_streams = self.config['init_reddit_streams']
 
-        self.input_server = InputServer(inputconfig, self.target_twitter_streams)
-        self.stream_manager = StreamManager(streamconfig, self.input_server.irc, self.input_server.twtr, self.target_twitter_streams)
+        self.input_server = InputServer(inputconfig, self.target_twitter_streams, self.target_reddit_streams)
+        self.stream_manager = StreamManager(streamconfig, self.input_server.irc, self.input_server.twtr, self.input_server.rddt, self.target_twitter_streams, self.target_reddit_streams)
         #self.data_server = DataServer(dataconfig)
 
         self.init_sockets()
@@ -53,6 +54,11 @@ class StreamServer():
         twitter_data_sock.listen(self.config['listeners'])
         self.twitter_data_sock = twitter_data_sock
 
+        reddit_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        reddit_data_sock.bind((self.config['data_host'], self.config['reddit_data_port']))
+        reddit_data_sock.listen(self.config['listeners'])
+        self.reddit_data_sock = reddit_data_sock
+
         featured_data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         featured_data_sock.bind((self.config['data_host'], self.config['featured_data_port']))
         featured_data_sock.listen(self.config['listeners'])
@@ -68,6 +74,7 @@ class StreamServer():
         listen_thread = threading.Thread(target = self.listen).start()
         broadcast_twitch_thread = threading.Thread(target = self.broadcast, args = ('twitch',)).start()
         broadcast_twitter_thread = threading.Thread(target = self.broadcast, args = ('twitter',)).start()
+        broadcast_reddit_thread = threading.Thread(target = self.broadcast, args = ('reddit',)).start()
         broadcast_featured_thread = threading.Thread(target = self.broadcast, args = ('featured',)).start()
         broadcast_analytics_thread = threading.Thread(target = self.broadcast, args = ('analytics',)).start()
         
@@ -95,10 +102,22 @@ class StreamServer():
                 except Exception, e:
                     pp(e)
 
+        elif src == 'reddit':
+            output['reddit_streams'] = {}
+            for stream in self.stream_manager.reddit_streams.keys():
+                try:
+                    output['reddit_streams'][stream] = {}
+                    output['reddit_streams'][stream]['default_image'] = self.stream_manager.reddit_streams[stream].get_default_image()
+                    output['reddit_streams'][stream]['trending'] = self.stream_manager.reddit_streams[stream].get_trending()
+                    output['reddit_streams'][stream]['content'] = self.stream_manager.reddit_streams[stream].get_content()
+                except Exception, e:
+                    pp(e)
+
         elif src == 'featured':
             output['twitter_featured'] =  self.stream_manager.twitter_manual_featured + [dict(x, image=self.get_default_image_helper(x['stream'][0], 'twitter')) for x in self.stream_manager.twitter_api_featured]
             output['twitch_featured'] = self.stream_manager.twitch_api_featured
             output['target_twitter_streams'] = self.target_twitter_streams
+            output['target_reddit_streams'] = self.target_reddit_streams
 
         elif src == 'analytics':
             output['twitter_analytics'] = {}
@@ -115,6 +134,13 @@ class StreamServer():
                     output['twitch_analytics'][stream]['clusters'] = self.stream_manager.twitch_streams[stream].get_clusters()
                 except Exception, e:
                     pp(e)
+            output['reddit_analytics'] = {}
+            for stream in self.stream_manager.reddit_streams.keys():
+                try:
+                    output['reddit_analytics'][stream] = {}
+                    output['reddit_analytics'][stream]['clusters'] = self.stream_manager.reddit_streams[stream].get_clusters()
+                except Exception, e:
+                    pp(e)
 
         return pickle.dumps(output)
 
@@ -123,6 +149,12 @@ class StreamServer():
         if src == 'twitter':
             try:
                 default_image = self.stream_manager.twitter_streams[stream].get_default_image()
+            except Exception, e:
+                pp('get image failing')
+                pp(e)
+        elif src == 'reddit':
+            try:
+                default_image = self.stream_manager.reddit_streams[stream].get_default_image()
             except Exception, e:
                 pp('get image failing')
                 pp(e)
@@ -146,7 +178,6 @@ class StreamServer():
                     pp(data)
                     jsondata = {}
                 
-
                 if 'twitch' in jsondata:
                     if 'add' in jsondata['twitch']:
                         for stream in jsondata['twitch']['add']:
@@ -193,6 +224,27 @@ class StreamServer():
 
                         self.input_server.twtr.reset_streams()  
 
+                if 'reddit' in jsondata:
+                    if 'add' in jsondata['reddit']:
+                        for stream in jsondata['reddit']['add']:
+                            if (stream not in self.stream_manager.reddit_streams) and (len(stream)>0):
+                                self.stream_manager.create_stream(stream, 'reddit')
+
+                    if 'delete' in jsondata['reddit']:
+                        for stream in jsondata['reddit']['delete']:
+                            if stream in self.stream_manager.reddit_streams:
+                                self.stream_manager.delete_stream(stream, 'reddit')
+
+                    if 'refresh' in jsondata['reddit']:
+                        self.input_server.rddt.refresh_streams()
+
+                    if 'reset' in jsondata['twitter']:
+                        for stream in self.stream_manager.reddit_streams.keys():
+                            self.stream_manager.reddit_streams[stream].kill = True
+                            del self.stream_manager.reddit_streams[stream]
+
+                        self.input_server.rddt.reset_streams() 
+
     def listen(self):
         sock = self.request_sock
         config = self.config
@@ -213,6 +265,8 @@ class StreamServer():
             timeout = 0.3
         elif src == 'twitter':
             timeout = 0.7
+        elif src == 'reddit':
+            timeout = 0.7
         elif src == 'featured':
             timeout = 1200
         elif src == 'analytics':
@@ -232,6 +286,8 @@ class StreamServer():
             sock = self.twitch_data_sock
         elif src == 'twitter':
             sock = self.twitter_data_sock
+        elif src == 'reddit':
+            sock = self.reddit_data_sock
         elif src == 'featured':
             sock = self.featured_data_sock
         elif src == 'analytics':

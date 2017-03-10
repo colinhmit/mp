@@ -7,14 +7,17 @@ Created on Wed Aug 24 18:48:45 2016
 
 input_config = {
     # ZMQ ports
+    'zmq_rddt_port': 8002,
     'zmq_irc_port': 8003,
     'zmq_twtr_port': 8004,
     'zmq_pub_port': 8005,
     'zmq_sub_port': 8006,
 
     # Number of distributor threads
-    'num_proc_threads': 15,
+    'num_proc_threads': 20,
     'num_dist_threads': 1,
+
+    'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
 
     # IRC Config
     'irc_config': {
@@ -36,18 +39,18 @@ input_config = {
     # TWTR Config
     'twtr_config': {
         # Production Twitter API Login
-        'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-        'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+        # 'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+        # 'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
 
-        'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-        'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+        # 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+        # 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                         
         # AWS DEV Twitter API Login
-        # 'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
-        # 'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+        'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+        'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
 
-        # 'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
-        # 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
+        'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+        'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
         # Dev #2 Twitter API Login
         # 'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
@@ -65,7 +68,18 @@ input_config = {
 
         # ZMQ messaging port
         'zmq_twtr_port': 8004,
+    },
+
+    'rddt_config': {
+        # Reddit API Login
+        'client_token': 'bx_HkZiUhuYJCw',
+        'client_secret': '5l9swqgf2tAY2je0i61pNklgOCg',
+        'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)',
+
+        #ZMQ messaging port
+        'zmq_rddt_port': 8002
     }
+
 }
 
 stream_config = {
@@ -154,8 +168,40 @@ stream_config = {
         'decay_time_base': 0.2,
 
         #twitter content cutoff
-        'content_max_time': 1800,
-        'content_max_size': 20
+        'content_max_time': 7200,
+        'content_max_size': 50
+    },
+
+    # Twitter Stream Config
+    'reddit_config': {
+        # ZMQ messaging port
+        'zmq_sub_port': 8006,
+        'zmq_subscribe': '|src:reddit|',
+        'zmq_cutoff': 12,
+
+        # if set to true will display any data received
+        'debug': False,
+
+        #fw_eo output from funcions_matching threshold 
+        'fo_compare_threshold': 65,
+        'so_compare_threshold': 80,
+        #svo thresholds
+        'subj_compare_threshold': 85,
+        'verb_compare_threshold': 0.3,
+        'obj_compare_threshold': 0.5,
+        #twitter trending params
+        'matched_init_base': 50,
+        'matched_add_base': 15,
+        'matched_add_user_base': 500,     
+        'buffer_mult': 4,
+        'decay_msg_base': 1,
+        'decay_msg_min_limit': 0.4,
+        'decay_time_mtch_base': 4,
+        'decay_time_base': 0.2,
+
+        #twitter content cutoff
+        'content_max_time': 7200,
+        'content_max_size': 50
     }
 }
 
@@ -172,6 +218,7 @@ data_config = {
 server_config = {
     # Twitter initialized target streams
     'init_twitter_streams': ['trump'],
+    'init_reddit_streams': ['soccer'],
 
     'request_host': '',
     'request_port': 8008,
@@ -179,8 +226,9 @@ server_config = {
     'data_host': '',
     'twitch_data_port': 8016,
     'twitter_data_port': 8017,
-    'featured_data_port': 8018,
-    'analytics_data_port': 8019,
+    'reddit_data_port': 8018,
+    'featured_data_port': 8019,
+    'analytics_data_port': 8020,
     'listeners' : 10,
 
     # maximum amount of bytes to receive from socket - 1024-4096 recommended
@@ -192,21 +240,22 @@ http_config = {
     'host': '127.0.0.1',
 
     #AWS Settings
-    'port': 80,
-    'request_host': '35.160.61.218',
-    'data_host': '35.160.61.218',
+    # 'port': 80,
+    # 'request_host': '35.160.61.218',
+    # 'data_host': '35.160.61.218',
 
     #DEV Hosts
-    # 'request_host': '127.0.0.1',
-    # 'data_host': '127.0.0.1',
-    # 'port': 80,
+    'request_host': '127.0.0.1',
+    'data_host': '127.0.0.1',
+    'port': 80,
 
     #Ports
     'request_port': 8008,
     'twitch_data_port': 8016,
     'twitter_data_port': 8017,
-    'featured_data_port': 8018,
-    'analytics_data_port': 8019,
+    'reddit_data_port': 8018,
+    'featured_data_port': 8019,
+    'analytics_data_port': 8020,
 
     # maximum amount of bytes to receive from socket - 1024-4096 recommended
     'socket_buffer_size': 4096,

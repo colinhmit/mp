@@ -20,13 +20,15 @@ from apiclient.discovery import build
 from utils.functions_general import *
 from twitch_stream import TwitchStream
 from twitter_stream import TwitterStream
+from reddit_stream import RedditStream
 
 class StreamManager():
-    def __init__(self, config, irc, twtr, init_twitter_streams):
+    def __init__(self, config, irc, twtr, rddt, init_twitter_streams, init_reddit_streams):
         pp('Initializing Stream Manager...')
         self.config = config
         self.twitch_streams = {}
         self.twitter_streams = {}
+        self.reddit_streams = {}
 
         self.twitch_api_featured = []
         self.twitter_api_featured = []
@@ -42,10 +44,14 @@ class StreamManager():
 
         self.irc = irc
         self.twtr = twtr
+        self.rddt = rddt
         self.init_sockets()
 
         for stream in init_twitter_streams:
             self.create_stream(stream, 'twitter')
+
+        for stream in init_reddit_streams:
+            self.create_stream(stream, 'reddit')
 
         self.init_threads()
 
@@ -74,6 +80,11 @@ class StreamManager():
         filter_trending_twitter_thread = threading.Thread(target = self.filter_trending_twitter).start()
         filter_content_twitter_thread = threading.Thread(target = self.filter_content_twitter).start()
         render_twitter_thread = threading.Thread(target = self.render_twitter).start()
+
+        #reddit helpers
+        filter_trending_reddit_thread = threading.Thread(target = self.filter_trending_reddit).start()
+        filter_content_reddit_thread = threading.Thread(target = self.filter_content_reddit).start()
+        render_reddit_thread = threading.Thread(target = self.render_reddit).start()
     
         #featured
         refresh_featured_thread = threading.Thread(target = self.refresh_featured).start()
@@ -84,6 +95,7 @@ class StreamManager():
         #subj suggestions
         reset_subj_twitch_thread = threading.Thread(target = self.reset_subjs_twitch).start()
         reset_subj_twitter_thread = threading.Thread(target = self.reset_subjs_twitter).start()
+        reset_subj_reddit_thread = threading.Thread(target = self.reset_subjs_reddit).start()
         subj_thread = threading.Thread(target = self.send_subjs).start()
         cluster_thread = threading.Thread(target = self.recv_clusters).start()
    
@@ -96,19 +108,28 @@ class StreamManager():
         threading.Thread(target=self.add_stream, args=(stream,src)).start()
 
     def add_stream(self, stream, src):
-        if src == 'twitch':
-            if stream not in self.twitch_streams:
-                self.twitch_streams[stream] = None 
-                self.irc.join_stream(stream)
-                self.twitch_streams[stream] = TwitchStream(self.config['twitch_config'], stream)
-                self.twitch_streams[stream].run()
-        elif src == 'twitter':
-            if stream not in self.twitter_streams:
-                self.twitter_streams[stream] = None 
-                self.twtr.join_stream(stream)
-                self.twitter_streams[stream] = TwitterStream(self.config['twitter_config'], stream)
-                self.twitter_streams[stream].run()
-
+        try:
+            if src == 'twitch':
+                if stream not in self.twitch_streams:
+                    self.twitch_streams[stream] = None 
+                    self.irc.join_stream(stream)
+                    self.twitch_streams[stream] = TwitchStream(self.config['twitch_config'], stream)
+                    self.twitch_streams[stream].run()
+            elif src == 'twitter':
+                if stream not in self.twitter_streams:
+                    self.twitter_streams[stream] = None 
+                    self.twtr.join_stream(stream)
+                    self.twitter_streams[stream] = TwitterStream(self.config['twitter_config'], stream)
+                    self.twitter_streams[stream].run()
+            elif src == 'reddit':
+                if stream not in self.reddit_streams:
+                    self.reddit_streams[stream] = None 
+                    self.rddt.join_stream(stream)
+                    self.reddit_streams[stream] = RedditStream(self.config['reddit_config'], stream)
+                    self.reddit_streams[stream].run()
+        except Exception, e:
+            pp(e)
+        
     def delete_stream(self, stream, src):
         if src == 'twitch':
             if stream in self.twitch_streams:
@@ -124,6 +145,14 @@ class StreamManager():
                     self.twitter_streams[stream].kill = True
                     del self.twitter_streams[stream]
                     self.twtr.leave_stream(stream)
+                except Exception, e:
+                    pp(e)
+        elif src == 'reddit':
+            if stream in self.reddit_streams:
+                try:
+                    self.reddit_streams[stream].kill = True
+                    del self.reddit_streams[stream]
+                    self.rddt.leave_stream(stream)
                 except Exception, e:
                     pp(e)
 
@@ -289,6 +318,14 @@ class StreamManager():
                     except Exception, e:
                         pp(e)
 
+            if len(self.reddit_streams.keys()) > 0:
+                for stream_key in self.reddit_streams.keys():
+                    try:
+                        pickled_data = pickle.dumps(('reddit', stream_key, self.reddit_streams[stream_key].get_subjs()))
+                        self.subj_sock.send(pickled_data)
+                    except Exception, e:
+                        pp(e)
+
             time.sleep(60)
 
     def recv_clusters(self):
@@ -301,6 +338,8 @@ class StreamManager():
                     self.twitch_streams[stream].set_clusters(clusters)
                 elif src == 'twitter':
                     self.twitter_streams[stream].set_clusters(clusters)
+                elif src == 'reddit':
+                    self.reddit_streams[stream].set_clusters(clusters)
             except Exception, e:
                 pp(e)
 
@@ -352,13 +391,6 @@ class StreamManager():
                     except Exception, e:
                         pp(e)
 
-            if len(self.twitch_streams.keys()) > 0:
-                for stream_key in self.twitch_streams.keys():
-                    try:
-                        self.twitch_streams[stream_key].reset_subjs()
-                    except Exception, e:
-                        pp(e)
-
             time.sleep(600)
 
     def filter_content_twitter(self):
@@ -392,6 +424,55 @@ class StreamManager():
                 for stream_key in self.twitter_streams.keys():
                     try:
                         self.twitter_streams[stream_key].render_trending()
+                    except Exception, e:
+                        pp(e)
+                        
+            time.sleep(0.7)
+
+    # Reddit Helpers
+    def reset_subjs_reddit(self):
+        self.reset_subjs_reddit_loop = True
+        while self.reset_subjs_reddit_loop:
+            if len(self.reddit_streams.keys()) > 0:
+                for stream_key in self.reddit_streams.keys():
+                    try:
+                        self.reddit_streams[stream_key].reset_subjs()
+                    except Exception, e:
+                        pp(e)
+
+            time.sleep(600)
+
+    def filter_content_reddit(self):
+        self.filter_content_reddit_loop = True
+        while self.filter_content_reddit_loop:
+            if len(self.reddit_streams.keys()) > 0:
+                for stream_key in self.reddit_streams.keys():
+                    try:
+                        self.reddit_streams[stream_key].filter_content()
+                    except Exception, e:
+                        pp(e)
+
+            time.sleep(15)
+
+    def filter_trending_reddit(self):
+        self.filter_trending_reddit_loop = True
+        while self.filter_trending_reddit_loop:
+            if len(self.reddit_streams.keys()) > 0:
+                for stream_key in self.reddit_streams.keys():
+                    try:
+                        self.reddit_streams[stream_key].filter_trending()
+                    except Exception, e:
+                        pp(e)
+
+            time.sleep(0.8)
+
+    def render_reddit(self):
+        self.render_reddit_loop = True
+        while self.render_reddit_loop:
+            if len(self.reddit_streams.keys()) > 0:
+                for stream_key in self.reddit_streams.keys():
+                    try:
+                        self.reddit_streams[stream_key].render_trending()
                     except Exception, e:
                         pp(e)
                         
