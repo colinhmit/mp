@@ -58,27 +58,30 @@ class InputServer:
         for data in iter(recvr.recv_string, 'STOP'):
             msg = self.parse_irc(data)
             if len(msg) > 0:
-                hashid = hash(msg['message'])
-                if hashid in svomap:
-                    svos, subjs = svomap[hashid]
-                else:
-                    clean_msg = re.sub(r"http\S+", "", msg['message'])
-                    clean_msg = re.sub(r"[#@]", "", clean_msg)
-                    clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
-                    try:
-                        svos, subjs = nlp.parse_text(clean_msg)
-                    except Exception, e:
-                        svos = []
-                        subjs = []
-                    svomap[hashid] = svos, subjs
+                # WHILE CONSTRAINTED, TWITCH TAGGING OFF
+                # hashid = hash(msg['message'])
+                # if hashid in svomap:
+                #     svos, subjs = svomap[hashid]
+                # else:
+                #     clean_msg = re.sub(r"http\S+", "", msg['message'])
+                #     clean_msg = re.sub(r"[#@]", "", clean_msg)
+                #     clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
+                #     try:
+                #         svos, subjs = nlp.parse_text(clean_msg)
+                #     except Exception, e:
+                #         svos = []
+                #         subjs = []
+                #     svomap[hashid] = svos, subjs
 
-                msg['svos'] = svos
-                msg['subjs'] = subjs
+                # msg['svos'] = svos
+                # msg['subjs'] = subjs
 
-                if len(svomap)>svorefresh:
-                    svomap = {}
-                    nlp.flush()
-                    gc.collect()
+                # if len(svomap)>svorefresh:
+                #     svomap = {}
+                #     nlp.flush()
+                #     gc.collect()
+                msg['svos'] = []
+                msg['subjs'] = []
                 
                 pickled_data = pickle.dumps(msg)
                 sendr.send(pickled_data)
@@ -116,8 +119,11 @@ class InputServer:
 
                 if len(svomap)>svorefresh:
                     svomap = {}
+                    pp('flushing... '+str(svorefresh))
                     nlp.flush()
+                    pp('gcing... '+str(svorefresh))
                     gc.collect()
+                    pp('done... '+ +str(svorefresh))
                 
                 pickled_data = pickle.dumps(msg)
                 sendr.send(pickled_data)
@@ -135,27 +141,30 @@ class InputServer:
         for data in iter(recvr.recv_string, 'STOP'):
             msg = self.parse_rddt(data)
             if len(msg) > 0:
-                hashid = hash(msg['message'])
-                if hashid in svomap:
-                    svos, subjs = svomap[hashid]
-                else:
-                    clean_msg = re.sub(r"http\S+", "", msg['message'])
-                    clean_msg = re.sub(r"[#@]", "", clean_msg)
-                    clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
-                    try:
-                        svos, subjs = nlp.parse_text(clean_msg)
-                    except Exception, e:
-                        svos = []
-                        subjs = []
-                    svomap[hashid] = svos, subjs
+                # WHILE CONSTRAINTED, REDDIT TAGGING OFF
+                # hashid = hash(msg['message'])
+                # if hashid in svomap:
+                #     svos, subjs = svomap[hashid]
+                # else:
+                #     clean_msg = re.sub(r"http\S+", "", msg['message'])
+                #     clean_msg = re.sub(r"[#@]", "", clean_msg)
+                #     clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
+                #     try:
+                #         svos, subjs = nlp.parse_text(clean_msg)
+                #     except Exception, e:
+                #         svos = []
+                #         subjs = []
+                #     svomap[hashid] = svos, subjs
 
-                msg['svos'] = svos
-                msg['subjs'] = subjs
+                # msg['svos'] = svos
+                # msg['subjs'] = subjs
 
-                if len(svomap)>svorefresh:
-                    svomap = {}
-                    nlp.flush()
-                    gc.collect()
+                # if len(svomap)>svorefresh:
+                #     svomap = {}
+                #     nlp.flush()
+                #     gc.collect()
+                msg['svos'] = []
+                msg['subjs'] = []
 
                 pickled_data = pickle.dumps(msg)
                 sendr.send(pickled_data)
