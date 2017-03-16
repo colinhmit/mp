@@ -40,7 +40,7 @@ class RedditManager(strm_mgr):
     def add_stream(self, stream):
         try:
             if stream not in self.streams:
-                self.streams[stream] = multiprocessing.Process(target=RedditStream, args=(self.config['reddit_config'], stream)) 
+                self.streams[stream] = RedditStream(self.config['reddit_config'], stream) 
                 self.src.join_stream(stream)
                 self.streams[stream].start()
         except Exception, e:

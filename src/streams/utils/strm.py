@@ -5,6 +5,7 @@ Created on Wed Aug 24 18:42:42 2016
 @author: colinh
 """
 import datetime
+import multiprocessing
 import re
 import zmq
 import gc
@@ -13,8 +14,9 @@ import pickle
 from functions_general import *
 from functions_matching import *
 
-class strm:
+class strm(multiprocessing.Process):
     def __init__(self, config, stream):
+        multiprocessing.Process.__init__(self)
         self.config = config
         self.stream = stream
         self.last_rcv_time = None

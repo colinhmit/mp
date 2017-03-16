@@ -40,7 +40,7 @@ class TwitterManager(strm_mgr):
     def add_stream(self, stream):
         try:
             if stream not in self.streams:
-                self.streams[stream] = multiprocessing.Process(target=TwitterStream, args=(self.config['twitter_config'], stream)) 
+                self.streams[stream] = TwitterStream(self.config['twitter_config'], stream)
                 self.src.join_stream(stream)
                 self.streams[stream].start()
         except Exception, e:

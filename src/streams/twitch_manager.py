@@ -38,7 +38,7 @@ class TwitchManager(strm_mgr):
     def add_stream(self, stream):
         try:
             if stream not in self.streams:
-                self.streams[stream] = multiprocessing.Process(target=TwitchStream, args=(self.config['twitch_config'], stream)) 
+                self.streams[stream] = TwitchStream(self.config['twitch_config'], stream)
                 self.src.join_stream(stream)
                 self.streams[stream].start()
         except Exception, e:
