@@ -4,31 +4,31 @@ Created on Wed Aug 24 18:55:12 2016
 
 @author: colinh
 """
+import multiprocessing
 import socket
 import re
-import threading
 import zmq
+
 from functions_general import *
+from inpt import inpt
 
-class irc:
-    def __init__(self, config):
-        self.config = config
-        self.streams = []
-        self.set_irc_socket()
+class irc(inpt):
+    def __init__(self, config, init_streams):
+        inpt.__init__(self, config, init_streams)
 
-        self.stream_conn = threading.Thread(target = self.stream_connection)
-        self.stream_conn.start()
+        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        if len(self.streams)>0:
+            self.stream_conn.start()
 
     def set_irc_socket(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(10)
-
         try:
             self.sock.connect((self.config['server'], self.config['port']))
         except:
             pp('Cannot connect to server (%s:%s).' % (self.config['server'], self.config['port']), 'error')
-
         self.sock.settimeout(None)
+
         self.sock.send('USER %s\r\n' % self.config['username'])
         self.sock.send('PASS %s\r\n' % self.config['oauth_password'])
         self.sock.send('NICK %s\r\n' % self.config['username'])
@@ -42,17 +42,18 @@ class irc:
             self.sock.send('JOIN #%s\r\n' % stream)
     
     def stream_connection(self):
+        self.set_irc_socket()
+
         context = zmq.Context()
         self.pipe = context.socket(zmq.PUSH)
-
         connected = False
         while not connected:
             try:
-                self.pipe.bind("tcp://127.0.0.1:"+str(self.config['zmq_irc_port']))
+                self.pipe.bind('tcp://'+self.config['zmq_host']+':'+str(self.config['zmq_port']))
                 connected = True
             except Exception, e:
                 pass
-
+                
         self.alive = True
         while self.alive:
             data = self.sock.recv(self.config['socket_buffer_size']).rstrip()
@@ -60,7 +61,7 @@ class irc:
                 self.set_irc_socket()
             self.check_for_ping(data)
             if self.check_for_message(data):
-                self.pipe.send_string("%s%s" % ("|src:twitch|", data.decode('utf-8')))
+                self.pipe.send_string(data.decode('utf-8'))
     
     def check_for_message(self, data):
         if re.match(r'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local) PRIVMSG #[a-zA-Z0-9_]+ :.+$', data):
@@ -76,14 +77,3 @@ class irc:
             return False
         else:
             return True
-
-    def join_stream(self, stream):
-        if stream not in self.streams:
-            pp('Joining stream %s' % stream)
-            self.streams.append(stream)
-            self.sock.send('JOIN #%s\r\n' % stream)
-
-    def leave_stream(self, stream):
-        if stream in self.streams:
-            self.streams.remove(stream)
-            self.sock.send('PART %s\r\n' % stream)

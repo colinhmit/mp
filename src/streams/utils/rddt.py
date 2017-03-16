@@ -8,20 +8,18 @@ import threading
 import multiprocessing
 import zmq
 import Queue
-import gc
 import json
 
 import praw
 
 from functions_general import *
+from inpt import inpt
 
-class rddt:
+class rddt(inpt):
     def __init__(self, config, init_streams):
-        self.config = config
-        self.init_streams = init_streams
-        self.streams = init_streams
+        inpt.__init__(self, config, init_streams)
         self.set_rddt_obj()
-
+        
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         if len(self.streams)>0:
             self.stream_conn.start()
@@ -43,7 +41,7 @@ class rddt:
         connected = False
         while not connected:
             try:
-                self.pipe.bind("tcp://127.0.0.1:"+str(self.config['zmq_rddt_port']))
+                self.pipe.bind('tcp://'+self.config['zmq_host']+':'+str(self.config['zmq_port']))
                 connected = True
             except Exception, e:
                 pass
@@ -51,7 +49,7 @@ class rddt:
         self.alive = True
         while self.alive:
             data = self.Q.get()
-            self.pipe.send_string("%s%s" % ("|src:reddit|", data))
+            self.pipe.send_string(data)
 
     def subreddit_monitor(self, stream):
         subreddit = self.reddit.subreddit(stream)
@@ -73,6 +71,7 @@ class rddt:
                         maxdiff = submission.score - subcontent[submission.id]
                         maxsubmission = submission
                     subcontent[submission.id] = submission.score
+
             if maxsubmission:
                 if not maxsubmission.author:
                     data = {
@@ -90,54 +89,4 @@ class rddt:
                             'media_url': maxsubmission.url,
                             'id': maxsubmission.id
                             }
-                self.Q.put(json.dumps(data))                    
-            
-    def refresh_streams(self):
-        pp('Refreshing streams...')
-        if self.stream_conn.is_alive():
-            self.stream_conn.terminate()
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
-        if len(self.streams)>0:
-            self.stream_conn.start()
-
-    def reset_streams(self):
-        pp('Resetting streams...')
-        self.streams = self.init_streams
-        if self.stream_conn.is_alive():
-            self.stream_conn.terminate()
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
-        if len(self.streams)>0:
-            self.stream_conn.start()
-
-    def join_stream(self, stream):
-        if stream not in self.streams:
-            pp('Joining stream %s' % stream)
-            if self.stream_conn.is_alive():
-                self.stream_conn.terminate()
-            self.streams.append(stream)
-            self.stream_conn = multiprocessing.Process(target=self.stream_connection)
-            self.stream_conn.start()
-
-    def leave_stream(self, stream):
-        if stream in self.streams:
-            self.streams.remove(stream)
-            if self.stream_conn.is_alive():
-                self.stream_conn.terminate()
-            self.stream_conn = multiprocessing.Process(target=self.stream_connection)
-            if len(self.streams)>0:
-                self.stream_conn.start()
-            else:
-                pp('No streams to stream from...')
-
-    def batch_streams(self, streams_to_add, streams_to_remove):
-        if self.stream_conn.is_alive():
-            self.stream_conn.terminate()
-        for stream in streams_to_remove:
-            if stream in self.streams:
-                self.streams.remove(stream)
-        for stream in streams_to_add:
-            if stream not in self.streams:
-                self.streams.append(stream)
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
-        if len(self.streams)>0:
-            self.stream_conn.start()
+                self.Q.put(json.dumps(data)) 

@@ -6,6 +6,8 @@ Created on Wed Aug 24 18:42:42 2016
 """
 import datetime
 import pickle
+import zmq
+import threading
 
 from utils.functions_general import *
 from utils.functions_matching import *
@@ -17,10 +19,51 @@ class TwitterStream(strm):
 
         self.content = {}
         self.default_image = {'image': '', 'score': 0}
+        self.init_threads()
+        self.run()
 
-    # GET/SET Functionality
-    def get_content(self):
-        return dict(self.content)
+    def init_threads(self):
+        #stream helpers
+        threading.Thread(target = self.filter_trending_thread).start()
+        threading.Thread(target = self.filter_content_thread).start()
+        threading.Thread(target = self.render_trending_thread).start()
+        threading.Thread(target = self.garbage_cleanup_thread).start()
+        threading.Thread(target = self.reset_subjs_thread).start()
+
+        #data connections
+        threading.Thread(target = self.send_stream).start()
+        threading.Thread(target = self.send_analytics).start()
+
+    def send_stream(self):
+        self.send_stream_loop = True
+        while self.send_stream_loop:
+            try:
+                data = {
+                    'type': 'stream',
+                    'src': self.config['self'],
+                    'stream': self.stream,
+                    'data': {
+                        'trending': dict(self.clean_trending), 
+                        'content': dict(self.content), 
+                        'default_image': self.default_image['image']
+                    }
+                }
+                pickled_data = pickle.dumps(data)
+                self.http_socket.send(pickled_data)
+            except Exception, e:
+                pp('failed twitter send_stream')
+                pp(e)
+            time.sleep(self.config['send_stream_timeout'])
+
+    def filter_content_thread(self):
+        self.filter_content_loop = True
+        while self.filter_content_loop:
+            try:
+                self.filter_content()
+            except Exception, e:
+                pp('failed twitter filter_content_thread')
+                pp(e)
+            time.sleep(self.config['filter_content_timeout'])
 
     #Manager Processes
     def filter_content(self):
@@ -73,9 +116,8 @@ class TwitterStream(strm):
 
     #Main func
     def run(self):        
-        while not self.kill:
-            raw_data = self.data_socket.recv()
-            msg_data = pickle.loads(raw_data[self.config['zmq_cutoff']:])
+        for data in iter(self.input_socket.recv, 'STOP'):
+            msg_data = pickle.loads(data)
             if len(msg_data) == 0:
                 pp('Twitter connection was lost...')
             if self.stream in msg_data['message'].lower():
