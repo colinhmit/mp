@@ -54,6 +54,7 @@ class DataServer():
             try:
                 pickledata = pickle.loads(data)
                 stream = pickledata['stream']
+                pp('processing... '+stream)
                 if pickledata['type'] == 'subjects':
                     subjs = pickledata['data']
                     if len(subjs) > 0:
@@ -70,6 +71,7 @@ class DataServer():
                         if len(labels) > 1:
                             model = mlCluster('hdb', self.config['hdb_min_cluster_size'])
                             clusters = model.cluster(labels,vectors)
+                            pp('done ml... '+stream)
                             enriched_clusters = {}
                             for k in clusters:
                                 enriched_clusters[stream + "_" + str(k)] = {
@@ -86,5 +88,6 @@ class DataServer():
                             pickled_data = pickle.dumps(data)
                             sendr.send(pickled_data)
                             gc.collect()
+                            pp('finshed... '+stream)
             except Exception, e:
                 pass

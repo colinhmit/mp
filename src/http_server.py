@@ -148,12 +148,12 @@ class StreamClient():
         if src == 'twitter':
             for feat in featured:
                 if len(feat['image']) == 0:
-                    feat['image'] = self.twitter_streams[feat['stream']]['default_image']
+                    feat['image'] = self.twitter_streams[feat['stream'][0]]['default_image']
 
         elif src == 'twitter':
             for feat in featured:
                 if len(feat['image']) == 0:
-                    feat['image'] = self.reddit_streams[feat['stream']]['default_image']
+                    feat['image'] = self.reddit_streams[feat['stream'][0]]['default_image']
 
         return featured
 
