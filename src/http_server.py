@@ -116,8 +116,6 @@ class StreamClient():
             if data['type'] == 'stream':
                 self.process_stream(data)
             elif data['type'] == 'clusters':
-                pp('clusters!')
-                pp(data)
                 self.process_clusters(data)
             elif data['type'] == 'featured':
                 self.process_featured(data)

@@ -33,7 +33,7 @@ class TwitterManager(strm_mgr):
         self.service = build('sheets', 'v4', credentials=self.credentials)
 
     def init_threads(self):
-        #threading.Thread(target = self.refresh_featured, args=(self.config['twitter_featured'],)).start()
+        threading.Thread(target = self.refresh_featured, args=(self.config['twitter_featured'],)).start()
         threading.Thread(target = self.send_featured, args=(self.config['twitter_featured'],)).start()
         threading.Thread(target = self.garbage_cleanup, args=(self.config['twitter_featured'],)).start()
 
