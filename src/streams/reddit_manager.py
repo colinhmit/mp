@@ -35,7 +35,8 @@ class RedditManager(strm_mgr):
     def init_threads(self):
         #threading.Thread(target = self.refresh_featured, args=(self.config['twitter_featured'],)).start()
         #threading.Thread(target = self.send_featured, args=(self.config['twitter_featured'],)).start()
-
+        pass
+        
     def add_stream(self, stream):
         try:
             if stream not in self.streams:

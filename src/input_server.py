@@ -120,7 +120,7 @@ class InputServer:
                 if len(svomap)>svorefresh:
                     svomap = {}
                     nlp.flush()
-                    gc.collect()
+                    #gc.collect()
                 
                 pickled_data = pickle.dumps(msg)
                 sendr.send(pickled_data)
