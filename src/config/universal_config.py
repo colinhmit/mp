@@ -25,7 +25,7 @@ input_config = {
 
     # Number of processing threads
     'num_irc_procs': 25,
-    'num_twtr_procs': 30,
+    'num_twtr_procs': 25,
     'num_rddt_procs': 25,
 
     'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
@@ -154,8 +154,8 @@ stream_config = {
 
         # Timeouts
         'send_stream_timeout': 0.3,
-        'send_analytics_timeout': 60,
-        'reset_subjs_timeout': 300,
+        'send_analytics_timeout': 600,
+        'reset_subjs_timeout': 600,
         'filter_trending_timeout': 0.7,
         'render_trending_timeout': 0.3,
         'gc_timeout': 300,
@@ -195,8 +195,8 @@ stream_config = {
 
         # Timeouts
         'send_stream_timeout': 0.7,
-        'send_analytics_timeout': 60,
-        'reset_subjs_timeout': 300,
+        'send_analytics_timeout': 600,
+        'reset_subjs_timeout': 600,
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
@@ -240,8 +240,8 @@ stream_config = {
         'zmq_data_port': 8082,
 
         'send_stream_timeout': 0.7,
-        'send_analytics_timeout': 60,
-        'reset_subjs_timeout': 300,
+        'send_analytics_timeout': 600,
+        'reset_subjs_timeout': 600,
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,

@@ -107,7 +107,9 @@ class strm:
         self.gc_loop = True
         while self.gc_loop:
             try:
+                pp('starting gc... '+self.stream)
                 gc.collect()
+                pp('finished gc... '+self.stream)
             except Exception, e:
                 pp('failed garbage_cleanup_thread')
                 pp(e)
