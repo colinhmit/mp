@@ -48,7 +48,7 @@ class DataServer():
         recvr.connect('tcp://'+self.config['zmq_proc_host']+':'+str(self.config['zmq_proc_port']))
 
         sendr = context.socket(zmq.PUSH)
-        sendr.connect('tcp://'+self.config['zmq_http_host']+':'+str(self.config['zmq_http_port']))
+        sendr.connect('tcp://'+self.config['zmq_http_data_host']+':'+str(self.config['zmq_http_data_port']))
         
         for data in iter(recvr.recv, 'STOP'):
             try:

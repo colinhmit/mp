@@ -94,7 +94,7 @@ class InputServer:
         sendr.connect('tcp://'+self.config['zmq_proc_host']+':'+str(self.config['zmq_twtr_proc_port']))
 
         svomap = {}
-        svorefresh = random.randint(750, 1000)
+        svorefresh = random.randint(250, 500)
 
         for data in iter(recvr.recv_string, 'STOP'):
             msg = self.parse_twtr(data)
@@ -123,7 +123,7 @@ class InputServer:
                     nlp.flush()
                     pp('gcing... '+str(svorefresh))
                     gc.collect()
-                    pp('done... '+ +str(svorefresh))
+                    pp('done... '+str(svorefresh))
                 
                 pickled_data = pickle.dumps(msg)
                 sendr.send(pickled_data)

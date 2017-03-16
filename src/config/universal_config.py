@@ -25,7 +25,7 @@ input_config = {
 
     # Number of processing threads
     'num_irc_procs': 25,
-    'num_twtr_procs': 25,
+    'num_twtr_procs': 30,
     'num_rddt_procs': 25,
 
     'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
@@ -272,13 +272,14 @@ stream_config = {
 
 data_config = {
     # DEV ZMQ hosts
-    'zmq_http_host': '127.0.0.1',
+    'zmq_http_data_host': '127.0.0.1',
     'zmq_data_host': '127.0.0.1',
     'zmq_proc_host': '127.0.0.1',
 
+
     #Data Server Ports
     'zmq_data_port': 8082,
-    'zmq_http_port': 8081,
+    'zmq_http_data_port': 8085,
     'zmq_proc_port': 8050,
 
     #ML clustering
@@ -305,8 +306,10 @@ http_config = {
 
     # DEV ZMQ hosts
     'zmq_http_host': '127.0.0.1',
+    'zmq_http_data_host': '127.0.0.1',
     'zmq_server_host': '127.0.0.1',
     'zmq_http_port': 8081,
+    'zmq_http_data_port': 8085,
     'zmq_server_port': 8083,
 
     'twitch_monitor_timeout': 15,
