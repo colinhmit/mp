@@ -23,7 +23,6 @@ class TwitchStream(strm):
         #stream helpers
         threading.Thread(target = self.filter_trending_thread).start()
         threading.Thread(target = self.render_trending_thread).start()
-        threading.Thread(target = self.garbage_cleanup_thread).start()
         threading.Thread(target = self.reset_subjs_thread).start()
 
         #data connections

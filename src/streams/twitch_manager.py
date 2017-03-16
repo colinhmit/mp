@@ -7,7 +7,6 @@ Created on Wed Aug 24 19:22:30 2016
 import threading
 import multiprocessing
 import requests
-import gc
 import json
 
 from utils.functions_general import *
@@ -33,7 +32,6 @@ class TwitchManager(strm_mgr):
     def init_threads(self):
         threading.Thread(target = self.refresh_featured, args=(self.config['twitch_featured'],)).start()
         threading.Thread(target = self.send_featured, args=(self.config['twitch_featured'],)).start()
-        threading.Thread(target = self.garbage_cleanup, args=(self.config['twitch_featured'],)).start()
 
     def add_stream(self, stream):
         try:

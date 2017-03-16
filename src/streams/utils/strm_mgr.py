@@ -5,7 +5,6 @@ Created on Wed Aug 24 19:22:30 2016
 @author: colinh
 """
 import re
-import gc
 import time
 import zmq
 import requests
@@ -62,9 +61,3 @@ class strm_mgr:
             except Exception, e:
                 pp(e)
             time.sleep(config['refresh_featured_timeout'])
-
-    def garbage_cleanup(self, config):
-        self.gc_loop = True
-        while self.gc_loop:
-            gc.collect()
-            time.sleep(config['gc_timeout'])

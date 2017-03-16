@@ -7,7 +7,6 @@ Created on Wed Aug 24 18:42:42 2016
 import datetime
 import re
 import zmq
-import gc
 import pickle
 
 from functions_general import *
@@ -103,18 +102,6 @@ class strm:
                 pp(e)
             time.sleep(self.config['render_trending_timeout'])
 
-    def garbage_cleanup_thread(self):
-        self.gc_loop = True
-        while self.gc_loop:
-            try:
-                pp('starting gc... '+self.stream)
-                gc.collect()
-                pp('finished gc... '+self.stream)
-            except Exception, e:
-                pp('failed garbage_cleanup_thread')
-                pp(e)
-            time.sleep(self.config['gc_timeout'])
- 
     #Manager Processes
     def render_trending(self):
         if len(self.trending)>0:

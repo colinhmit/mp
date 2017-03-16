@@ -12,7 +12,6 @@ import json
 import zmq
 import pickle
 import datetime
-import gc
 
 from config.universal_config import *
 from streams.utils.functions_general import *

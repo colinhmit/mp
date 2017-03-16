@@ -6,7 +6,6 @@ Created on Wed Aug 24 19:22:30 2016
 """
 import threading
 import json
-import gc
 import time
 import zmq
 import pickle
@@ -85,6 +84,5 @@ class DataServer():
                             }
                             pickled_data = pickle.dumps(data)
                             sendr.send(pickled_data)
-                            gc.collect()
             except Exception, e:
                 pass

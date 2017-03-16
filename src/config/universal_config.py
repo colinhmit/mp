@@ -108,22 +108,19 @@ stream_config = {
         'self': 'twitch',
         'twitch_client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
         'num_featured': 12,
-        'refresh_featured_timeout': 1200,
-        'gc_timeout': 300
+        'refresh_featured_timeout': 1200
     },
     
     'twitter_featured':{
         'self': 'twitter',
         'num_featured': 12,
         'featured_buffer_maxlen': 100,
-        'refresh_featured_timeout': 1200,
-        'gc_timeout': 300
+        'refresh_featured_timeout': 1200
     },
 
     'reddit_featured':{
         'self': 'reddit',
-        'refresh_featured_timeout': 1200,
-        'gc_timeout': 300
+        'refresh_featured_timeout': 1200
     },
     
     'google_sheets':{
@@ -158,7 +155,6 @@ stream_config = {
         'reset_subjs_timeout': 600,
         'filter_trending_timeout': 0.7,
         'render_trending_timeout': 0.3,
-        'gc_timeout': 300,
 
         # fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -200,7 +196,6 @@ stream_config = {
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
-        'gc_timeout': 300,
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -245,7 +240,6 @@ stream_config = {
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
-        'gc_timeout': 300,
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
