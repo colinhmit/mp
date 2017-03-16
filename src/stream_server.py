@@ -34,7 +34,7 @@ class StreamServer():
         self.twitter_manager = TwitterManager(streamconfig, self.input_server.twtr, self.config['init_streams']['twitter'])
         self.reddit_manager = RedditManager(streamconfig, self.input_server.rddt, self.config['init_streams']['reddit'])
         
-        #self.data_server = DataServer(dataconfig)
+        self.data_server = DataServer(dataconfig)
 
         self.init_sockets()
         self.init_threads()
