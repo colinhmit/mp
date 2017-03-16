@@ -18,7 +18,6 @@ from inpt import inpt
 class rddt(inpt):
     def __init__(self, config, init_streams):
         inpt.__init__(self, config, init_streams)
-        self.set_rddt_obj()
         
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         if len(self.streams)>0:
@@ -30,6 +29,9 @@ class rddt(inpt):
                      user_agent=self.config['user_agent'])
 
     def stream_connection(self):
+        #set reddit object
+        self.set_rddt_obj()
+
         #set up subreddits
         self.Q = Queue.Queue()
         for stream in self.streams:

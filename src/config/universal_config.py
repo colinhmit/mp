@@ -24,9 +24,9 @@ input_config = {
     'zmq_rddt_output_port': 8024,
 
     # Number of processing threads
-    'num_irc_procs': 25,
-    'num_twtr_procs': 25,
-    'num_rddt_procs': 25,
+    'num_irc_procs': 5,
+    'num_twtr_procs': 15,
+    'num_rddt_procs': 5,
 
     'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
 
