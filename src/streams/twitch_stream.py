@@ -17,7 +17,6 @@ class TwitchStream(strm):
         strm.__init__(self, config, stream)
 
         self.init_threads()
-        self.run()
 
     def init_threads(self):
         #stream helpers

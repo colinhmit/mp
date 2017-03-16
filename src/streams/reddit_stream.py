@@ -20,7 +20,6 @@ class RedditStream(strm):
         self.content = {}
         self.default_image = {'image': '', 'score': 0}
         self.init_threads()
-        self.run()
 
     def init_threads(self):
         #stream helpers
