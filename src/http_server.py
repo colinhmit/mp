@@ -295,6 +295,7 @@ class StreamClient():
 
     def get_agg_sentiment(self, args):
         sentiment_dicts = []
+        subjects = []
 
         if ('subjects' in args) and (len(args['subjects'][0])>0):
             subjects = [self.pattern.sub('',x).lower() for x in args['subjects'][0].split(',')]
