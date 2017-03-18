@@ -276,7 +276,7 @@ class StreamClient():
 
         if ('reddit' in args) and (len(args['reddit'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
-                clusters = self.reddit_analytics.get(stream_id,{}).get('subjects',{})
+                subjects = self.reddit_analytics.get(stream_id,{}).get('subjects',{})
                 subjects_list.append(subjects)
 
         return json.dumps({'subjects': subjects_list})
