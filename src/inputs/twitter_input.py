@@ -8,15 +8,13 @@ import json
 import multiprocessing
 
 #import utils
-from utils.twtr import twtr
 from utils.functions_general import *
 from std_inpt import std_inpt
 
 class TwitterInput(std_inpt):
-    def __init__(self, config, init_streams, nlp):
+    def __init__(self, config, nlp):
         std_inpt.__init__(self, config, nlp)
         pp('Initializing Twitch Input Server...')
-        self.src = twtr(config, init_streams)
 
         #distribute
         multiprocessing.Process(target=self.distribute).start()

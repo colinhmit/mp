@@ -9,7 +9,6 @@ import json
 import multiprocessing
 
 #import utils
-from inputs.utils.rddt import rddt
 from inputs.utils.functions_general import *
 from std_inpt import std_inpt
 
@@ -17,7 +16,6 @@ class RedditInput(std_inpt):
     def __init__(self, config, init_streams, nlp):
         std_inpt.__init__(self, config, nlp)
         pp('Initializing Reddit Input Server...')
-        self.src = rddt(config, init_streams)
 
         #distribute
         multiprocessing.Process(target=self.distribute).start()
