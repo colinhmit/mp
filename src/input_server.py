@@ -28,5 +28,5 @@ class InputServer:
         self.nlp_parser = nlpParser()
 
         self.twitch_input = TwitchInput(self.config['irc_config'], init_streams['twitch'], self.nlp_parser)
-        self.twitter_input = TwitterInput(self.config['twitter_config'], init_streams['twitter'], self.nlp_parser)
-        self.reddit_input = RedditInput(self.config['reddit_config'], init_streams['reddit'], self.nlp_parser)
+        self.twitter_input = TwitterInput(self.config['twtr_config'], init_streams['twitter'], self.nlp_parser)
+        self.reddit_input = RedditInput(self.config['rddt_config'], init_streams['reddit'], self.nlp_parser)

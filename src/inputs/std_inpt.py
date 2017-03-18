@@ -9,6 +9,7 @@ import random
 import zmq
 import pickle
 import gc
+import re
 import multiprocessing
 
 #import utils
