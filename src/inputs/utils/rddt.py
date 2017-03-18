@@ -9,7 +9,6 @@ import multiprocessing
 import zmq
 import Queue
 import json
-
 import praw
 
 from functions_general import *
@@ -43,7 +42,7 @@ class rddt(inpt):
         connected = False
         while not connected:
             try:
-                self.pipe.bind('tcp://'+self.config['zmq_input_host']+':'+str(self.config['rddt_input_port']))
+                self.pipe.bind('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
                 connected = True
             except Exception, e:
                 pass
