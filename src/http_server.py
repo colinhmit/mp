@@ -262,36 +262,24 @@ class StreamClient():
         return json.dumps({'content': content_output})
 
     def get_agg_subjects(self, args):
-        subjects_dicts = []
+        subjects_list = []
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
-                clusters = self.twitter_analytics.get(stream_id,{}).get('clusters',{})
-                subjects_dicts.append({msg_k: {'avgscore':msg_v['avgscore'], 'subjects': msg_v['subjects']} for msg_k, msg_v in clusters.items()})
+                subjects = self.twitter_analytics.get(stream_id,{}).get('subjects',[])
+                subjects_list.append(subjects)
 
         if ('twitch' in args) and (len(args['twitch'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
-                clusters = self.twitch_analytics.get(stream_id,{}).get('clusters',{})
-                subjects_dicts.append({msg_k: {'avgscore':msg_v['avgscore'], 'subjects': msg_v['subjects']} for msg_k, msg_v in clusters.items()})
+                subjects = self.twitch_analytics.get(stream_id,{}).get('clusters',{})
+                subjects_list.append(subjects)
 
         if ('reddit' in args) and (len(args['reddit'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
                 clusters = self.reddit_analytics.get(stream_id,{}).get('clusters',{})
-                subjects_dicts.append({msg_k: {'avgscore':msg_v['avgscore'], 'subjects': msg_v['subjects']} for msg_k, msg_v in clusters.items()})
+                subjects_list.append(subjects)
 
-        subjects_output = {}
-        [subjects_output.update(d) for d in subjects_dicts]
-
-        if ('keyword' in args) and (len(args['keyword'][0])>0):
-            final_output = {}
-            keywords = [self.pattern.sub('',x).lower() for x in args['keyword'][0].split(',')]
-            for cluster_key in subjects_output:
-                if not set(subjects_output[cluster_key]['subjects']).isdisjoint(keywords):
-                    final_output[cluster_key] = subjects_output[cluster_key]
-        else:
-            final_output = subjects_output
-
-        return json.dumps({'clusters': final_output})
+        return json.dumps({'subjects': subjects_list})
 
     def get_agg_sentiment(self, args):
         sentiment_dicts = []
@@ -302,21 +290,25 @@ class StreamClient():
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
-                clusters = self.twitter_analytics.get(stream_id,{}).get('clusters',{})
-                sentiment_dicts.append({msg_k: {'subjects': msg_v['subjects'], 'sentiment': msg_v['adjs']} for msg_k, msg_v in clusters.items() if not set(msg_v['subjects']).isdisjoint(subjects)})
+                sentiment = self.twitter_analytics.get(stream_id,{}).get('sentiment',{})
+                sentiment_dicts.append(sentiment)
 
         if ('twitch' in args) and (len(args['twitch'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
-                clusters = self.twitch_analytics.get(stream_id,{}).get('clusters',{})
-                sentiment_dicts.append({msg_k: {'subjects': msg_v['subjects'], 'sentiment': msg_v['adjs']} for msg_k, msg_v in clusters.items() if not set(msg_v['subjects']).isdisjoint(subjects)})
+                sentiment = self.twitch_analytics.get(stream_id,{}).get('sentiment',{})
+                sentiment_dicts.append(sentiment)
 
         if ('reddit' in args) and (len(args['reddit'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
-                clusters = self.reddit_analytics.get(stream_id,{}).get('clusters',{})
-                sentiment_dicts.append({msg_k: {'subjects': msg_v['subjects'], 'sentiment': msg_v['adjs']} for msg_k, msg_v in clusters.items() if not set(msg_v['subjects']).isdisjoint(subjects)})
+                sentiment = self.reddit_analytics.get(stream_id,{}).get('sentiment',{})
+                sentiment_dicts.append(sentiment)
 
         sentiment_output = {}
         [sentiment_output.update(d) for d in sentiment_dicts]
+
+        for subj in sentiment_output.keys():
+            if not subj in subjects:
+                del sentiment_output[subj]
 
         return json.dumps({'sentiment': sentiment_output})
 

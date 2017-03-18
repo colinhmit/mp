@@ -49,7 +49,7 @@ class irc(inpt):
         connected = False
         while not connected:
             try:
-                self.pipe.bind('tcp://'+self.config['zmq_host']+':'+str(self.config['zmq_port']))
+                self.pipe.bind('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
                 connected = True
             except Exception, e:
                 pass

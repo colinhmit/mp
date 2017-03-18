@@ -10,8 +10,8 @@ import requests
 import json
 
 from utils.functions_general import *
-from twitch_stream import TwitchStream
-from utils.strm_mgr import strm_mgr
+from utils.twitch_stream import TwitchStream
+from strm_mgr import strm_mgr
 
 class TwitchManager(strm_mgr):
     def __init__(self, config, irc, init_streams):

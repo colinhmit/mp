@@ -11,8 +11,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
 
 from utils.functions_general import *
-from reddit_stream import RedditStream
-from utils.strm_mgr import strm_mgr
+from utils.reddit_stream import RedditStream
+from strm_mgr import strm_mgr
 
 class RedditManager(strm_mgr):
     def __init__(self, config, rddt, init_streams):

@@ -5,39 +5,47 @@ Created on Wed Aug 24 18:48:45 2016
 @author: colinh
 """
 
-input_config = {
-    'zmq_input_host': '127.0.0.1',
-    'zmq_proc_host': '127.0.0.1',
-    'zmq_stream_host': '127.0.0.1',
+input_host = '127.0.0.1'
+input_proc_host = '127.0.0.1'
+stream_host = '127.0.0.1'
+http_host = '127.0.0.1'
+http_data_host = '127.0.0.1'
+data_host = '127.0.0.1'
+data_proc_host = '127.0.0.1'
+server_host = '127.0.0.1'
 
-    # ZMQ ports
-    'zmq_irc_input_port': 8002,
-    'zmq_twtr_input_port': 8003,
-    'zmq_rddt_input_port': 8004,
+irc_input_port = 8002
+irc_proc_port = 8012
+irc_stream_port = 8022
 
-    'zmq_irc_proc_port': 8012,
-    'zmq_twtr_proc_port': 8013,
-    'zmq_rddt_proc_port': 8014,
+twtr_input_port = 8003
+twtr_proc_port = 8013
+twtr_stream_port = 8023
 
-    'zmq_irc_output_port': 8022,
-    'zmq_twtr_output_port': 8023,
-    'zmq_rddt_output_port': 8024,
+rddt_input_port = 8004
+rddt_proc_port = 8014
+rddt_stream_port = 8024
 
-    # Number of processing threads
-    'num_irc_procs': 5,
-    'num_twtr_procs': 15,
-    'num_rddt_procs': 5,
+http_port = 8081
+http_data_port = 8085
+data_port = 8082
+data_proc_port = 8050
+server_port = 8083
 
-    'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
 
+input_config = {    
     # IRC Config
     'irc_config': {
         # Attributes
         'self': 'twitch',
 
-        # ZMQ messaging port
-        'zmq_host': '127.0.0.1',
-        'zmq_port': 8002,
+        # ZMQ messaging
+        'zmq_input_host': input_host,
+        'zmq_proc_host': input_proc_host,
+        'num_procs': 5,
+        'zmq_input_port': irc_input_port,
+        'zmq_proc_port': irc_proc_port,
+        'zmq_output_port': irc_stream_port,
 
         # Production Twitch IRC Login    
         'server': 'irc.twitch.tv',
@@ -52,10 +60,15 @@ input_config = {
     'twtr_config': {
         # Attributes
         'self': 'twitter',
+        'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
 
-        # ZMQ messaging port
-        'zmq_host': '127.0.0.1',
-        'zmq_port': 8003,
+        # ZMQ messaging
+        'zmq_input_host': input_host,
+        'zmq_proc_host': input_proc_host,
+        'num_procs': 15,
+        'zmq_input_port': twtr_input_port,
+        'zmq_proc_port': twtr_proc_port,
+        'zmq_output_port': twtr_stream_port,
 
         # Production Twitter API Login
         # 'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
@@ -87,22 +100,25 @@ input_config = {
         'self': 'reddit',
 
         # ZMQ messaging
-        'zmq_host': '127.0.0.1',
-        'zmq_port': 8004,
+        'zmq_input_host': input_host,
+        'zmq_proc_host': input_proc_host,
+        'num_procs': 5,
+        'zmq_input_port': rddt_input_port,
+        'zmq_proc_port': rddt_proc_port,
+        'zmq_output_port': rddt_stream_port,
 
         # Reddit API Login
         'client_token': 'bx_HkZiUhuYJCw',
         'client_secret': '5l9swqgf2tAY2je0i61pNklgOCg',
         'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)'
     }
-
 }
 
 stream_config = {
     # DEV ZMQ hosts
-    'zmq_http_host': '127.0.0.1',
+    'zmq_http_host': http_host,
     # ZMQ messaging ports
-    'zmq_http_port': 8081,
+    'zmq_http_port': http_port,
 
     'twitch_featured':{
         'self': 'twitch',
@@ -141,17 +157,17 @@ stream_config = {
         'debug': False,
 
         # DEV ZMQ hosts
-        'zmq_input_host': '127.0.0.1',
-        'zmq_http_host': '127.0.0.1',
-        'zmq_data_host': '127.0.0.1',
+        'zmq_input_host': input_host,
+        'zmq_http_host': http_host,
+        'zmq_data_host': data_host,
         # ZMQ messaging ports
-        'zmq_input_port': 8022,
-        'zmq_http_port': 8081,
-        'zmq_data_port': 8082,
+        'zmq_input_port': irc_stream_port,
+        'zmq_http_port': http_port,
+        'zmq_data_port': data_port,
 
         # Timeouts
         'send_stream_timeout': 0.3,
-        'send_analytics_timeout': 600,
+        'send_analytics_timeout': 60,
         'reset_subjs_timeout': 600,
         'filter_trending_timeout': 0.7,
         'render_trending_timeout': 0.3,
@@ -181,17 +197,17 @@ stream_config = {
         'debug': False,
 
         # DEV ZMQ hosts
-        'zmq_input_host': '127.0.0.1',
-        'zmq_http_host': '127.0.0.1',
-        'zmq_data_host': '127.0.0.1',
+        'zmq_input_host': input_host,
+        'zmq_http_host': http_host,
+        'zmq_data_host': data_host,
         # ZMQ messaging ports
-        'zmq_input_port': 8023,
-        'zmq_http_port': 8081,
-        'zmq_data_port': 8082,
+        'zmq_input_port': twtr_stream_port,
+        'zmq_http_port': http_port,
+        'zmq_data_port': data_port,
 
         # Timeouts
         'send_stream_timeout': 0.7,
-        'send_analytics_timeout': 600,
+        'send_analytics_timeout': 60,
         'reset_subjs_timeout': 600,
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
@@ -226,16 +242,16 @@ stream_config = {
         'debug': False,
 
         # DEV ZMQ hosts
-        'zmq_input_host': '127.0.0.1',
-        'zmq_http_host': '127.0.0.1',
-        'zmq_data_host': '127.0.0.1',
+        'zmq_input_host': input_host,
+        'zmq_http_host': http_host,
+        'zmq_data_host': data_host,
         # ZMQ messaging ports
-        'zmq_input_port': 8024,
-        'zmq_http_port': 8081,
-        'zmq_data_port': 8082,
+        'zmq_input_port': rddt_stream_port,
+        'zmq_http_port': http_port,
+        'zmq_data_port': data_port,
 
         'send_stream_timeout': 0.7,
-        'send_analytics_timeout': 600,
+        'send_analytics_timeout': 60,
         'reset_subjs_timeout': 600,
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
@@ -266,15 +282,14 @@ stream_config = {
 
 data_config = {
     # DEV ZMQ hosts
-    'zmq_http_data_host': '127.0.0.1',
-    'zmq_data_host': '127.0.0.1',
-    'zmq_proc_host': '127.0.0.1',
-
+    'zmq_http_data_host': http_data_host,
+    'zmq_data_host': data_host,
+    'zmq_proc_host': data_proc_host,
 
     #Data Server Ports
-    'zmq_data_port': 8082,
-    'zmq_http_data_port': 8085,
-    'zmq_proc_port': 8050,
+    'zmq_data_port': data_port,
+    'zmq_http_data_port': http_data_port,
+    'zmq_proc_port': data_proc_port,
 
     #ML clustering
     'num_cluster_procs': 5,
@@ -283,8 +298,8 @@ data_config = {
 }
 
 server_config = {
-    'zmq_server_host': '127.0.0.1',
-    'zmq_server_port': 8083,
+    'zmq_server_host': server_host,
+    'zmq_server_port': server_port,
 
     # Twitter initialized target streams
     'init_streams': {
@@ -299,12 +314,12 @@ http_config = {
     'port': 80,
 
     # DEV ZMQ hosts
-    'zmq_http_host': '127.0.0.1',
-    'zmq_http_data_host': '127.0.0.1',
-    'zmq_server_host': '127.0.0.1',
-    'zmq_http_port': 8081,
-    'zmq_http_data_port': 8085,
-    'zmq_server_port': 8083,
+    'zmq_http_host': http_host,
+    'zmq_http_data_host': http_data_host,
+    'zmq_server_host': server_host,
+    'zmq_http_port': http_port,
+    'zmq_http_data_port': http_data_port,
+    'zmq_server_port': server_port,
 
     'twitch_monitor_timeout': 15,
     'twitter_monitor_timeout': 15,

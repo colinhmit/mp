@@ -8,9 +8,9 @@ import datetime
 import pickle
 import threading
 
-from utils.functions_general import *
-from utils.functions_matching import *
-from utils.strm import strm
+from functions_general import *
+from functions_matching import *
+from strm import strm
 
 class TwitchStream(strm):
     def __init__(self, config, stream):

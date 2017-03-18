@@ -13,8 +13,8 @@ import datetime
 import multiprocessing
 import numpy
 
-from streams.utils.ml import mlCluster, autovivify
-from streams.utils.functions_general import *
+from analytics.utils.ml import mlCluster, autovivify
+from analytics.utils.functions_general import *
 
 class DataServer():
     def __init__(self, config):
@@ -68,19 +68,26 @@ class DataServer():
 
                         if len(labels) > 1:
                             model = mlCluster('hdb', self.config['hdb_min_cluster_size'])
-                            clusters = model.cluster(labels,vectors)
-                            enriched_clusters = {}
-                            for k in clusters:
-                                enriched_clusters[stream + "_" + str(k)] = {
-                                    'avgscore': numpy.mean([subjs[subj]['score'] for subj in clusters[k]]),
-                                    'subjects': clusters[k],
-                                    'adjs': [item for sublist in (subjs[subj]['adjs'] for subj in clusters[k]) for item in sublist]
-                                }
+                            raw_clusters = model.cluster(labels,vectors)
+                            subjects = []
+                            sentiment = {}
+                            for k in raw_clusters:
+                                if k > -1:
+                                    cluster = {
+                                        'avgscore': numpy.mean([subjs[subj]['score'] for subj in clusters[k]]),
+                                        'subjects': clusters[k]
+                                    }
+                                    subjects.append(cluster)
+                                    for subj in clusters[k]:
+                                        sentiment[subj] = {
+                                            'adjectives': subjs[subj]['adjs'],
+                                            'score': subjs[subj]['score']
+                                        }
                             data = {
                                 'type': 'clusters',
                                 'src': pickledata['src'],
                                 'stream': stream,
-                                'data': {'clusters': enriched_clusters}
+                                'data': {'subjects': subjects, 'sentiment': sentiment}
                             }
                             pickled_data = pickle.dumps(data)
                             sendr.send(pickled_data)

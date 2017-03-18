@@ -13,7 +13,7 @@ import zmq
 import pickle
 import datetime
 
-from config.universal_config import *
+from config.universal_config import server_config, input_config, stream_config, data_config
 from streams.utils.functions_general import *
 
 from streams.twitch_manager import TwitchManager

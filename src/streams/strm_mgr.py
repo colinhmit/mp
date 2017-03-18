@@ -10,7 +10,7 @@ import zmq
 import requests
 import pickle
 
-from functions_general import *
+from utils.functions_general import *
 
 class strm_mgr:
     def __init__(self, config, src):

@@ -11,8 +11,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
 
 from utils.functions_general import *
-from twitter_stream import TwitterStream
-from utils.strm_mgr import strm_mgr
+from utils.twitter_stream import TwitterStream
+from strm_mgr import strm_mgr
 
 class TwitterManager(strm_mgr):
     def __init__(self, config, twtr, init_streams):

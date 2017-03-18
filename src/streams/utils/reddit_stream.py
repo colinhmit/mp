@@ -9,11 +9,11 @@ import pickle
 import zmq
 import threading
 
-from utils.functions_general import *
-from utils.functions_matching import *
-from utils.strm import strm
+from functions_general import *
+from functions_matching import *
+from strm import strm
 
-class TwitterStream(strm):
+class RedditStream(strm):
     def __init__(self, config, stream):
         strm.__init__(self, config, stream)
 
@@ -50,7 +50,6 @@ class TwitterStream(strm):
                 pickled_data = pickle.dumps(data)
                 self.http_socket.send(pickled_data)
             except Exception, e:
-                pp('failed twitter send_stream')
                 pp(e)
             time.sleep(self.config['send_stream_timeout'])
 
@@ -60,9 +59,49 @@ class TwitterStream(strm):
             try:
                 self.filter_content()
             except Exception, e:
-                pp('failed twitter filter_content_thread')
                 pp(e)
             time.sleep(self.config['filter_content_timeout'])
+
+    #Matching Logic
+    def handle_match(self, matched_msg, msgdata, msgtime):
+        if self.config['debug']:
+            pp("!!! "+matched_msg+" + "+msgdata['message']+" !!!")
+
+        #check transformation
+        match_subs = fweo_threshold(msgdata['message'], self.trending[matched_msg]['msgs'].keys(), self.config['so_compare_threshold'])
+
+        #if no substring match
+        if match_subs is None:
+            self.trending[matched_msg]['score'] += self.config['matched_add_base']
+            self.trending[matched_msg]['last_mtch_time'] = msgtime
+            self.trending[matched_msg]['msgs'][msgdata['message']] = 1.0
+
+        #if substring match
+        else:
+            submatched_msg = match_subs[0]
+            self.trending[matched_msg]['msgs'][submatched_msg] += 1
+
+            #if enough to branch
+            if self.trending[matched_msg]['msgs'][submatched_msg] > self.trending[matched_msg]['msgs'][matched_msg]:
+                self.trending[submatched_msg] = {
+                    'score': (self.trending[matched_msg]['score'] * self.trending[matched_msg]['msgs'][submatched_msg] / sum(self.trending[matched_msg]['msgs'].values())) + self.config['matched_add_base'], 
+                    'last_mtch_time': msgtime,
+                    'first_rcv_time': msgtime,
+                    'media_url': msgdata['media_url'],
+                    'mp4_url': msgdata['mp4_url'],
+                    'svos': msgdata['svos'],
+                    'users' : [msgdata['username']],
+                    'msgs' : dict(self.trending[matched_msg]['msgs']),
+                    'visible' : 1,
+                    'id': msgdata['id']
+                }
+                self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
+                del self.trending[matched_msg]['msgs'][submatched_msg]
+                del self.trending[submatched_msg]['msgs'][matched_msg]
+
+            else:
+                self.trending[matched_msg]['score'] += max(0.1,1-((len(self.trending[matched_msg]['users'])**2)/self.config['matched_add_user_base']))*self.config['matched_add_base']
+                self.trending[matched_msg]['last_mtch_time'] = msgtime
 
     #Manager Processes
     def filter_content(self):
@@ -119,7 +158,7 @@ class TwitterStream(strm):
             msg_data = pickle.loads(data)
             if len(msg_data) == 0:
                 pp('Twitter connection was lost...')
-            if self.stream in msg_data['message'].lower():
+            if self.stream == msg_data['subreddit']:
                 messagetime = datetime.datetime.now()
                 self.process_message(msg_data, messagetime)  
                 self.last_rcv_time = messagetime
