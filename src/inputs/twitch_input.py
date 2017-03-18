@@ -4,6 +4,7 @@ Created on Wed Aug 24 18:55:12 2016
 
 @author: colinh
 """
+import multiprocessing
 
 #import utils
 from utils.irc import irc
