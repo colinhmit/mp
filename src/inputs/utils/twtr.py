@@ -43,7 +43,7 @@ class twtr(inpt):
             self.stream_conn.start()
 
     def set_twtr_stream_object(self):
-        self.l = StdTwtrListener(self.config['zmq_port'])
+        self.l = StdTwtrListener(self.config['zmq_input_port'])
         self.auth = OAuthHandler(self.config['consumer_token'], self.config['consumer_secret'])
         self.auth.set_access_token(self.config['access_token'], self.config['access_secret'])
         self.api = API(self.auth)
@@ -55,7 +55,7 @@ class twtr(inpt):
         connected = False
         while not connected:
             try:
-                self.l.pipe.bind('tcp://'+self.config['zmq_host']+':'+str(self.l.port))
+                self.l.pipe.bind('tcp://'+self.config['zmq_input_host']+':'+str(self.l.port))
                 connected = True
             except Exception, e:
                 pass
