@@ -9,6 +9,7 @@ import random
 import zmq
 import pickle
 import gc
+import multiprocessing
 
 #import utils
 from utils.nlp import nlpParser
