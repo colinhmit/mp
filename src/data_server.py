@@ -68,10 +68,10 @@ class DataServer():
 
                         if len(labels) > 1:
                             model = mlCluster('hdb', self.config['hdb_min_cluster_size'])
-                            raw_clusters = model.cluster(labels,vectors)
+                            clusters = model.cluster(labels,vectors)
                             subjects = []
                             sentiment = {}
-                            for k in raw_clusters:
+                            for k in clusters:
                                 if k > -1:
                                     cluster = {
                                         'avgscore': numpy.mean([subjs[subj]['score'] for subj in clusters[k]]),

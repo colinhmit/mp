@@ -271,12 +271,12 @@ class StreamClient():
 
         if ('twitch' in args) and (len(args['twitch'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
-                subjects = self.twitch_analytics.get(stream_id,{}).get('clusters',{})
+                subjects = self.twitch_analytics.get(stream_id,{}).get('subjects',{})
                 subjects_list.append(subjects)
 
         if ('reddit' in args) and (len(args['reddit'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
-                clusters = self.reddit_analytics.get(stream_id,{}).get('clusters',{})
+                clusters = self.reddit_analytics.get(stream_id,{}).get('subjects',{})
                 subjects_list.append(subjects)
 
         return json.dumps({'subjects': subjects_list})
