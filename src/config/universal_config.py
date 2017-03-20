@@ -125,7 +125,7 @@ input_config = {
     'mnl_config': {
         'port': manual_port,
         #AWS Log Path
-        'sheets_key': '/home/ec2-user/mp/src/logs/',
+        'log_path': '/home/ec2-user/mp/src/logs/',
         #DEV Log Path
         #'log_path': '/Users/colinh/Repositories/mp/src/logs/',
 
