@@ -6,14 +6,9 @@ Created on Wed Aug 24 18:48:45 2016
 """
 
 #HOSTS & PORTS
-input_host = '127.0.0.1'
-input_proc_host = '127.0.0.1'
-stream_host = '127.0.0.1'
-http_host = '127.0.0.1'
-http_data_host = '127.0.0.1'
-data_host = '127.0.0.1'
-data_proc_host = '127.0.0.1'
-server_host = '127.0.0.1'
+local_host = '127.0.0.1'
+http_host = '172.31.3.149'
+server_host = '172.31.13.182'
 
 irc_input_port = 8002
 irc_proc_port = 8012
@@ -49,8 +44,8 @@ input_config = {
         'self': 'twitch',
 
         # ZMQ messaging
-        'zmq_input_host': input_host,
-        'zmq_proc_host': input_proc_host,
+        'zmq_input_host': local_host,
+        'zmq_proc_host': local_host,
         'num_procs': 5,
         'zmq_input_port': irc_input_port,
         'zmq_proc_port': irc_proc_port,
@@ -72,8 +67,8 @@ input_config = {
         'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
 
         # ZMQ messaging
-        'zmq_input_host': input_host,
-        'zmq_proc_host': input_proc_host,
+        'zmq_input_host': local_host,
+        'zmq_proc_host': local_host,
         'num_procs': 15,
         'zmq_input_port': twtr_input_port,
         'zmq_proc_port': twtr_proc_port,
@@ -109,8 +104,8 @@ input_config = {
         'self': 'reddit',
 
         # ZMQ messaging
-        'zmq_input_host': input_host,
-        'zmq_proc_host': input_proc_host,
+        'zmq_input_host': local_host,
+        'zmq_proc_host': local_host,
         'num_procs': 5,
         'zmq_input_port': rddt_input_port,
         'zmq_proc_port': rddt_proc_port,
@@ -129,8 +124,8 @@ input_config = {
         #DEV Log Path
         #'log_path': '/Users/colinh/Repositories/mp/src/logs/',
 
-        'zmq_input_host': input_host,
-        'zmq_proc_host': input_proc_host,
+        'zmq_input_host': local_host,
+        'zmq_proc_host': local_host,
         'num_procs': 5,
         'zmq_input_port': mnl_input_port,
         'zmq_proc_port': mnl_proc_port,
@@ -139,9 +134,8 @@ input_config = {
 }
 
 stream_config = {
-    # DEV ZMQ hosts
+    # DEV ZMQ hosts/port
     'zmq_http_host': http_host,
-    # ZMQ messaging ports
     'zmq_http_port': http_port,
 
     'twitch_featured':{
@@ -181,9 +175,9 @@ stream_config = {
         'debug': False,
 
         # DEV ZMQ hosts
-        'zmq_input_host': input_host,
+        'zmq_input_host': local_host,
         'zmq_http_host': http_host,
-        'zmq_data_host': data_host,
+        'zmq_data_host': local_host,
         # ZMQ messaging ports
         'zmq_input_port': irc_stream_port,
         'zmq_http_port': http_port,
@@ -221,9 +215,9 @@ stream_config = {
         'debug': False,
 
         # DEV ZMQ hosts
-        'zmq_input_host': input_host,
+        'zmq_input_host': local_host,
         'zmq_http_host': http_host,
-        'zmq_data_host': data_host,
+        'zmq_data_host': local_host,
         # ZMQ messaging ports
         'zmq_input_port': twtr_stream_port,
         'zmq_http_port': http_port,
@@ -266,9 +260,9 @@ stream_config = {
         'debug': False,
 
         # DEV ZMQ hosts
-        'zmq_input_host': input_host,
+        'zmq_input_host': local_host,
         'zmq_http_host': http_host,
-        'zmq_data_host': data_host,
+        'zmq_data_host': local_host,
         # ZMQ messaging ports
         'zmq_input_port': rddt_stream_port,
         'zmq_http_port': http_port,
@@ -310,9 +304,9 @@ stream_config = {
         'debug': False,
 
         # DEV ZMQ hosts
-        'zmq_input_host': input_host,
+        'zmq_input_host': local_host,
         'zmq_http_host': http_host,
-        'zmq_data_host': data_host,
+        'zmq_data_host': local_host,
         # ZMQ messaging ports
         'zmq_input_port': mnl_stream_port,
         'zmq_http_port': http_port,
@@ -346,9 +340,9 @@ stream_config = {
 
 data_config = {
     # DEV ZMQ hosts
-    'zmq_http_data_host': http_data_host,
-    'zmq_data_host': data_host,
-    'zmq_proc_host': data_proc_host,
+    'zmq_http_data_host': http_host,
+    'zmq_data_host': local_host,
+    'zmq_proc_host': local_host,
 
     #Data Server Ports
     'zmq_data_port': data_port,
@@ -362,7 +356,7 @@ data_config = {
 }
 
 server_config = {
-    'zmq_server_host': server_host,
+    'zmq_server_host': local_host,
     'zmq_server_port': server_port,
 
     # Twitter initialized target streams
@@ -374,12 +368,12 @@ server_config = {
 }
 
 http_config = {
-    'host': '127.0.0.1',
+    'host': local_host,
     'port': main_port,
 
     # DEV ZMQ hosts
-    'zmq_http_host': http_host,
-    'zmq_http_data_host': http_data_host,
+    'zmq_http_host': local_host,
+    'zmq_http_data_host': local_host,
     'zmq_server_host': server_host,
     'zmq_http_port': http_port,
     'zmq_http_data_port': http_data_port,
