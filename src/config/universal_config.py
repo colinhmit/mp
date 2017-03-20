@@ -7,9 +7,9 @@ Created on Wed Aug 24 18:48:45 2016
 
 #HOSTS & PORTS
 #PROD SETTING
-local_host = '127.0.0.1'
-http_host = '35.160.176.189'
-server_host = '35.160.61.218'
+local_host = '0.0.0.0'
+http_host = '172.31.3.149'
+server_host = '172.31.13.182'
 
 #DEV SETTING
 # local_host = '127.0.0.1'
