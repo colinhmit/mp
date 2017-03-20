@@ -15,173 +15,29 @@ import pickle
 import gc
 
 #import utils
-from streams.utils.irc import irc
-from streams.utils.twtr import twtr
-from streams.utils.nlp import nlpParser
-from streams.utils.functions_general import *
+from inputs.utils.mnl import mnl, mnlWebServer
+from inputs.utils.twtr import twtr
+from inputs.utils.rddt import rddt
+from inputs.utils.irc import irc
+from inputs.native_input import NativeInput
+from inputs.twitch_input import TwitchInput
+from inputs.twitter_input import TwitterInput
+from inputs.reddit_input import RedditInput
+from inputs.utils.nlp import nlpParser
+from inputs.utils.functions_general import *
 
 class InputServer:
-    def __init__(self, config, init_twitter_streams):
+    def __init__(self, config, init_streams):
         pp('Initializing Input Server...')
         self.config = config
-
-        self.irc = irc(self.config['irc_config'])
-        self.twtr = twtr(self.config['twtr_config'], init_twitter_streams)
-
         self.nlp_parser = nlpParser()
 
-        for _ in xrange(self.config['num_dist_threads']):
-            multiprocessing.Process(target=self.distribute).start()
+        self.mnl = mnl(self.config['mnl_config'])
+        self.irc = irc(self.config['irc_config'], init_streams['twitch'])
+        self.twtr = twtr(self.config['twtr_config'], init_streams['twitter'])
+        self.rddt = rddt(self.config['rddt_config'], init_streams['reddit'])
 
-        for _ in xrange(self.config['num_proc_threads']):
-            multiprocessing.Process(target=self.process, args=(self.nlp_parser,)).start()
-    
-    
-    def process(self, nlp):
-        context = zmq.Context()
-        recvr = context.socket(zmq.PULL)
-        recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_irc_port']))
-        recvr.connect("tcp://127.0.0.1:"+str(self.config['zmq_twtr_port']))
-
-        sendr = context.socket(zmq.PUB)
-        sendr.connect("tcp://127.0.0.1:"+str(self.config['zmq_pub_port']))
-
-        svomap = {}
-        svorefresh = random.randint(750, 1000)
-
-        for data in iter(recvr.recv_string, 'STOP'):
-            src, msg = self.parse_data(data)
-
-            if len(msg) > 0:
-                hashid = hash(msg['message'])
-
-                if hashid in svomap:
-                    svos, subjs = svomap[hashid]
-                else:
-                    clean_msg = re.sub(r"http\S+", "", msg['message'])
-                    clean_msg = re.sub(r"[#@]", "", clean_msg)
-                    clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
-                    try:
-                        svos, subjs = nlp.parse_text(clean_msg)
-                    except Exception, e:
-                        svos = []
-                        subjs = []
-                    svomap[hashid] = svos, subjs
-
-                msg['svos'] = svos
-                msg['subjs'] = subjs
-
-                if len(svomap)>svorefresh:
-                    svomap = {}
-                    nlp.flush()
-                    gc.collect()
-
-                pickled_data = pickle.dumps(msg)
-                sendr.send(src+pickled_data)
-    
-    def distribute(self):
-        distributing = True
-
-        while distributing:
-            try:
-                context = zmq.Context(1)
-                frontend = context.socket(zmq.SUB)
-                frontend.bind("tcp://*:"+str(self.config['zmq_pub_port']))
-                frontend.setsockopt(zmq.SUBSCRIBE, "")
-
-                backend = context.socket(zmq.PUB)
-                backend.bind("tcp://*:"+str(self.config['zmq_sub_port']))
-                zmq.device(zmq.FORWARDER, frontend, backend)
-            except Exception, e:
-                pp(e)
-    
-    def parse_data(self, data):
-        msg = {}
-        src = "n/a"
-        if data[0:12] == "|src:twitch|":
-            stringdata = data[12:]
-            src = "|src:twitch|"
-            msg = {
-                'channel': re.findall(r'^:.+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+.+ PRIVMSG (.*?) :', stringdata)[0],
-                'username': re.findall(r'^:([a-zA-Z0-9_]+)\!', stringdata)[0],
-                'message': re.findall(r'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', stringdata)[0],
-                'media_url': [],
-                'mp4_url': '',
-                'id': ''
-                }
-        elif data[0:13] == "|src:twitter|":
-            jsondata = json.loads(data[13:])
-            src = "|src:twitter|"
-            if 'retweeted_status' in jsondata:
-                if 'text' in jsondata['retweeted_status']:
-                    if 'media' in jsondata['retweeted_status']['entities']:
-                        if 'extended_entities' in jsondata:
-                            if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
-                                msg = {
-                                    'username': jsondata['user']['name'],
-                                    'message': jsondata['retweeted_status']['text'],
-                                    'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
-                                    'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
-                                    'id': jsondata['id_str']
-                                    }
-                            else:
-                                msg = {
-                                    'username': jsondata['user']['name'],
-                                    'message': jsondata['retweeted_status']['text'],
-                                    'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
-                                    'mp4_url': '',
-                                    'id': jsondata['id_str']
-                                    }
-                        else:
-                            msg = {
-                                'username': jsondata['user']['name'],
-                                'message': jsondata['retweeted_status']['text'],
-                                'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
-                                'mp4_url': '',
-                                'id': jsondata['id_str']
-                                }
-                    else:
-                        msg = {
-                            'username': jsondata['user']['name'],
-                            'message': jsondata['retweeted_status']['text'],
-                            'media_url': [],
-                            'mp4_url': '',
-                            'id': jsondata['id_str']
-                            }
-            elif 'text' in jsondata:
-                if 'media' in jsondata['entities']:
-                    if 'extended_entities' in jsondata:
-                        if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
-                            msg = {
-                                'username': jsondata['user']['name'],
-                                'message': jsondata['text'],
-                                'media_url': [jsondata['entities']['media'][0]['media_url']],
-                                'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
-                                'id': jsondata['id_str']
-                                }
-                        else:
-                            msg = {
-                                'username': jsondata['user']['name'],
-                                'message': jsondata['text'],
-                                'media_url': [jsondata['entities']['media'][0]['media_url']],
-                                'mp4_url': '',
-                                'id': jsondata['id_str']
-                                }
-                    else:
-                        msg = {
-                            'username': jsondata['user']['name'],
-                            'message': jsondata['text'],
-                            'media_url': jsondata['entities']['media'][0]['media_url'],
-                            'mp4_url': [],
-                            'id': jsondata['id_str']
-                            }
-                else:
-                    msg = {
-                        'username': jsondata['user']['name'],
-                        'message': jsondata['text'],
-                        'media_url': [],
-                        'mp4_url': '',
-                        'id': jsondata['id_str']
-                        }
-
-        return src, msg
+        self.native_input = NativeInput(self.config['mnl_config'], self.nlp_parser)
+        self.twitch_input = TwitchInput(self.config['irc_config'], self.nlp_parser)
+        self.twitter_input = TwitterInput(self.config['twtr_config'], self.nlp_parser)
+        self.reddit_input = RedditInput(self.config['rddt_config'], self.nlp_parser)

@@ -4,7 +4,6 @@ Created on Wed Aug 24 18:42:42 2016
 
 @author: colinh
 """
-
 import datetime
 import re
 import zmq
@@ -17,40 +16,91 @@ class strm:
     def __init__(self, config, stream):
         self.config = config
         self.stream = stream
+        self.last_rcv_time = None
+
         self.trending = {}
         self.clean_trending = {}
         self.subjs = {}
-        self.clusters = {}
-        self.last_rcv_time = None
-        self.log_file = None
-        self.log_start_time = None
-        self.kill = False
+
         self.init_sockets()
 
     def init_sockets(self):
         context = zmq.Context()
-        self.data_socket = context.socket(zmq.SUB)
-        self.data_socket.connect("tcp://127.0.0.1:"+str(self.config['zmq_sub_port']))
-        self.data_socket.setsockopt(zmq.SUBSCRIBE, self.config['zmq_subscribe'])
+        self.input_socket = context.socket(zmq.SUB)
+        self.input_socket.connect('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
+        self.input_socket.setsockopt(zmq.SUBSCRIBE, "")
 
-    # GET/SET Functionality
-    def get_trending(self):
-        return dict(self.clean_trending)
+        self.http_socket = context.socket(zmq.PUSH)
+        self.http_socket.connect('tcp://'+self.config['zmq_http_host']+':'+str(self.config['zmq_http_port']))
 
-    def get_default_image(self):
-        return self.default_image['image']
+        self.data_socket = context.socket(zmq.PUB)
+        self.data_socket.connect('tcp://'+self.config['zmq_data_host']+':'+str(self.config['zmq_data_port']))
 
-    def get_subjs(self):
-        return dict(self.subjs)
+    # ZMQ Processes
+    def send_stream(self):
+        self.send_stream_loop = True
+        while self.send_stream_loop:
+            try:
+                data = {
+                    'type': 'stream',
+                    'src': self.config['self'],
+                    'stream': self.stream,
+                    'data': {'trending': dict(self.clean_trending)}
+                }
+                pickled_data = pickle.dumps(data)
+                self.http_socket.send(pickled_data)
+            except Exception, e:
+                pp('failed send_stream')
+                pp(e)
+            time.sleep(self.config['send_stream_timeout'])
 
-    def reset_subjs(self):
-        self.subjs = {}
+    def send_analytics(self):
+        self.send_analytics_loop = True
+        while self.send_analytics_loop:
+            try:
+                data = {
+                    'type': 'subjects',
+                    'src': self.config['self'],
+                    'stream': self.stream,
+                    'data': dict(self.subjs)
+                }
+                pickled_data = pickle.dumps(data)
+                self.data_socket.send(pickled_data)
+            except Exception, e:
+                pp('failed send_analytics')
+                pp(e)
+            time.sleep(self.config['send_analytics_timeout'])
 
-    def set_clusters(self, clusters):
-        self.clusters = clusters
+    # Manager Processes
+    def reset_subjs_thread(self):
+        self.reset_subjs_loop = True
+        while self.reset_subjs_loop:
+            try:
+                self.subjs = {}
+            except Exception, e:
+                pp('failed reset_subjs_thread')
+                pp(e)
+            time.sleep(self.config['reset_subjs_timeout'])
 
-    def get_clusters(self):
-        return dict(self.clusters)
+    def filter_trending_thread(self):
+        self.filter_trending_loop = True
+        while self.filter_trending_loop:
+            try:
+                self.filter_trending()
+            except Exception, e:
+                pp('failed filter_trending_thread')
+                pp(e)
+            time.sleep(self.config['filter_trending_timeout'])
+
+    def render_trending_thread(self):
+        self.render_trending_loop = True
+        while self.render_trending_loop:
+            try:
+                self.render_trending()
+            except Exception, e:
+                pp('failed render_trending_thread')
+                pp(e)
+            time.sleep(self.config['render_trending_timeout'])
 
     #Manager Processes
     def render_trending(self):
@@ -67,7 +117,7 @@ class strm:
                     self.trending[max_key]['visible'] = 1
                     self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
                 except Exception, e:
-                    pp('Filter trending failed on race condition.')
+                    pp(self.config['self']+' filter trending failed on race condition.')
                     pp(e)
 
     #Matching Logic
@@ -111,7 +161,6 @@ class strm:
                     self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
                     del self.trending[matched_msg]['msgs'][submatched_msg]
                     del self.trending[submatched_msg]['msgs'][matched_msg]
-
                 else:
                     self.trending[matched_msg]['score'] += max(0.1,1-((len(self.trending[matched_msg]['users'])**2)/self.config['matched_add_user_base']))*self.config['matched_add_base']
                     self.trending[matched_msg]['last_mtch_time'] = msgtime
@@ -167,28 +216,27 @@ class strm:
                         'adjs': inc_subj['adjs']
                     }
                 except Exception, e:
+                    pp('failed process_subjs 1')
                     pp(e)
             else:
                 try:
                     self.subjs[inc_subj['lower']]['score'] += 1
                     self.subjs[inc_subj['lower']]['adjs'] += inc_subj['adjs']
                 except Exception, e:
+                    pp('failed process_subjs 2')
                     pp(e)
 
     def get_match(self, msgdata):
         matched = fweb_compare(msgdata['message'], self.trending.keys(), self.config['fo_compare_threshold'])
-
         if (len(matched) == 0):
             try:
                 return self.nlp_compare(msgdata) 
             except Exception, e:
-                pp('SVO Matching Failed.')
+                pp(self.config['self']+' SVO Matching Failed.')
                 pp(e)
                 return None
-
         elif len(matched) == 1:
             return matched[0][0]
-
         else:
             matched_msgs = [x[0] for x in matched]
             (matched_msg, score) = fweo_tsort_compare(msgdata['message'], matched_msgs)
@@ -197,7 +245,6 @@ class strm:
     def decay(self, msgdata, msgtime):
         if (self.last_rcv_time is not None):
             prev_msgtime = self.last_rcv_time
-            
             for key in self.trending.keys():
                 if key == msgdata['message']:
                     pass
@@ -222,10 +269,6 @@ class strm:
     def process_message(self, msgdata, msgtime):
         self.process_subjs(msgdata)
 
-        if self.log_file is not None:
-            line = str(msgtime - self.log_start_time) + "*|*" + msgdata['username'] + "*|*" + msgdata['message'] + "*|*" + str(msgdata['media_url']) + "*|*" + msgdata['mp4_url']
-            self.log_file.write(line.encode('utf8') + "\n")
-
         #cleanup RT
         if msgdata['message'][:4] == 'RT @':
             msgdata['message'] = msgdata['message'][msgdata['message'].find(':')+1:]
@@ -234,15 +277,15 @@ class strm:
             try:
                 matched_msg = self.get_match(msgdata)
             except Exception, e:
-                pp('Twitter matching failed.')
+                pp(self.config['self']+' matching failed.')
                 pp(e)
                 matched_msg = None
 
             if matched_msg is None:
                 self.handle_new(msgdata, msgtime)
-
             else:
                 self.handle_match(matched_msg, msgdata, msgtime)
+
         else:
             self.handle_new(msgdata, msgtime)
 
