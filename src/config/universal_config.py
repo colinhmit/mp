@@ -5,6 +5,7 @@ Created on Wed Aug 24 18:48:45 2016
 @author: colinh
 """
 
+#HOSTS & PORTS
 input_host = '127.0.0.1'
 input_proc_host = '127.0.0.1'
 stream_host = '127.0.0.1'
@@ -26,11 +27,19 @@ rddt_input_port = 8004
 rddt_proc_port = 8014
 rddt_stream_port = 8024
 
+mnl_input_port = 8005
+mnl_proc_port = 8015
+mnl_stream_port = 8025
+
 http_port = 8081
 http_data_port = 8085
 data_port = 8082
 data_proc_port = 8050
 server_port = 8083
+
+main_port = 80
+#main_port = 4808
+manual_port = 8000
 
 
 input_config = {    
@@ -111,6 +120,21 @@ input_config = {
         'client_token': 'bx_HkZiUhuYJCw',
         'client_secret': '5l9swqgf2tAY2je0i61pNklgOCg',
         'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)'
+    },
+
+    'mnl_config': {
+        'port': manual_port,
+        #AWS Log Path
+        'sheets_key': '/home/ec2-user/mp/src/logs/',
+        #DEV Log Path
+        #'log_path': '/Users/colinh/Repositories/mp/src/logs/',
+
+        'zmq_input_host': input_host,
+        'zmq_proc_host': input_proc_host,
+        'num_procs': 5,
+        'zmq_input_port': mnl_input_port,
+        'zmq_proc_port': mnl_proc_port,
+        'zmq_output_port': mnl_stream_port
     }
 }
 
@@ -277,6 +301,46 @@ stream_config = {
         #twitter content cutoff
         'content_max_time': 7200,
         'content_max_size': 20
+    },
+
+    # Native Stream Config
+    'native_config': {
+        # Attributes
+        'self': 'native',
+        'debug': False,
+
+        # DEV ZMQ hosts
+        'zmq_input_host': input_host,
+        'zmq_http_host': http_host,
+        'zmq_data_host': data_host,
+        # ZMQ messaging ports
+        'zmq_input_port': mnl_stream_port,
+        'zmq_http_port': http_port,
+        'zmq_data_port': data_port,
+
+        'send_stream_timeout': 0.7,
+        'send_analytics_timeout': 60,
+        'reset_subjs_timeout': 600,
+        'filter_trending_timeout': 0.7,
+        'filter_content_timeout': 5,
+        'render_trending_timeout': 0.7,
+
+        #fw_eo output from funcions_matching threshold 
+        'fo_compare_threshold': 65,
+        'so_compare_threshold': 80,
+        #svo thresholds
+        'subj_compare_threshold': 85,
+        'verb_compare_threshold': 0.3,
+        'obj_compare_threshold': 0.5,
+        #twitter trending params
+        'matched_init_base': 50,
+        'matched_add_base': 15,
+        'matched_add_user_base': 500,     
+        'buffer_mult': 4,
+        'decay_msg_base': 1,
+        'decay_msg_min_limit': 0.4,
+        'decay_time_mtch_base': 4,
+        'decay_time_base': 0.2
     }
 }
 
@@ -311,7 +375,7 @@ server_config = {
 
 http_config = {
     'host': '127.0.0.1',
-    'port': 80,
+    'port': main_port,
 
     # DEV ZMQ hosts
     'zmq_http_host': http_host,

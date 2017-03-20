@@ -24,6 +24,7 @@ class TwitchInput(std_inpt):
     
     def parse(self, data):
         msg = {
+                'src': 'twitch',
                 'channel': re.findall(r'^:.+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+.+ PRIVMSG (.*?) :', data)[0],
                 'username': re.findall(r'^:([a-zA-Z0-9_]+)\!', data)[0],
                 'message': re.findall(r'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0],

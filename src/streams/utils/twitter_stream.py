@@ -119,7 +119,7 @@ class TwitterStream(strm):
             msg_data = pickle.loads(data)
             if len(msg_data) == 0:
                 pp('Twitter connection was lost...')
-            if self.stream in msg_data['message'].lower():
+            if (self.stream in msg_data['message'].lower()):
                 messagetime = datetime.datetime.now()
                 self.process_message(msg_data, messagetime)  
                 self.last_rcv_time = messagetime

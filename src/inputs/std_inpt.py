@@ -26,6 +26,7 @@ class std_inpt:
         context = zmq.Context()
         recvr = context.socket(zmq.PULL)
         recvr.connect('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
+
         sendr = context.socket(zmq.PUB)
         sendr.connect('tcp://'+self.config['zmq_proc_host']+':'+str(self.config['zmq_proc_port']))
 
@@ -60,7 +61,6 @@ class std_inpt:
                 # constrained off
                 # msg['svos'] = []
                 # msg['subjs'] = []
-                
                 pickled_data = pickle.dumps(msg)
                 sendr.send(pickled_data)
 

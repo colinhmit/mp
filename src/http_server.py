@@ -23,7 +23,7 @@ from config.universal_config import *
 class WebServer(Resource):
 
     isLeaf = True
-    stream_client = None
+    http_server = None
     
     #server protocol
     def render_GET(self, request):
@@ -34,48 +34,55 @@ class WebServer(Resource):
     #get control
     def handle_GET(self, path, args):
         if path[0:7] == '/stream':
-            return self.stream_client.get_agg_streams(args)
+            return self.http_server.get_agg_streams(args)
         elif path[0:8] == '/content':
-            return self.stream_client.get_agg_content(args)
+            return self.http_server.get_agg_content(args)
         elif path[0:9] == '/subjects':
-            return self.stream_client.get_agg_subjects(args)
+            return self.http_server.get_agg_subjects(args)
         elif path[0:10] == '/sentiment':
-            return self.stream_client.get_agg_sentiment(args)
+            return self.http_server.get_agg_sentiment(args)
         elif path[0:8] == '/cpanel/':
-            if path[8:14] == 'twitch':
-                return self.stream_client.handle_cpanel('twitch',args)
+            if path[8:14] == 'native':
+                return self.http_server.handle_cpanel('native',args)
+            elif path[8:14] == 'twitch':
+                return self.http_server.handle_cpanel('twitch',args)
             elif path[8:15] == 'twitter':
-                return self.stream_client.handle_cpanel('twitter',args)
+                return self.http_server.handle_cpanel('twitter',args)
             elif path[8:14] == 'reddit':
-                return self.stream_client.handle_cpanel('reddit',args)
+                return self.http_server.handle_cpanel('reddit',args)
             else:
                 return json.dumps('Invalid path! Valid paths: /cpanel/twitch and /cpanel/twitter')
         elif path[0:10] == '/featured/':
-            if path[10:16] == 'twitch':
-                return self.stream_client.get_featured('twitch', args)
+            if path[10:16] == 'native':
+                return self.http_server.get_featured('native', args)
+            elif path[10:16] == 'twitch':
+                return self.http_server.get_featured('twitch', args)
             elif path[10:17] == 'twitter':
-                return self.stream_client.get_featured('twitter', args)
+                return self.http_server.get_featured('twitter', args)
             elif path[10:16] == 'reddit':
-                return self.stream_client.get_featured('reddit', args)
+                return self.http_server.get_featured('reddit', args)
             else:
                 return json.dumps('Invalid path! Valid paths: /featured/twitch and /featured/twitter')
         else:
             return json.dumps('Invalid path! Valid paths: /stream and /cpanel/.../')
 
-class StreamClient():
+class HTTPServer():
     def __init__(self, config):
-        pp('Initializing Stream Client...')
+        pp('Initializing HTTPServer...')
         self.config = config
         self.init_sockets()
 
+        self.native_streams = {}
         self.twitch_streams = {}
         self.twitter_streams = {}
         self.reddit_streams = {}
 
+        self.native_featured = []
         self.twitch_featured = []
         self.twitter_featured = []
         self.reddit_featured = []
 
+        self.native_analytics = {}
         self.twitter_analytics = {}
         self.twitch_analytics = {}
         self.reddit_analytics = {}
@@ -133,7 +140,9 @@ class StreamClient():
                 self.process_clusters(data)
 
     def process_stream(self, data):
-        if data['src'] == 'twitch':
+        if data['src'] == 'native':
+            self.native_streams[data['stream']] = data['data']
+        elif data['src'] == 'twitch':
             self.twitch_streams[data['stream']] = data['data']
         elif data['src'] == 'twitter':
             self.twitter_streams[data['stream']] = data['data']
@@ -141,7 +150,9 @@ class StreamClient():
             self.reddit_streams[data['stream']] = data['data']
 
     def process_clusters(self, data):
-        if data['src'] == 'twitch':
+        if data['src'] == 'native':
+            self.native_analytics[data['stream']] = data['data']
+        elif data['src'] == 'twitch':
             self.twitch_analytics[data['stream']] = data['data']
         elif data['src'] == 'twitter':
             self.twitter_analytics[data['stream']] = data['data']
@@ -149,7 +160,9 @@ class StreamClient():
             self.reddit_analytics[data['stream']] = data['data']
 
     def process_featured(self, data):
-        if data['src'] == 'twitch':
+        if data['src'] == 'native':
+            self.native_featured = data['data']
+        elif data['src'] == 'twitch':
             self.twitch_featured = data['data']
         elif data['src'] == 'twitter':
             self.twitter_featured = self.featured_helper(data['data'], data['src'])
@@ -195,7 +208,9 @@ class StreamClient():
         self.server_socket.send(pickle.dumps(request))
 
         output = []
-        if src == 'twitch':
+        if src == 'native':
+            output = self.native_streams.keys()
+        elif src == 'twitch':
             output = self.twitch_streams.keys()
         elif src == 'twitter':
             output = self.twitter_streams.keys()
@@ -209,6 +224,53 @@ class StreamClient():
         request[src] = {'add':[stream]}
         pp('Requesting stream on ' + src + ': '+stream)
         self.server_socket.send(pickle.dumps(request))
+
+    # Aggregation functions
+    def get_agg_streams(self, args):
+        trend_dicts = []
+
+        if ('native' in args) and (len(args['native'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['native'][0].split(',')]:
+                if stream_id not in self.native_streams:
+                    self.native_streams[stream_id] = {'trending': {"This stream has no messages yet!": {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ""}}}
+                    self.request_stream(stream_id,'native')
+
+                trend_dicts.append(self.native_streams.get(stream_id,{}).get('trending',{"This stream has no messages yet!": {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ""}}))
+
+        if ('twitch' in args) and (len(args['twitch'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
+                if stream_id not in self.twitch_streams:
+                    self.twitch_streams[stream_id] = {'trending': {"This stream has no messages. If this message does not dissapear, please make sure "+stream_id+" is streaming": {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ""}}}
+                    self.request_stream(stream_id,'twitch')
+
+                trend_dicts.append(self.twitch_streams.get(stream_id,{}).get('trending',{"This stream has no messages. If this message does not dissapear, please make sure "+stream_id+" is streaming": {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ""}}))
+
+        if ('twitter' in args) and (len(args['twitter'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+                if stream_id not in self.twitter_streams:
+                    self.twitter_streams[stream_id] = {'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.request_stream(stream_id,'twitter')
+
+                trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+
+        if ('reddit' in args) and (len(args['reddit'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
+                if stream_id not in self.reddit_streams:
+                    self.reddit_streams[stream_id] = {'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.request_stream(stream_id,'reddit')
+
+                trend_dicts.append(self.reddit_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+
+        trending_output = {}
+        [trending_output.update(d) for d in trend_dicts]
+
+        if ('filter' in args) and (len(args['filter'][0])>0):
+            for keyword in args['filter'][0].split(','):
+                for msg in trending_output.keys():
+                    if keyword.lower() in msg.lower():
+                        del trending_output[msg]
+
+        return json.dumps({'trending': trending_output})
 
     def get_agg_content(self, args):
         content_dicts = []
@@ -264,6 +326,11 @@ class StreamClient():
     def get_agg_subjects(self, args):
         subjects_list = []
 
+        if ('native' in args) and (len(args['native'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['native'][0].split(',')]:
+                subjects = self.native_analytics.get(stream_id,{}).get('subjects',[])
+                subjects_list.append(subjects)
+
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
                 subjects = self.twitter_analytics.get(stream_id,{}).get('subjects',[])
@@ -287,6 +354,11 @@ class StreamClient():
 
         if ('subjects' in args) and (len(args['subjects'][0])>0):
             subjects = [self.pattern.sub('',x).lower() for x in args['subjects'][0].split(',')]
+
+        if ('native' in args) and (len(args['native'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['native'][0].split(',')]:
+                sentiment = self.native_analytics.get(stream_id,{}).get('sentiment',{})
+                sentiment_dicts.append(sentiment)
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
@@ -312,48 +384,12 @@ class StreamClient():
 
         return json.dumps({'sentiment': sentiment_output})
 
-    def get_agg_streams(self, args):
-        trend_dicts = []
-
-        if ('twitch' in args) and (len(args['twitch'][0])>0):
-            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
-                if stream_id not in self.twitch_streams:
-                    self.twitch_streams[stream_id] = {'trending': {"This stream has no messages. If this message does not dissapear, please make sure "+stream_id+" is streaming": {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ""}}}
-                    self.request_stream(stream_id,'twitch')
-
-                trend_dicts.append(self.twitch_streams.get(stream_id,{}).get('trending',{"This stream has no messages. If this message does not dissapear, please make sure "+stream_id+" is streaming": {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ""}}))
-
-        if ('twitter' in args) and (len(args['twitter'][0])>0):
-            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
-                if stream_id not in self.twitter_streams:
-                    self.twitter_streams[stream_id] = {'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
-                    self.request_stream(stream_id,'twitter')
-
-                trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
-
-        if ('reddit' in args) and (len(args['reddit'][0])>0):
-            for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
-                if stream_id not in self.reddit_streams:
-                    self.reddit_streams[stream_id] = {'trending': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
-                    self.request_stream(stream_id,'reddit')
-
-                trend_dicts.append(self.reddit_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
-
-        trending_output = {}
-        [trending_output.update(d) for d in trend_dicts]
-
-        if ('filter' in args) and (len(args['filter'][0])>0):
-            for keyword in args['filter'][0].split(','):
-                for msg in trending_output.keys():
-                    if keyword.lower() in msg.lower():
-                        del trending_output[msg]
-
-        return json.dumps({'trending': trending_output})
-
     def get_featured(self, src, args):
         output = []
 
-        if src == 'twitch':
+        if src == 'native':
+            output = self.native_featured
+        elif src == 'twitch':
             output = self.twitch_featured
         elif src == 'twitter':
             output = self.twitter_featured
@@ -366,18 +402,7 @@ class StreamClient():
 
         return json.dumps(output)
 
-    def run(self):
-        pp('Initializing Web Server...')
-        resource = WebServer()
-        resource.stream_client = self
-
-        factory = Site(resource)
-
-        reactor.listenTCP(self.config['port'], factory)
-
-        pp('Starting Web Server...')
-        reactor.run()
-
+    # Monitors
     def twitch_monitor(self):
         self.twitch_monitor_loop = True
         while self.twitch_monitor_loop:
@@ -441,5 +466,18 @@ class StreamClient():
 
             time.sleep(self.config['reddit_monitor_timeout'])
 
+    # Main Function
+    def run(self):
+        pp('Initializing Web Server...')
+        resource = WebServer()
+        resource.http_server = self
+
+        factory = Site(resource)
+
+        reactor.listenTCP(self.config['port'], factory)
+
+        pp('Starting Web Server...')
+        reactor.run()
+
 if __name__ == '__main__':
-    client = StreamClient(http_config)
+    client = HTTPServer(http_config)

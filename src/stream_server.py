@@ -16,6 +16,7 @@ import datetime
 from config.universal_config import server_config, input_config, stream_config, data_config
 from streams.utils.functions_general import *
 
+from streams.native_manager import NativeManager
 from streams.twitch_manager import TwitchManager
 from streams.twitter_manager import TwitterManager
 from streams.reddit_manager import RedditManager
@@ -29,6 +30,7 @@ class StreamServer():
 
         self.input_server = InputServer(inputconfig, self.config['init_streams'])
 
+        self.native_manager = NativeManager(streamconfig)
         self.twitch_manager = TwitchManager(streamconfig, self.input_server.irc, self.config['init_streams']['twitch'])
         self.twitter_manager = TwitterManager(streamconfig, self.input_server.twtr, self.config['init_streams']['twitter'])
         self.reddit_manager = RedditManager(streamconfig, self.input_server.rddt, self.config['init_streams']['reddit'])
@@ -56,7 +58,18 @@ class StreamServer():
             except Exception, e:
                 pp(e)
                 data = {}
-            
+
+            if 'native' in data:
+                if 'add' in data['native']:
+                    for stream in data['native']['add']:
+                        if (stream not in self.native_manager.streams) and (len(stream)>0):
+                            self.native_manager.add_stream(stream)
+
+                if 'delete' in data['native']:
+                    for stream in data['native']['delete']:
+                        if stream in self.native_manager.streams:
+                            self.native_manager.delete_stream(stream)
+
             if 'twitch' in data:
                 if 'add' in data['twitch']:
                     for stream in data['twitch']['add']:

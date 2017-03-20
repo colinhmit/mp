@@ -38,6 +38,7 @@ class TwitterInput(std_inpt):
                             if 'extended_entities' in jsondata:
                                 if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
                                     msg = {
+                                        'src': 'twitter',
                                         'username': jsondata['user']['name'],
                                         'message': jsondata['retweeted_status']['text'],
                                         'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
@@ -46,6 +47,7 @@ class TwitterInput(std_inpt):
                                         }
                                 else:
                                     msg = {
+                                        'src': 'twitter',
                                         'username': jsondata['user']['name'],
                                         'message': jsondata['retweeted_status']['text'],
                                         'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
@@ -54,6 +56,7 @@ class TwitterInput(std_inpt):
                                         }
                             else:
                                 msg = {
+                                    'src': 'twitter',
                                     'username': jsondata['user']['name'],
                                     'message': jsondata['retweeted_status']['text'],
                                     'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
@@ -62,6 +65,7 @@ class TwitterInput(std_inpt):
                                     }
                         else:
                             msg = {
+                                'src': 'twitter',
                                 'username': jsondata['user']['name'],
                                 'message': jsondata['retweeted_status']['text'],
                                 'media_url': [],
@@ -73,6 +77,7 @@ class TwitterInput(std_inpt):
                         if 'extended_entities' in jsondata:
                             if jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[]):
                                 msg = {
+                                    'src': 'twitter',
                                     'username': jsondata['user']['name'],
                                     'message': jsondata['text'],
                                     'media_url': [jsondata['entities']['media'][0]['media_url']],
@@ -81,6 +86,7 @@ class TwitterInput(std_inpt):
                                     }
                             else:
                                 msg = {
+                                    'src': 'twitter',
                                     'username': jsondata['user']['name'],
                                     'message': jsondata['text'],
                                     'media_url': [jsondata['entities']['media'][0]['media_url']],
@@ -89,6 +95,7 @@ class TwitterInput(std_inpt):
                                     }
                         else:
                             msg = {
+                                'src': 'twitter',
                                 'username': jsondata['user']['name'],
                                 'message': jsondata['text'],
                                 'media_url': jsondata['entities']['media'][0]['media_url'],
@@ -97,6 +104,7 @@ class TwitterInput(std_inpt):
                                 }
                     else:
                         msg = {
+                            'src': 'twitter',
                             'username': jsondata['user']['name'],
                             'message': jsondata['text'],
                             'media_url': [],
