@@ -6,9 +6,15 @@ Created on Wed Aug 24 18:48:45 2016
 """
 
 #HOSTS & PORTS
+#PROD SETTING
 local_host = '127.0.0.1'
-http_host = '172.31.3.149'
-server_host = '172.31.13.182'
+http_host = '35.160.176.189'
+server_host = '35.160.61.218'
+
+#DEV SETTING
+# local_host = '127.0.0.1'
+# http_host = '127.0.0.1'
+# server_host = '127.0.0.1'
 
 irc_input_port = 8002
 irc_proc_port = 8012
