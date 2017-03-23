@@ -433,7 +433,9 @@ class HTTPServer():
                 try:
                     curr_dict.update(stream['trending'])
                 except Exception, e:
-                    pp(e)
+                    pp('monitor broke')
+                    pp(stream)
+                    #pp(e)
 
             curr_hash = hash(frozenset(curr_dict))
             if curr_hash == self.twitter_hash:
