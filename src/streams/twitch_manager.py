@@ -16,7 +16,7 @@ from strm_mgr import strm_mgr
 class TwitchManager(strm_mgr):
     def __init__(self, config, irc, init_streams):
         pp('Initializing Twitch Stream Manager...')
-        strm_mgr.__init__(self, config, irc)
+        strm_mgr.__init__(self, config, config['twitch_config']['self'], irc)
 
         for stream in init_streams:
             self.add_stream(stream)
@@ -37,7 +37,7 @@ class TwitchManager(strm_mgr):
         try:
             if stream not in self.streams:
                 self.streams[stream] = multiprocessing.Process(target=TwitchStream, args=(self.config['twitch_config'], stream)) 
-                self.src.join_stream(stream)
+                self.inpt.join_stream(stream)
                 self.streams[stream].start()
         except Exception, e:
             pp(e)

@@ -13,9 +13,10 @@ import pickle
 from utils.functions_general import *
 
 class strm_mgr:
-    def __init__(self, config, src):
+    def __init__(self, config, src, inpt):
         self.config = config
-        self.src = src
+        self.src = src 
+        self.inpt = inpt
 
         self.streams = {}
         self.featured = []
@@ -33,7 +34,8 @@ class strm_mgr:
             try:
                 self.streams[stream].terminate()
                 del self.streams[stream]
-                self.src.leave_stream(stream)
+                self.inpt.leave_stream(stream)
+                self.send_delete([stream])
             except Exception, e:
                 pp(e)
 
@@ -53,7 +55,7 @@ class strm_mgr:
             try:
                 data = {
                     'type': 'featured',
-                    'src': config['self'],
+                    'src': self.src,
                     'data': self.featured
                 }
                 pickled_data = pickle.dumps(data)
@@ -61,3 +63,15 @@ class strm_mgr:
             except Exception, e:
                 pp(e)
             time.sleep(config['refresh_featured_timeout'])
+
+    def send_delete(self, streams):
+        try:
+            data = {
+                'type': 'delete',
+                'src': self.src,
+                'data': streams
+            }
+            pickled_data = pickle.dumps(data)
+            self.http_socket.send(pickled_data)
+        except Exception, e:
+            pp(e)

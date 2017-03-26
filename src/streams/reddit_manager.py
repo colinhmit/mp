@@ -17,7 +17,7 @@ from strm_mgr import strm_mgr
 class RedditManager(strm_mgr):
     def __init__(self, config, rddt, init_streams):
         pp('Initializing Reddit Stream Manager...')
-        strm_mgr.__init__(self, config, rddt)
+        strm_mgr.__init__(self, config, config['reddit_config']['self'], rddt)
 
         self.curated = []
         self.featured_buffer = []
@@ -41,7 +41,7 @@ class RedditManager(strm_mgr):
         try:
             if stream not in self.streams:
                 self.streams[stream] = multiprocessing.Process(target=RedditStream, args=(self.config['reddit_config'], stream)) 
-                self.src.join_stream(stream)
+                self.inpt.join_stream(stream)
                 self.streams[stream].start()
         except Exception, e:
             pp(e)

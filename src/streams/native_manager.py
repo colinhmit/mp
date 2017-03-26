@@ -19,7 +19,7 @@ from strm_mgr import strm_mgr
 class NativeManager(strm_mgr):
     def __init__(self, config):
         pp('Initializing Twitch Stream Manager...')
-        strm_mgr.__init__(self, config, None)
+        strm_mgr.__init__(self, config, config['native_config']['self'], None)
 
         self.init_featured()
         self.init_threads()
@@ -45,6 +45,7 @@ class NativeManager(strm_mgr):
         if stream in self.streams:
             try:
                 self.streams[stream].terminate()
-                self.src.leave_stream(stream)
+                del self.streams[stream]
+                self.send_delete([stream])
             except Exception, e:
                 pp(e)

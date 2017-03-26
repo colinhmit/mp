@@ -37,6 +37,8 @@ class WebServer(Resource):
             return self.http_server.get_agg_streams(args)
         elif path[0:8] == '/content':
             return self.http_server.get_agg_content(args)
+        elif path[0:7] == '/enrich':
+            return self.http_server.get_enrich(args)
         elif path[0:9] == '/subjects':
             return self.http_server.get_agg_subjects(args)
         elif path[0:10] == '/sentiment':
@@ -127,6 +129,8 @@ class HTTPServer():
                 self.process_stream(data)
             elif data['type'] == 'featured':
                 self.process_featured(data)
+            elif data['type'] == 'delete':
+                self.process_delete(data)
 
     def process_analytics(self):
         for raw_data in iter(self.http_data_socket.recv, 'STOP'):
@@ -149,6 +153,27 @@ class HTTPServer():
         elif data['src'] == 'reddit':
             self.reddit_streams[data['stream']] = data['data']
 
+    def process_delete(self, data):
+        try:
+            if data['src'] == 'native':
+                for stream in data['data']:
+                    if stream in self.native_streams:
+                        del self.native_streams[stream]
+            elif data['src'] == 'twitch':
+                for stream in data['data']:
+                    if stream in self.twitch_streams:
+                        del self.twitch_streams[stream]
+            elif data['src'] == 'twitter':
+                for stream in data['data']:
+                    if stream in self.twitter_streams:
+                        del self.twitter_streams[stream]
+            elif data['src'] == 'reddit':
+                for stream in data['data']:
+                    if stream in self.reddit_streams:
+                        del self.reddit_streams[stream]
+        except Exception, e:
+            raise e
+        
     def process_clusters(self, data):
         if data['src'] == 'native':
             self.native_analytics[data['stream']] = data['data']
@@ -283,11 +308,11 @@ class HTTPServer():
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
                 if stream_id not in self.twitter_streams:
-                    self.twitter_streams[stream_id] = {'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.twitter_streams[stream_id] = {'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", "id":"123"}}}
                     self.request_stream(stream_id,'twitter')
 
                 try:
-                    content = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
+                    content = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", "id":"123"}})
                     content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in content.items() if (timestamp - msg_v['last_mtch_time']).total_seconds() <= horizon})
                 except Exception, e:
                     pp(e)
@@ -295,11 +320,11 @@ class HTTPServer():
         if ('reddit' in args) and (len(args['reddit'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
                 if stream_id not in self.reddit_streams:
-                    self.reddit_streams[stream_id] = {'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}}
+                    self.reddit_streams[stream_id] = {'content': {("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", "id":"123"}}}
                     self.request_stream(stream_id,'reddit')
 
                 try:
-                    content = self.reddit_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}})
+                    content = self.reddit_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", "id":"123"}})
                     content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in content.items() if (timestamp - msg_v['last_mtch_time']).total_seconds() <= horizon})
                 except Exception, e:
                     pp(e)
@@ -322,6 +347,42 @@ class HTTPServer():
                     del content_output[msg]
 
         return json.dumps({'content': content_output})
+
+    def get_enrich(self, args):
+        enrich_output = []
+
+        if ('native' in args) and (len(args['native'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['native'][0].split(',')]:
+                enrich = self.native_streams.get(stream_id,{}).get('trending',{})
+                if len(enrich) > 0:
+                    max_key = max(enrich, key=lambda x: enrich[x]['score'])
+                    enrich_output.append(enrich[max_key])
+
+        if ('twitch' in args) and (len(args['twitch'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
+                enrich = self.twitch_streams.get(stream_id,{}).get('trending',{})
+                if len(enrich) > 0:
+                    max_key = max(enrich, key=lambda x: enrich[x]['score'])
+                    enrich_output.append(enrich[max_key])
+
+        if ('twitter' in args) and (len(args['twitter'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+                enrich = self.twitter_streams.get(stream_id,{}).get('trending',{})
+                if len(enrich) > 0:
+                    max_key = max(enrich, key=lambda x: enrich[x]['score'])
+                    enrich_output.append(enrich[max_key])
+
+        if ('reddit' in args) and (len(args['reddit'][0])>0):
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
+                enrich = self.reddit_streams.get(stream_id,{}).get('trending',{})
+                if len(enrich) > 0:
+                    max_key = max(enrich, key=lambda x: enrich[x]['score'])
+                    enrich_output.append(enrich[max_key])
+
+        #NEEDS TESTING
+        max_enrich = max(enrich_output, key=lambda x: x.values()[0]['score'])
+        max_enrich['first_rcv_time'] = datetime.datetime.now().isoformat()
+        return json.dumps({'enrich': max_enrich})
 
     def get_agg_subjects(self, args):
         subjects_list = []

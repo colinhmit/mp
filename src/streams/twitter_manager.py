@@ -17,7 +17,7 @@ from strm_mgr import strm_mgr
 class TwitterManager(strm_mgr):
     def __init__(self, config, twtr, init_streams):
         pp('Initializing Twitter Stream Manager...')
-        strm_mgr.__init__(self, config, twtr)
+        strm_mgr.__init__(self, config, config['twitter_config']['self'], twtr)
 
         self.curated = []
         self.featured_buffer = []
@@ -40,7 +40,7 @@ class TwitterManager(strm_mgr):
         try:
             if stream not in self.streams:
                 self.streams[stream] = multiprocessing.Process(target=TwitterStream, args=(self.config['twitter_config'], stream)) 
-                self.src.join_stream(stream)
+                self.inpt.join_stream(stream)
                 self.streams[stream].start()
         except Exception, e:
             pp(e)
@@ -51,7 +51,7 @@ class TwitterManager(strm_mgr):
         
     def get_featured_api(self):
         try:
-            trends = self.src.api.trends_place(23424977)
+            trends = self.inpt.api.trends_place(23424977)
             output = [{'title':x['name'],'stream':[self.pattern.sub('',x['name']).lower()],'description':'','count':x['tweet_volume'], 'image':''} for x in trends[0]['trends'] if x['tweet_volume']!=None]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
             sorted_output = sorted_output[0:self.config['twitter_featured']['num_featured']]
@@ -71,7 +71,8 @@ class TwitterManager(strm_mgr):
                         pp(e)
                     streams_to_remove.append(old_stream)
 
-            self.src.batch_streams(streams_to_add, streams_to_remove)
+            self.inpt.batch_streams(streams_to_add, streams_to_remove)
+            self.send_delete(streams_to_remove)
 
             for featured_stream in streams_to_add:
                 self.add_stream(featured_stream)
@@ -107,10 +108,11 @@ class TwitterManager(strm_mgr):
                             try:
                                 self.streams[old_stream].terminate()
                                 del self.streams[old_stream]
+                                self.send_delete([old_stream])
                             except Exception, e:
                                 pp(e)
 
-                    self.src.batch_streams(addition_streams, current_streams)
+                    self.inpt.batch_streams(addition_streams, current_streams)
 
                     for featured_stream in addition_streams:
                         self.add_stream(featured_stream)

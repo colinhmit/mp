@@ -80,6 +80,7 @@ class TwitterStream(strm):
                 if (len(matched) == 0):
                     if len(self.content)<self.config['content_max_size']:
                         self.content[msg_key] = {
+                            'src': self.config['self'],
                             'score': temp_trending[msg_key]['score'],
                             'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                             'media_url': temp_trending[msg_key]['media_url'],
@@ -91,6 +92,7 @@ class TwitterStream(strm):
                         if temp_trending[msg_key]['score'] > self.content[min_key]['score']:
                             del self.content[min_key]
                             self.content[msg_key] = {
+                                'src': self.config['self'],
                                 'score': temp_trending[msg_key]['score'],
                                 'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                                 'media_url': temp_trending[msg_key]['media_url'],
