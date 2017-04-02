@@ -8,6 +8,7 @@ import datetime
 import re
 import zmq
 import pickle
+import uuid
 
 from functions_general import *
 from functions_matching import *
@@ -17,6 +18,7 @@ class strm:
         self.config = config
         self.stream = stream
         self.last_rcv_time = None
+        self.last_enrch_time = None
 
         self.trending = {}
         self.clean_trending = {}
@@ -102,11 +104,34 @@ class strm:
                 pp(e)
             time.sleep(self.config['render_trending_timeout'])
 
+    def enrich_trending_thread(self):
+        self.enrich_trending_loop = True
+        while self.enrich_trending_loop:
+            curr_time = datetime.datetime.now()
+            if ((curr_time - self.last_rcv_time).total_seconds()>5) or ((curr_time - self.last_enrch_time).total_seconds()>45):
+                idstr = src(uuid.uuid4())
+                self.trending[idstr] = { 
+                    'src': 'enrich',
+                    'score':  self.config['enrich_base'],
+                    'last_mtch_time': curr_time,
+                    'first_rcv_time': curr_time,
+                    'media_url': [],
+                    'mp4_url': '',
+                    'svos': [],
+                    'users' : [''],
+                    'msgs' : {},
+                    'visible' : 1,
+                    'id': idstr
+                }
+                self.decay_enrich()
+                self.last_enrch_time = curr_time
+            time.sleep(self.config['enrich_trending_timeout'])
+
     #Manager Processes
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
-            self.clean_trending = {msg_k: {'src':self.config['self'], 'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {'src':msg_v['src'], 'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
 
     def filter_trending(self):
         if len(self.trending)>0:
@@ -147,6 +172,7 @@ class strm:
                 #if enough to branch
                 if self.trending[matched_msg]['msgs'][submatched_msg] > self.trending[matched_msg]['msgs'][matched_msg]:
                     self.trending[submatched_msg] = {
+                        'src': self.config['self'],
                         'score': (self.trending[matched_msg]['score'] * self.trending[matched_msg]['msgs'][submatched_msg] / sum(self.trending[matched_msg]['msgs'].values())) + self.config['matched_add_base'], 
                         'last_mtch_time': msgtime,
                         'first_rcv_time': msgtime,
@@ -171,6 +197,7 @@ class strm:
             if self.config['debug']:
                 pp("??? "+msgdata['message']+" ???")
             self.trending[msgdata['message']] = { 
+                'src': self.config['self'],
                 'score':  self.config['matched_init_base'],
                 'last_mtch_time': msgtime,
                 'first_rcv_time': msgtime,
@@ -186,24 +213,25 @@ class strm:
     def nlp_compare(self, msgdata):
         for svo in msgdata['svos']:
             for key in self.trending.keys():
-                match_subj = fweo_threshold(svo['subj'], [x['subj'] for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
-                if match_subj is None:
-                    pass
-                else:
-                    matched_svos = [x for x in self.trending[key]['svos'] if x['subj']==match_subj[0]]
+                if self.trending[key]['src'] != 'enrich':
+                    match_subj = fweo_threshold(svo['subj'], [x['subj'] for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
+                    if match_subj is None:
+                        pass
+                    else:
+                        matched_svos = [x for x in self.trending[key]['svos'] if x['subj']==match_subj[0]]
 
-                    for matched_svo in matched_svos:
-                        verb_diff = cosine(svo['verb'], matched_svo['verb'])
+                        for matched_svo in matched_svos:
+                            verb_diff = cosine(svo['verb'], matched_svo['verb'])
 
-                        if (verb_diff<self.config['verb_compare_threshold']) or (svo['neg'] != matched_svo['neg']):
-                            pass
-                        else:
-                            obj_diff = cosine(svo['obj'], matched_svo['obj'])
-
-                            if (obj_diff<self.config['obj_compare_threshold']):
+                            if (verb_diff<self.config['verb_compare_threshold']) or (svo['neg'] != matched_svo['neg']):
                                 pass
                             else:
-                                return key
+                                obj_diff = cosine(svo['obj'], matched_svo['obj'])
+
+                                if (obj_diff<self.config['obj_compare_threshold']):
+                                    pass
+                                else:
+                                    return key
         return None
 
     def process_subjs(self, msgdata):
@@ -246,7 +274,7 @@ class strm:
         if (self.last_rcv_time is not None):
             prev_msgtime = self.last_rcv_time
             for key in self.trending.keys():
-                if key == msgdata['message']:
+                if (key == msgdata['message']) or (self.trending[key]['src']=='enrich'):
                     pass
                 else:
                     curr_score = self.trending[key]['score']
@@ -265,6 +293,12 @@ class strm:
                         del self.trending[key]
                     else:
                         self.trending[key]['score'] = curr_score
+
+    def decay_enrich(self):
+        temp_trending = dict(self.trending)
+        max_key = max(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
+        if (len(temp_trending) > self.config['enrich_min_len']):
+            del self.trending[max_key]
 
     def process_message(self, msgdata, msgtime):
         self.process_subjs(msgdata)

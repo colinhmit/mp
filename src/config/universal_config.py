@@ -7,14 +7,14 @@ Created on Wed Aug 24 18:48:45 2016
 
 #HOSTS & PORTS
 #PROD SETTING
-local_host = '0.0.0.0'
-http_host = '172.31.3.149'
-server_host = '172.31.13.182'
+# local_host = '0.0.0.0'
+# http_host = '172.31.3.149'
+# server_host = '172.31.13.182'
 
 #DEV SETTING
-# local_host = '127.0.0.1'
-# http_host = '127.0.0.1'
-# server_host = '127.0.0.1'
+local_host = '127.0.0.1'
+http_host = '127.0.0.1'
+server_host = '127.0.0.1'
 
 irc_input_port = 8002
 irc_proc_port = 8012
@@ -81,16 +81,16 @@ input_config = {
         'zmq_output_port': twtr_stream_port,
 
         # Production Twitter API Login
-        'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-        'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
-        'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-        'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+        # 'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+        # 'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+        # 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+        # 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                         
         # AWS DEV Twitter API Login
-        # 'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
-        # 'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
-        # 'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
-        # 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
+        'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+        'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+        'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+        'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
         # Dev #2 Twitter API Login
         # 'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
@@ -195,6 +195,7 @@ stream_config = {
         'reset_subjs_timeout': 600,
         'filter_trending_timeout': 0.7,
         'render_trending_timeout': 0.3,
+        'enrich_trending_timeout': 1.0
 
         # fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -203,6 +204,9 @@ stream_config = {
         'subj_compare_threshold': 85,
         'verb_compare_threshold': 0.5,
         'obj_compare_threshold': 0.5,
+        #enrich params
+        'enrich_base': 50,
+        'enrich_min_len': 5,
         # twitch_stream trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
@@ -236,6 +240,7 @@ stream_config = {
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
+        'enrich_trending_timeout': 1.0
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -244,6 +249,9 @@ stream_config = {
         'subj_compare_threshold': 85,
         'verb_compare_threshold': 0.3,
         'obj_compare_threshold': 0.5,
+        #enrich params
+        'enrich_base': 50,
+        'enrich_min_len': 5,
         #twitter trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
@@ -280,6 +288,7 @@ stream_config = {
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
+        'enrich_trending_timeout': 1.0
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -288,6 +297,9 @@ stream_config = {
         'subj_compare_threshold': 85,
         'verb_compare_threshold': 0.3,
         'obj_compare_threshold': 0.5,
+        #enrich params
+        'enrich_base': 50,
+        'enrich_min_len': 5,
         #twitter trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
@@ -324,6 +336,7 @@ stream_config = {
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
+        'enrich_trending_timeout': 1.0
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -332,6 +345,9 @@ stream_config = {
         'subj_compare_threshold': 85,
         'verb_compare_threshold': 0.3,
         'obj_compare_threshold': 0.5,
+        #enrich params
+        'enrich_base': 50,
+        'enrich_min_len': 5,
         #twitter trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
