@@ -17,8 +17,8 @@ class strm:
     def __init__(self, config, stream):
         self.config = config
         self.stream = stream
-        self.last_rcv_time = None
-        self.last_enrch_time = None
+        self.last_rcv_time = datetime.datetime.now()
+        self.last_enrch_time = datetime.datetime.now()
 
         self.trending = {}
         self.clean_trending = {}
@@ -271,28 +271,27 @@ class strm:
             return matched_msg
 
     def decay(self, msgdata, msgtime):
-        if (self.last_rcv_time is not None):
-            prev_msgtime = self.last_rcv_time
-            for key in self.trending.keys():
-                if (key == msgdata['message']) or (self.trending[key]['src']=='enrich'):
-                    pass
+        prev_msgtime = self.last_rcv_time
+        for key in self.trending.keys():
+            if (key == msgdata['message']) or (self.trending[key]['src']=='enrich'):
+                pass
+            else:
+                curr_score = self.trending[key]['score']
+
+                msgtime_secs = (msgtime - prev_msgtime).total_seconds()
+                rcvtime_secs = (msgtime - self.trending[key]['first_rcv_time']).total_seconds()
+                lastmtch_secs = (msgtime - self.trending[key]['last_mtch_time']).total_seconds()
+
+                buffer_constant = min(msgtime_secs*self.config['buffer_mult'],1)
+                #msg event decay
+                curr_score -= buffer_constant*(1/max(self.config['decay_msg_min_limit'],rcvtime_secs))*self.config['decay_msg_base']
+                #time decay
+                curr_score -=  buffer_constant*max(rcvtime_secs,(lastmtch_secs**2)/self.config['decay_time_mtch_base']) * self.config['decay_time_base']
+                            
+                if curr_score<=0.0:
+                    del self.trending[key]
                 else:
-                    curr_score = self.trending[key]['score']
-
-                    msgtime_secs = (msgtime - prev_msgtime).total_seconds()
-                    rcvtime_secs = (msgtime - self.trending[key]['first_rcv_time']).total_seconds()
-                    lastmtch_secs = (msgtime - self.trending[key]['last_mtch_time']).total_seconds()
-
-                    buffer_constant = min(msgtime_secs*self.config['buffer_mult'],1)
-                    #msg event decay
-                    curr_score -= buffer_constant*(1/max(self.config['decay_msg_min_limit'],rcvtime_secs))*self.config['decay_msg_base']
-                    #time decay
-                    curr_score -=  buffer_constant*max(rcvtime_secs,(lastmtch_secs**2)/self.config['decay_time_mtch_base']) * self.config['decay_time_base']
-                                
-                    if curr_score<=0.0:
-                        del self.trending[key]
-                    else:
-                        self.trending[key]['score'] = curr_score
+                    self.trending[key]['score'] = curr_score
 
     def decay_enrich(self):
         temp_trending = dict(self.trending)
