@@ -195,7 +195,7 @@ stream_config = {
         'reset_subjs_timeout': 600,
         'filter_trending_timeout': 0.7,
         'render_trending_timeout': 0.3,
-        'enrich_trending_timeout': 1.0
+        'enrich_trending_timeout': 1.0,
 
         # fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -240,7 +240,7 @@ stream_config = {
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
-        'enrich_trending_timeout': 1.0
+        'enrich_trending_timeout': 1.0,
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -288,7 +288,7 @@ stream_config = {
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
-        'enrich_trending_timeout': 1.0
+        'enrich_trending_timeout': 1.0,
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -336,7 +336,7 @@ stream_config = {
         'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
-        'enrich_trending_timeout': 1.0
+        'enrich_trending_timeout': 1.0,
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
