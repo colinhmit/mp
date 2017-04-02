@@ -85,6 +85,7 @@ class RedditStream(strm):
             #if enough to branch
             if self.trending[matched_msg]['msgs'][submatched_msg] > self.trending[matched_msg]['msgs'][matched_msg]:
                 self.trending[submatched_msg] = {
+                    'src': self.config['self'],
                     'score': (self.trending[matched_msg]['score'] * self.trending[matched_msg]['msgs'][submatched_msg] / sum(self.trending[matched_msg]['msgs'].values())) + self.config['matched_add_base'], 
                     'last_mtch_time': msgtime,
                     'first_rcv_time': msgtime,

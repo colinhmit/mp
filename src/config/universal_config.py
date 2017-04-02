@@ -207,6 +207,8 @@ stream_config = {
         #enrich params
         'enrich_base': 50,
         'enrich_min_len': 5,
+        'last_rcv_enrich_timeout': 5,
+        'last_enrch_enrich_timeout': 45,
         # twitch_stream trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
@@ -252,6 +254,8 @@ stream_config = {
         #enrich params
         'enrich_base': 50,
         'enrich_min_len': 5,
+        'last_rcv_enrich_timeout': 5,
+        'last_enrch_enrich_timeout': 45,
         #twitter trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
@@ -300,6 +304,8 @@ stream_config = {
         #enrich params
         'enrich_base': 50,
         'enrich_min_len': 5,
+        'last_rcv_enrich_timeout': 5,
+        'last_enrch_enrich_timeout': 45,
         #twitter trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
@@ -348,6 +354,8 @@ stream_config = {
         #enrich params
         'enrich_base': 50,
         'enrich_min_len': 5,
+        'last_rcv_enrich_timeout': 5,
+        'last_enrch_enrich_timeout', 45,
         #twitter trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
