@@ -109,7 +109,7 @@ class strm:
         while self.enrich_trending_loop:
             curr_time = datetime.datetime.now()
             if ((curr_time - self.last_rcv_time).total_seconds()>5) or ((curr_time - self.last_enrch_time).total_seconds()>45):
-                idstr = src(uuid.uuid4())
+                idstr = str(uuid.uuid4())
                 self.trending[idstr] = { 
                     'src': 'enrich',
                     'score':  self.config['enrich_base'],
