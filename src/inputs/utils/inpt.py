@@ -55,7 +55,7 @@ class inpt:
                 pp(self.config['self']+' No streams to stream from...')
 
     def batch_streams(self, streams_to_add, streams_to_remove):
-        pp(self.config['self']+' Batching streams...')
+        #pp(self.config['self']+' Batching streams...')
         if self.stream_conn.is_alive():
             self.stream_conn.terminate()
         for stream in streams_to_remove:

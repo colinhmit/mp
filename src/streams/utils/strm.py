@@ -273,7 +273,7 @@ class strm:
     def decay(self, msgdata, msgtime):
         prev_msgtime = self.last_rcv_time
         for key in self.trending.keys():
-            if (key == msgdata['message']) or (self.trending[key]['src']=='enrich'):
+            if (key == msgdata['message']) or (self.trending.get(key,{}).get('src',None)=='enrich'):
                 pass
             else:
                 curr_score = self.trending[key]['score']

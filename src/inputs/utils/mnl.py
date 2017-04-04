@@ -44,7 +44,12 @@ class mnl:
         self.pipe.bind('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
 
     def handle_msg(self, input_msg):
-        json_msg = json.loads(input_msg)
+        try:
+            json_msg = json.loads(input_msg)
+        except Exception, e:
+            json_msg = {'type':'null'}
+            pp(e)
+            
         if json_msg['type'] == 'message':
             self.Q.put(input_msg)
         elif json_msg['type'] == 'replay':

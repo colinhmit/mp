@@ -60,7 +60,6 @@ class twtr(inpt):
                 pass
 
         try:
-            pp('Connecting to twitter...')
             self.stream_obj.filter(track=self.streams)
             gc.collect()
         except Exception, e:
