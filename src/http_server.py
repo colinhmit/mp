@@ -89,6 +89,8 @@ class HTTPServer():
         self.twitch_analytics = {}
         self.reddit_analytics = {}
 
+        self.enrich_map = {}
+
         self.twitch_hash = None
         self.twitter_hash = None
         self.reddit_hash = None
@@ -252,8 +254,26 @@ class HTTPServer():
 
     # Aggregation functions
     def get_agg_streams(self, args):
-        trend_dicts = []
+        enrich_dict = {}
+        if ('e_native' in args) and (len(args['e_native'][0])>0):
+            enrich_dict['native'] = []
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['e_native'][0].split(',')]:
+                enrich_dict['native'].append(stream_id)
+        if ('e_twitch' in args) and (len(args['e_twitch'][0])>0):
+            enrich_dict['twitch'] = []
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['e_twitch'][0].split(',')]:
+                enrich_dict['twitch'].append(stream_id)
+        if ('e_twitter' in args) and (len(args['e_twitter'][0])>0):
+            enrich_dict['twitter'] = []
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['e_twitter'][0].split(',')]:
+                enrich_dict['twitter'].append(stream_id)
+        if ('e_reddit' in args) and (len(args['e_reddit'][0])>0):
+            enrich_dict['reddit'] = []
+            for stream_id in [self.pattern.sub('',x).lower() for x in args['e_reddit'][0].split(',')]:
+                enrich_dict['reddit'].append(stream_id)
+        hash_enrich_dict = hash(frozenset(enrich_dict))
 
+        trend_dicts = []
         if ('native' in args) and (len(args['native'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['native'][0].split(',')]:
                 if stream_id not in self.native_streams:
@@ -288,6 +308,30 @@ class HTTPServer():
 
         trending_output = {}
         [trending_output.update(d) for d in trend_dicts]
+
+        if len(enrich_dict) > 0:
+            for msg in trending_output.keys():
+                if trending_output[msg]['src'] == 'enrich':
+                    cache_enrich = self.enrich_map.get(msg,{}).get(hash_enrich_dict,None)
+                    if cache_enrich is not None:
+                        trending_output[cache_enrich[0]] = cache_enrich[1]
+                        del trending_output[msg]
+                    else:
+                        if msg in self.enrich_map:
+                            enrich = self.get_enrich(enrich_dict)
+                            self.enrich_map[msg][hash_enrich_dict] = enrich
+                            trending_output[enrich[0]] = enrich[1]
+                            del trending_output[msg]
+                        else:
+                            self.enrich_map[msg] = {}
+                            enrich = self.get_enrich(enrich_dict)
+                            self.enrich_map[msg][hash_enrich_dict] = enrich
+                            trending_output[enrich[0]] = enrich[1]
+                            del trending_output[msg]
+        else:
+            for msg in trending_output.keys():
+                if trending_output[msg]['src'] == 'enrich':
+                    del trending_output[msg]
 
         if ('filter' in args) and (len(args['filter'][0])>0):
             for keyword in args['filter'][0].split(','):
@@ -348,41 +392,39 @@ class HTTPServer():
 
         return json.dumps({'content': content_output})
 
-    def get_enrich(self, args):
-        enrich_output = []
-
-        if ('native' in args) and (len(args['native'][0])>0):
-            for stream_id in [self.pattern.sub('',x).lower() for x in args['native'][0].split(',')]:
+    def get_enrich(self, enrich_dict):
+        enrich_output = {}
+        if ('native' in enrich_dict):
+            for stream_id in enrich_dict['native']:
                 enrich = self.native_streams.get(stream_id,{}).get('trending',{})
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
-                    enrich_output.append(enrich[max_key])
+                    enrich_output[max_key] = enrich[max_key]
 
-        if ('twitch' in args) and (len(args['twitch'][0])>0):
-            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
+        if ('twitch' in enrich_dict):
+            for stream_id in enrich_dict['twitch']:
                 enrich = self.twitch_streams.get(stream_id,{}).get('trending',{})
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
-                    enrich_output.append(enrich[max_key])
+                    enrich_output[max_key] = enrich[max_key]
 
-        if ('twitter' in args) and (len(args['twitter'][0])>0):
-            for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
+        if ('twitter' in enrich_dict):
+            for stream_id in enrich_dict['twitter']:
                 enrich = self.twitter_streams.get(stream_id,{}).get('trending',{})
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
-                    enrich_output.append(enrich[max_key])
+                    enrich_output[max_key] = enrich[max_key]
 
-        if ('reddit' in args) and (len(args['reddit'][0])>0):
-            for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
+        if ('reddit' in enrich_dict):
+            for stream_id in enrich_dict['reddit']:
                 enrich = self.reddit_streams.get(stream_id,{}).get('trending',{})
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
-                    enrich_output.append(enrich[max_key])
+                    enrich_output[max_key] = enrich[max_key]
 
-        #NEEDS TESTING
-        max_enrich = max(enrich_output, key=lambda x: x.values()[0]['score'])
-        max_enrich['first_rcv_time'] = datetime.datetime.now().isoformat()
-        return json.dumps({'enrich': max_enrich})
+        max_key = max(enrich_output, key=lambda x: enrich_output[x]['score'])
+        enrich_output[max_key]['first_rcv_time'] = datetime.datetime.now().isoformat()
+        return (max_key, enrich_output[max_key])
 
     def get_agg_subjects(self, args):
         subjects_list = []
