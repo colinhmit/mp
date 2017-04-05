@@ -295,9 +295,13 @@ class strm:
 
     def decay_enrich(self):
         temp_trending = dict(self.trending)
-        max_key = max(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
-        if (len(temp_trending) > self.config['enrich_min_len']):
-            del self.trending[max_key]
+        min_key = min(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
+        if (len(temp_trending) > self.config['enrich_min_len']) & (temp_trending[min_key]['src'] == 'enrich'):
+            try:
+                del self.trending[min_key]
+            except Exception, e:
+                pp('decay enrich failed')
+                pp(e)
 
     def process_message(self, msgdata, msgtime):
         self.process_subjs(msgdata)
