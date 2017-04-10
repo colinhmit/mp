@@ -273,7 +273,7 @@ class strm:
     def decay(self, msgdata, msgtime):
         prev_msgtime = self.last_rcv_time
         for key in self.trending.keys():
-            if (key == msgdata['message']) or (self.trending.get(key,{}).get('src',None)=='enrich'):
+            if (key == msgdata['message']) or (self.trending.get(key,{}).get('src','enrich')=='enrich'):
                 pass
             else:
                 curr_score = self.trending[key]['score']
@@ -292,7 +292,7 @@ class strm:
                     del self.trending[key]
                 else:
                     self.trending[key]['score'] = curr_score
-
+                
     def decay_enrich(self):
         temp_trending = dict(self.trending)
         min_key = min(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
@@ -304,7 +304,8 @@ class strm:
                 pp(e)
 
     def process_message(self, msgdata, msgtime):
-        self.process_subjs(msgdata)
+        #NO SUBJECTS WHILE NO ANALYTICS
+        #self.process_subjs(msgdata)
 
         #cleanup RT
         if msgdata['message'][:4] == 'RT @':
