@@ -153,13 +153,16 @@ class HTTPServer():
         elif data['src'] == 'twitch':
             self.twitch_streams[data['stream']] = data['data']
         elif data['src'] == 'twitter':
+            if data['stream'] == 'trump':
+                pp(data['data'])
             self.twitter_streams[data['stream']] = data['data']
         elif data['src'] == 'reddit':
             self.reddit_streams[data['stream']] = data['data']
 
     def process_enrichdecay(self, data):
         try:
-            del self.enrich_map[data['data']]
+            if data['data'] in self.enrich_map.keys():
+                del self.enrich_map[data['data']]
         except Exception, e:
             pp(e)
         
