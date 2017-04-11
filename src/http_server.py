@@ -129,6 +129,8 @@ class HTTPServer():
 
             if data['type'] == 'stream':
                 self.process_stream(data)
+            elif data['type'] == 'enrichdecay':
+                self.process_enrichdecay(data)
             elif data['type'] == 'featured':
                 self.process_featured(data)
             elif data['type'] == 'delete':
@@ -155,6 +157,12 @@ class HTTPServer():
         elif data['src'] == 'reddit':
             self.reddit_streams[data['stream']] = data['data']
 
+    def process_enrichdecay(self, data):
+        try:
+            del self.enrich_map[data['data']]
+        except Exception, e:
+            pp(e)
+        
     def process_delete(self, data):
         try:
             if data['src'] == 'native':

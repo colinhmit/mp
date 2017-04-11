@@ -73,6 +73,14 @@ class strm:
                 pp(e)
             time.sleep(self.config['send_analytics_timeout'])
 
+    def send_enrichdecay(self, msg):
+        data = {
+            'type': 'enrichdecay',
+            'data': msg
+        }
+        pickled_data = pickle.dumps(data)
+        self.http_socket.send(pickled_data)
+
     # Manager Processes
     def reset_subjs_thread(self):
         self.reset_subjs_loop = True
@@ -300,6 +308,7 @@ class strm:
         if (len(temp_trending) > self.config['enrich_min_len']) & (temp_trending[min_key]['src'] == 'enrich'):
             try:
                 del self.trending[min_key]
+                self.send_enrichdecay(min_key)
             except Exception, e:
                 pp('decay enrich failed')
                 pp(e)
