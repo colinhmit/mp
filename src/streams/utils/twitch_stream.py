@@ -24,7 +24,7 @@ class TwitchStream(strm):
         threading.Thread(target = self.filter_trending_thread).start()
         threading.Thread(target = self.render_trending_thread).start()
         threading.Thread(target = self.reset_subjs_thread).start()
-        threading.Thread(target = self.enrich_trending_thread).start()
+        #threading.Thread(target = self.enrich_trending_thread).start()
 
         #data connections
         threading.Thread(target = self.send_stream).start()

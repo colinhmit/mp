@@ -73,6 +73,7 @@ class strm:
                 pp(e)
             time.sleep(self.config['send_analytics_timeout'])
 
+    #needs to be given its own socket
     def send_enrichdecay(self, msg):
         data = {
             'type': 'enrichdecay',
