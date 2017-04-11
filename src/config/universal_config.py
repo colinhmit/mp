@@ -7,14 +7,14 @@ Created on Wed Aug 24 18:48:45 2016
 
 #HOSTS & PORTS
 #PROD SETTING
-# local_host = '0.0.0.0'
-# http_host = '172.31.3.149'
-# server_host = '172.31.13.182'
+local_host = '0.0.0.0'
+http_host = '172.31.3.149'
+server_host = '172.31.13.182'
 
 #DEV SETTING
-local_host = '127.0.0.1'
-http_host = '127.0.0.1'
-server_host = '127.0.0.1'
+# local_host = '127.0.0.1'
+# http_host = '127.0.0.1'
+# server_host = '127.0.0.1'
 
 irc_input_port = 8002
 irc_proc_port = 8012
@@ -81,10 +81,10 @@ input_config = {
         'zmq_output_port': twtr_stream_port,
 
         # Production Twitter API Login
-        # 'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-        # 'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
-        # 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-        # 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
+        'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+        'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+        'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+        'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
                         
         # AWS DEV Twitter API Login
         # 'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
@@ -93,10 +93,10 @@ input_config = {
         # 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
 
         # Dev #2 Twitter API Login
-        'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
-        'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
-        'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
-        'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt'
+        # 'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
+        # 'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
+        # 'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
+        # 'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt'
 
         # Dev #3 Twitter API Login
         # 'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
