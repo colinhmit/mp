@@ -211,14 +211,15 @@ class strm:
             }
 
     def nlp_compare(self, msgdata):
+        temp_trending = dict(self.trending)
         for svo in msgdata['svos']:
-            for key in self.trending.keys():
-                if self.trending[key]['src'] != 'enrich':
-                    match_subj = fweo_threshold(svo['subj'], [x['subj'] for x in self.trending[key]['svos']], self.config['subj_compare_threshold'])
+            for key in temp_trending.keys():
+                if temp_trending[key]['src'] != 'enrich':
+                    match_subj = fweo_threshold(svo['subj'], [x['subj'] for x in temp_trending[key]['svos']], self.config['subj_compare_threshold'])
                     if match_subj is None:
                         pass
                     else:
-                        matched_svos = [x for x in self.trending[key]['svos'] if x['subj']==match_subj[0]]
+                        matched_svos = [x for x in temp_trending[key]['svos'] if x['subj']==match_subj[0]]
 
                         for matched_svo in matched_svos:
                             verb_diff = cosine(svo['verb'], matched_svo['verb'])
