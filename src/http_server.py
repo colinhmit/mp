@@ -153,8 +153,6 @@ class HTTPServer():
         elif data['src'] == 'twitch':
             self.twitch_streams[data['stream']] = data['data']
         elif data['src'] == 'twitter':
-            if data['stream'] == 'trump':
-                pp(data['data']['trending'])
             self.twitter_streams[data['stream']] = data['data']
         elif data['src'] == 'reddit':
             self.reddit_streams[data['stream']] = data['data']
