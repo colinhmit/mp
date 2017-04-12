@@ -23,6 +23,8 @@ class strm:
         self.trending = {}
         self.clean_trending = {}
         self.subjs = {}
+        self.enrich = []
+        self.enrichdecay = []
 
         self.init_sockets()
 
@@ -47,10 +49,15 @@ class strm:
                     'type': 'stream',
                     'src': self.config['self'],
                     'stream': self.stream,
-                    'data': {'trending': dict(self.clean_trending)}
+                    'enrichdecay': list(self.enrichdecay),
+                    'data': {
+                        'trending': dict(self.clean_trending),
+                        'enrich': list(self.enrich)
+                    }
                 }
                 pickled_data = pickle.dumps(data)
                 self.http_socket.send(pickled_data)
+                self.enrichdecay = []
             except Exception, e:
                 pp('failed send_stream')
                 pp(e)
@@ -72,15 +79,6 @@ class strm:
                 pp('failed send_analytics')
                 pp(e)
             time.sleep(self.config['send_analytics_timeout'])
-
-    #needs to be given its own socket
-    def send_enrichdecay(self, msg):
-        data = {
-            'type': 'enrichdecay',
-            'data': msg
-        }
-        pickled_data = pickle.dumps(data)
-        self.http_socket.send(pickled_data)
 
     # Manager Processes
     def reset_subjs_thread(self):
@@ -119,19 +117,11 @@ class strm:
             curr_time = datetime.datetime.now()
             if ((curr_time - self.last_rcv_time).total_seconds()>self.config['last_rcv_enrich_timeout']) or ((curr_time - self.last_enrch_time).total_seconds()>self.config['last_enrch_enrich_timeout']):
                 idstr = str(uuid.uuid4())
-                self.trending[idstr] = { 
-                    'src': 'enrich',
-                    'score':  self.config['enrich_base'],
-                    'last_mtch_time': curr_time,
-                    'first_rcv_time': curr_time,
-                    'media_url': [],
-                    'mp4_url': '',
-                    'svos': [],
-                    'users' : [''],
-                    'msgs' : {},
-                    'visible' : 1,
-                    'id': idstr
+                enrich_item = {
+                    'id': idstr,
+                    'time': curr_time
                 }
+                self.enrich.append(enrich_item)
                 self.decay_enrich()
                 self.last_enrch_time = curr_time
             time.sleep(self.config['enrich_trending_timeout'])
@@ -223,25 +213,24 @@ class strm:
         temp_trending = dict(self.trending)
         for svo in msgdata['svos']:
             for key in temp_trending.keys():
-                if temp_trending[key]['src'] != 'enrich':
-                    match_subj = fweo_threshold(svo['subj'], [x['subj'] for x in temp_trending[key]['svos']], self.config['subj_compare_threshold'])
-                    if match_subj is None:
-                        pass
-                    else:
-                        matched_svos = [x for x in temp_trending[key]['svos'] if x['subj']==match_subj[0]]
+                match_subj = fweo_threshold(svo['subj'], [x['subj'] for x in temp_trending[key]['svos']], self.config['subj_compare_threshold'])
+                if match_subj is None:
+                    pass
+                else:
+                    matched_svos = [x for x in temp_trending[key]['svos'] if x['subj']==match_subj[0]]
 
-                        for matched_svo in matched_svos:
-                            verb_diff = cosine(svo['verb'], matched_svo['verb'])
+                    for matched_svo in matched_svos:
+                        verb_diff = cosine(svo['verb'], matched_svo['verb'])
 
-                            if (verb_diff<self.config['verb_compare_threshold']) or (svo['neg'] != matched_svo['neg']):
+                        if (verb_diff<self.config['verb_compare_threshold']) or (svo['neg'] != matched_svo['neg']):
+                            pass
+                        else:
+                            obj_diff = cosine(svo['obj'], matched_svo['obj'])
+
+                            if (obj_diff<self.config['obj_compare_threshold']):
                                 pass
                             else:
-                                obj_diff = cosine(svo['obj'], matched_svo['obj'])
-
-                                if (obj_diff<self.config['obj_compare_threshold']):
-                                    pass
-                                else:
-                                    return key
+                                return key
         return None
 
     def process_subjs(self, msgdata):
@@ -283,7 +272,7 @@ class strm:
     def decay(self, msgdata, msgtime):
         prev_msgtime = self.last_rcv_time
         for key in self.trending.keys():
-            if (key == msgdata['message']) or (self.trending.get(key,{}).get('src','enrich')=='enrich'):
+            if (key == msgdata['message']):
                 pass
             else:
                 curr_score = self.trending[key]['score']
@@ -306,17 +295,17 @@ class strm:
     def decay_enrich(self):
         temp_trending = dict(self.trending)
         min_key = min(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
-        if (len(temp_trending) > self.config['enrich_min_len']) & (temp_trending[min_key]['src'] == 'enrich'):
+        if (len(self.enrich) > self.config['enrich_min_len']) & (self.enrich[0]['time'] < temp_trending[min_key]['first_rcv_time']):
             try:
-                del self.trending[min_key]
-                self.send_enrichdecay(min_key)
+                old_enrich = self.enrich.pop(0)
+                self.enrichdecay.append(old_enrich['id'])
             except Exception, e:
                 pp('decay enrich failed')
                 pp(e)
 
     def process_message(self, msgdata, msgtime):
-        #NO SUBJECTS WHILE NO ANALYTICS
-        #self.process_subjs(msgdata)
+        #SET UP ANALYTICS CONFIG
+        self.process_subjs(msgdata)
 
         #cleanup RT
         if msgdata['message'][:4] == 'RT @':

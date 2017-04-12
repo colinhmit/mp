@@ -129,8 +129,6 @@ class HTTPServer():
 
             if data['type'] == 'stream':
                 self.process_stream(data)
-            elif data['type'] == 'enrichdecay':
-                self.process_enrichdecay(data)
             elif data['type'] == 'featured':
                 self.process_featured(data)
             elif data['type'] == 'delete':
@@ -157,10 +155,13 @@ class HTTPServer():
         elif data['src'] == 'reddit':
             self.reddit_streams[data['stream']] = data['data']
 
-    def process_enrichdecay(self, data):
+        for enrich_msg in data['enrichdecay']:
+            self.enrichdecay_helper(enrich_msg)
+
+    def enrichdecay_helper(self, msg):
         try:
-            if data['data'] in self.enrich_map.keys():
-                del self.enrich_map[data['data']]
+            if msg in self.enrich_map.keys():
+                del self.enrich_map[msg]
         except Exception, e:
             pp(e)
         
@@ -283,6 +284,7 @@ class HTTPServer():
         hash_enrich_dict = hash(frozenset(enrich_dict))
 
         trend_dicts = []
+        enrich_items = []
         if ('native' in args) and (len(args['native'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['native'][0].split(',')]:
                 if stream_id not in self.native_streams:
@@ -290,6 +292,7 @@ class HTTPServer():
                     self.request_stream(stream_id,'native')
 
                 trend_dicts.append(self.native_streams.get(stream_id,{}).get('trending',{"This stream has no messages yet!": {"src": "native", "mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ""}}))
+                enrich_items += self.native_streams.get(stream_id,{}).get('enrich',[])
 
         if ('twitch' in args) and (len(args['twitch'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
@@ -298,6 +301,7 @@ class HTTPServer():
                     self.request_stream(stream_id,'twitch')
 
                 trend_dicts.append(self.twitch_streams.get(stream_id,{}).get('trending',{"This stream has no messages. If this message does not dissapear, please make sure "+stream_id+" is streaming": {"src": "twitch", "mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ""}}))
+                enrich_items += self.twitch_streams.get(stream_id,{}).get('enrich',[])
 
         if ('twitter' in args) and (len(args['twitter'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitter'][0].split(',')]:
@@ -306,6 +310,7 @@ class HTTPServer():
                     self.request_stream(stream_id,'twitter')
 
                 trend_dicts.append(self.twitter_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"src": "twitter", "mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+                enrich_items += self.twitter_streams.get(stream_id,{}).get('enrich',[])
 
         if ('reddit' in args) and (len(args['reddit'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['reddit'][0].split(',')]:
@@ -314,33 +319,26 @@ class HTTPServer():
                     self.request_stream(stream_id,'reddit')
 
                 trend_dicts.append(self.reddit_streams.get(stream_id,{}).get('trending',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"src": "reddit", "mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"}}))
+                enrich_items += self.reddit_streams.get(stream_id,{}).get('enrich',[])
 
         trending_output = {}
         [trending_output.update(d) for d in trend_dicts]
 
         if len(enrich_dict) > 0:
-            for msg in trending_output.keys():
-                if trending_output[msg]['src'] == 'enrich':
-                    cache_enrich = self.enrich_map.get(msg,{}).get(hash_enrich_dict,None)
-                    if cache_enrich is not None:
-                        trending_output[cache_enrich[0]] = cache_enrich[1]
-                        del trending_output[msg]
+            for enrich_item in enrich_items:
+                cache_enrich = self.enrich_map.get(enrich_item['id'],{}).get(hash_enrich_dict,None)
+                if cache_enrich is not None:
+                    trending_output[cache_enrich[0]] = cache_enrich[1]
+                else:
+                    if enrich_item['id'] in self.enrich_map:
+                        enrich = self.get_enrich(enrich_dict)
+                        self.enrich_map[enrich_item['id']][hash_enrich_dict] = enrich
+                        trending_output[enrich[0]] = enrich[1]
                     else:
-                        if msg in self.enrich_map:
-                            enrich = self.get_enrich(enrich_dict)
-                            self.enrich_map[msg][hash_enrich_dict] = enrich
-                            trending_output[enrich[0]] = enrich[1]
-                            del trending_output[msg]
-                        else:
-                            self.enrich_map[msg] = {}
-                            enrich = self.get_enrich(enrich_dict)
-                            self.enrich_map[msg][hash_enrich_dict] = enrich
-                            trending_output[enrich[0]] = enrich[1]
-                            del trending_output[msg]
-        else:
-            for msg in trending_output.keys():
-                if trending_output[msg]['src'] == 'enrich':
-                    del trending_output[msg]
+                        self.enrich_map[enrich_item['id']] = {}
+                        enrich = self.get_enrich(enrich_dict)
+                        self.enrich_map[enrich_item['id']][hash_enrich_dict] = enrich
+                        trending_output[enrich[0]] = enrich[1]
 
         if ('filter' in args) and (len(args['filter'][0])>0):
             for keyword in args['filter'][0].split(','):

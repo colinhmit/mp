@@ -28,7 +28,7 @@ class RedditStream(strm):
         threading.Thread(target = self.filter_content_thread).start()
         threading.Thread(target = self.render_trending_thread).start()
         threading.Thread(target = self.reset_subjs_thread).start()
-        #threading.Thread(target = self.enrich_trending_thread).start()
+        threading.Thread(target = self.enrich_trending_thread).start()
 
         #data connections
         threading.Thread(target = self.send_stream).start()
@@ -42,14 +42,17 @@ class RedditStream(strm):
                     'type': 'stream',
                     'src': self.config['self'],
                     'stream': self.stream,
+                    'enrichdecay': list(self.enrichdecay),
                     'data': {
                         'trending': dict(self.clean_trending), 
-                        'content': dict(self.content), 
+                        'content': dict(self.content),
+                        'enrich': list(self.enrich),
                         'default_image': self.default_image['image']
                     }
                 }
                 pickled_data = pickle.dumps(data)
                 self.http_socket.send(pickled_data)
+                self.enrichdecay = []
             except Exception, e:
                 pp(e)
             time.sleep(self.config['send_stream_timeout'])
