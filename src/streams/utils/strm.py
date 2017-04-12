@@ -294,14 +294,15 @@ class strm:
                 
     def decay_enrich(self):
         temp_trending = dict(self.trending)
-        min_key = min(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
-        if (len(self.enrich) > self.config['enrich_min_len']) & (self.enrich[0]['time'] < temp_trending[min_key]['first_rcv_time']):
-            try:
-                old_enrich = self.enrich.pop(0)
-                self.enrichdecay.append(old_enrich['id'])
-            except Exception, e:
-                pp('decay enrich failed')
-                pp(e)
+        if len(temp_trending) > 0:
+            min_key = min(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
+            if (len(self.enrich) > self.config['enrich_min_len']) & (self.enrich[0]['time'] < temp_trending[min_key]['first_rcv_time']):
+                try:
+                    old_enrich = self.enrich.pop(0)
+                    self.enrichdecay.append(old_enrich['id'])
+                except Exception, e:
+                    pp('decay enrich failed')
+                    pp(e)
 
     def process_message(self, msgdata, msgtime):
         #SET UP ANALYTICS CONFIG
