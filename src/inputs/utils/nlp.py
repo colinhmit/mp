@@ -1,14 +1,7 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:55:12 2016
-
-@author: colinh
-"""
 import spacy
 from functions_general import *
 
 class nlpParser:
-
     def __init__(self):
         pp('Initializing nlpParser...')
         self.SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]

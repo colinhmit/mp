@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:55:12 2016
-
-@author: colinh
-"""
 import json
 import multiprocessing
 
@@ -16,7 +10,6 @@ class RedditInput(std_inpt):
         std_inpt.__init__(self, config, nlp)
         pp('Initializing Reddit Input Server...')
 
-        #distribute
         multiprocessing.Process(target=self.distribute).start()
 
         for _ in xrange(self.config['num_procs']):

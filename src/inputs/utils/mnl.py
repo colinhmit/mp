@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 19:22:30 2016
-
-@author: colinh
-"""
 import json
 import zmq
 import threading
@@ -17,7 +11,6 @@ from functions_general import *
 from rply import rply
 
 class mnlWebServer(Resource):
-
     isLeaf = True
     manual_server = None
     
@@ -44,6 +37,7 @@ class mnl:
         self.pipe.bind('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
 
     def handle_msg(self, input_msg):
+        #try: json may not be set up properly.
         try:
             json_msg = json.loads(input_msg)
         except Exception, e:
@@ -51,13 +45,10 @@ class mnl:
             pp(e)
 
         if json_msg['type'] == 'message':
-            pp('recvd')
-            pp(json_msg)
             self.Q.put(input_msg)
         elif json_msg['type'] == 'replay':
             if json_msg['stream'] in self.replays:
                 self.replays[json_msg['stream']].stop = True
-
             self.replays[json_msg['stream']] = rply(self.Q, self.config['log_path'], json_msg['logfile'], json_msg['stream'], json_msg['timestart'])
 
     def serve(self):
@@ -70,9 +61,7 @@ class mnl:
         pp('Initializing Manual Web Server...')
         resource = mnlWebServer()
         resource.manual_server = self
-
         factory = Site(resource)
-
         reactor.listenTCP(self.config['port'], factory)
 
         pp('Starting Manual Web Server...')

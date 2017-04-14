@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:55:12 2016
-
-@author: colinh
-"""
 from sklearn.cluster import KMeans 
 from hdbscan import HDBSCAN
 import numpy

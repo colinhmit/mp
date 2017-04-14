@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:55:12 2016
-
-@author: colinh
-"""
 import multiprocessing
 import json
 
@@ -16,7 +10,6 @@ class NativeInput(std_inpt):
         std_inpt.__init__(self, config, nlp)
         pp('Initializing Native Input Server...')
         
-        #distribute
         multiprocessing.Process(target=self.distribute).start()
 
         for _ in xrange(self.config['num_procs']):
@@ -24,8 +17,6 @@ class NativeInput(std_inpt):
     
     def parse(self, data):
         jsondata = json.loads(data)
-        pp('parsed')
-        pp(jsondata)
         msg = {
                 'src': 'native',
                 'stream': jsondata['stream'],

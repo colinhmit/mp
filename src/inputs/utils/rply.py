@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 19:22:30 2016
-
-@author: colinh
-"""
 import json
 import threading
 import time
@@ -25,7 +19,6 @@ class rply:
 
     def run(self):
         pp('Starting replay for... '+self.logfile)
-
         f = open(self.logpath+self.logfile+'.txt', 'r')
         
         strmdict = {}

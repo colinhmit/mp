@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:42:42 2016
-
-@author: colinh
-"""
 import datetime
 import pickle
 import zmq
@@ -37,6 +31,7 @@ class TwitterStream(strm):
     def send_stream(self):
         self.send_stream_loop = True
         while self.send_stream_loop:
+            #try: send stream could break?
             try:
                 data = {
                     'type': 'stream',
@@ -61,6 +56,7 @@ class TwitterStream(strm):
     def filter_content_thread(self):
         self.filter_content_loop = True
         while self.filter_content_loop:
+            #try: filter content could break?
             try:
                 self.filter_content()
             except Exception, e:
@@ -122,10 +118,14 @@ class TwitterStream(strm):
     #Main func
     def run(self):        
         for data in iter(self.input_socket.recv, 'STOP'):
-            msg_data = pickle.loads(data)
-            if len(msg_data) == 0:
-                pp('Twitter connection was lost...')
-            if (self.stream in msg_data['message'].lower()):
-                messagetime = datetime.datetime.now()
-                self.process_message(msg_data, messagetime)  
-                self.last_rcv_time = messagetime
+            #try: msg_data may be unpickleable?
+            try:
+                msg_data = pickle.loads(data)
+                if len(msg_data) == 0:
+                    pp('Twitter connection was lost...')
+                if (self.stream in msg_data['message'].lower()):
+                    messagetime = datetime.datetime.now()
+                    self.process_message(msg_data, messagetime)  
+                    self.last_rcv_time = messagetime
+            except Exception, e:
+                pp(e)

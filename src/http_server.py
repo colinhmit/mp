@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 19:22:30 2016
-
-@author: colinh
-"""
 import socket
 import threading
 import json
@@ -21,7 +15,6 @@ from streams.utils.functions_general import *
 from config.universal_config import *
 
 class WebServer(Resource):
-
     isLeaf = True
     http_server = None
     

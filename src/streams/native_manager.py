@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 19:22:30 2016
-
-@author: colinh
-"""
 import threading
 import multiprocessing
 import requests
@@ -29,8 +23,6 @@ class NativeManager(strm_mgr):
         self.service = build('sheets', 'v4', credentials=self.credentials)
 
     def init_threads(self):
-        # threading.Thread(target = self.refresh_featured, args=(self.config['twitch_featured'],)).start()
-        # threading.Thread(target = self.send_featured, args=(self.config['twitch_featured'],)).start()
         pass
 
     def add_stream(self, stream):

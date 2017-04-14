@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 19:22:30 2016
-
-@author: colinh
-"""
 import socket
 import threading
 import time
@@ -33,7 +27,7 @@ class StreamServer():
         self.native_manager = NativeManager(streamconfig)
         self.twitch_manager = TwitchManager(streamconfig, self.input_server.irc, self.config['init_streams']['twitch'])
         self.twitter_manager = TwitterManager(streamconfig, self.input_server.twtr, self.config['init_streams']['twitter'])
-        #self.reddit_manager = RedditManager(streamconfig, self.input_server.rddt, self.config['init_streams']['reddit'])
+        self.reddit_manager = RedditManager(streamconfig, self.input_server.rddt, self.config['init_streams']['reddit'])
         
         #self.data_server = DataServer(dataconfig)
 

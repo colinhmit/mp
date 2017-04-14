@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:55:12 2016
-
-@author: colinh
-"""
 import multiprocessing
 import socket
 import re
@@ -23,6 +17,7 @@ class irc(inpt):
     def set_irc_socket(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(10)
+        #try: connection might fail.
         try:
             self.sock.connect((self.config['server'], self.config['port']))
         except:
@@ -48,6 +43,7 @@ class irc(inpt):
         self.pipe = context.socket(zmq.PUSH)
         connected = False
         while not connected:
+            #try: bind may fail if prev bind hasn't cleaned up.
             try:
                 self.pipe.bind('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
                 connected = True

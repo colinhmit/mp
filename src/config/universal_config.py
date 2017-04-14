@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:48:45 2016
-
-@author: colinh
-"""
-
 #HOSTS & PORTS
 #PROD SETTING
 # local_host = '0.0.0.0'

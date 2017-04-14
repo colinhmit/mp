@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:42:42 2016
-
-@author: colinh
-"""
 import datetime
 import re
 import zmq
@@ -44,6 +38,7 @@ class strm:
     def send_stream(self):
         self.send_stream_loop = True
         while self.send_stream_loop:
+            #try: send stream could break?
             try:
                 data = {
                     'type': 'stream',
@@ -66,6 +61,7 @@ class strm:
     def send_analytics(self):
         self.send_analytics_loop = True
         while self.send_analytics_loop:
+            #try: send analytics could break?
             try:
                 data = {
                     'type': 'subjects',
@@ -84,6 +80,7 @@ class strm:
     def reset_subjs_thread(self):
         self.reset_subjs_loop = True
         while self.reset_subjs_loop:
+            #try: reset subjs could break?
             try:
                 self.subjs = {}
             except Exception, e:
@@ -94,6 +91,7 @@ class strm:
     def filter_trending_thread(self):
         self.filter_trending_loop = True
         while self.filter_trending_loop:
+            #try: filter trending could break?
             try:
                 self.filter_trending()
             except Exception, e:
@@ -104,6 +102,7 @@ class strm:
     def render_trending_thread(self):
         self.render_trending_loop = True
         while self.render_trending_loop:
+            #try: render trending could break?
             try:
                 self.render_trending()
             except Exception, e:
@@ -137,6 +136,7 @@ class strm:
             temp_trending = dict(self.trending)
             max_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if temp_trending[x]['visible']==0 else 0)
             if self.trending.get(max_key,{'visible':1})['visible'] == 0:
+                #try: race condition if key is decayed out
                 try:
                     self.trending[max_key]['visible'] = 1
                     self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
@@ -236,6 +236,7 @@ class strm:
     def process_subjs(self, msgdata):
         for inc_subj in msgdata['subjs']:
             if inc_subj['lower'] not in self.subjs:
+                #try: race condition if subj is decayed out or subjs is wiped
                 try:
                     self.subjs[inc_subj['lower']] = {
                         'vector': inc_subj['vector'],
@@ -246,6 +247,7 @@ class strm:
                     pp('failed process_subjs 1')
                     pp(e)
             else:
+                #try: race condition if subj is decayed out or subjs is wiped
                 try:
                     self.subjs[inc_subj['lower']]['score'] += 1
                     self.subjs[inc_subj['lower']]['adjs'] += inc_subj['adjs']
@@ -256,6 +258,7 @@ class strm:
     def get_match(self, msgdata):
         matched = fweb_compare(msgdata['message'], self.trending.keys(), self.config['fo_compare_threshold'])
         if (len(matched) == 0):
+            #try: nlp compare can fail if global is flushed
             try:
                 return self.nlp_compare(msgdata) 
             except Exception, e:
@@ -297,6 +300,7 @@ class strm:
         if len(temp_trending) > 0:
             min_key = min(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
             if (len(self.enrich) > self.config['enrich_min_len']) & (self.enrich[0]['time'] < temp_trending[min_key]['first_rcv_time']):
+                #try: self.enrich decaying
                 try:
                     old_enrich = self.enrich.pop(0)
                     self.enrichdecay.append(old_enrich['id'])

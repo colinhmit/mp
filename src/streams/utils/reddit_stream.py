@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:42:42 2016
-
-@author: colinh
-"""
 import datetime
 import pickle
 import zmq
@@ -37,6 +31,7 @@ class RedditStream(strm):
     def send_stream(self):
         self.send_stream_loop = True
         while self.send_stream_loop:
+            #try: send stream could break?
             try:
                 data = {
                     'type': 'stream',
@@ -60,6 +55,7 @@ class RedditStream(strm):
     def filter_content_thread(self):
         self.filter_content_loop = True
         while self.filter_content_loop:
+            #try: filter content could break?
             try:
                 self.filter_content()
             except Exception, e:
@@ -147,25 +143,30 @@ class RedditStream(strm):
                 elif len(matched) == 1:
                     matched_msg = matched[0][0]
                     self.content[matched_msg]['score'] = max(self.content[matched_msg]['score'],temp_trending[msg_key]['score'])
-                    # self.content[matched_msg]['last_mtch_time'] = temp_trending[msg_key]['last_mtch_time']
 
                 else:
                     matched_msgs = [x[0] for x in matched]
                     (matched_msg, score) = fweo_tsort_compare(msg_key, matched_msgs)
                     self.content[matched_msg]['score'] = max(self.content[matched_msg]['score'],temp_trending[msg_key]['score'])
-                    # self.content[matched_msg]['last_mtch_time'] = temp_trending[msg_key]['last_mtch_time']
 
             image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
             if (len(temp_trending[image_key]['media_url'])>0) and (temp_trending[image_key]['score']>self.default_image['score']):
-                self.default_image = {'image':temp_trending[image_key]['media_url'][0], 'score':temp_trending[image_key]['score']}
+                self.default_image = {
+                    'image':temp_trending[image_key]['media_url'][0], 
+                    'score':temp_trending[image_key]['score']
+                }
 
     #Main func
     def run(self):        
         for data in iter(self.input_socket.recv, 'STOP'):
-            msg_data = pickle.loads(data)
-            if len(msg_data) == 0:
-                pp('Twitter connection was lost...')
-            if self.stream == msg_data['subreddit']:
-                messagetime = datetime.datetime.now()
-                self.process_message(msg_data, messagetime)  
-                self.last_rcv_time = messagetime
+            #try: msg_data may be unpickleable?
+            try:
+                msg_data = pickle.loads(data)
+                if len(msg_data) == 0:
+                    pp('Twitter connection was lost...')
+                if self.stream == msg_data['subreddit']:
+                    messagetime = datetime.datetime.now()
+                    self.process_message(msg_data, messagetime)  
+                    self.last_rcv_time = messagetime
+            except Exception, e:
+                pp(e)

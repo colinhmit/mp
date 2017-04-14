@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Aug 24 18:55:12 2016
-@author: colinh
-"""
-#Import the necessary methods from tweepy library
 import multiprocessing
 import zmq
 import gc
@@ -53,6 +47,7 @@ class twtr(inpt):
         self.l.pipe = context.socket(zmq.PUSH)
         connected = False
         while not connected:
+            #try: bind may fail if prev bind hasn't cleaned up.
             try:
                 self.l.pipe.bind('tcp://'+self.config['zmq_input_host']+':'+str(self.l.port))
                 connected = True
