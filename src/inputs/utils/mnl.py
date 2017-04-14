@@ -49,8 +49,10 @@ class mnl:
         except Exception, e:
             json_msg = {'type':'null'}
             pp(e)
-            
+
         if json_msg['type'] == 'message':
+            pp('recvd')
+            pp(json_msg)
             self.Q.put(input_msg)
         elif json_msg['type'] == 'replay':
             if json_msg['stream'] in self.replays:

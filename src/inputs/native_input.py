@@ -24,6 +24,8 @@ class NativeInput(std_inpt):
     
     def parse(self, data):
         jsondata = json.loads(data)
+        pp('parsed')
+        pp(jsondata)
         msg = {
                 'src': 'native',
                 'stream': jsondata['stream'],

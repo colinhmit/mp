@@ -38,5 +38,6 @@ class NativeStream(strm):
                 pp('Twitch connection was lost...')
             if self.stream == msg_data['stream']:
                 messagetime = datetime.datetime.now()
+                pp('processed')
                 self.process_message(msg_data, messagetime)  
                 self.last_rcv_time = messagetime

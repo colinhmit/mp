@@ -18,7 +18,7 @@ from strm_mgr import strm_mgr
 
 class NativeManager(strm_mgr):
     def __init__(self, config):
-        pp('Initializing Twitch Stream Manager...')
+        pp('Initializing Native Stream Manager...')
         strm_mgr.__init__(self, config, config['native_config']['self'], None)
 
         self.init_featured()
