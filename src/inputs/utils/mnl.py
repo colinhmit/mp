@@ -25,7 +25,7 @@ class mnlWebServer(Resource):
     def render_POST(self, data):
         input_msg = data.content.getvalue()
         self.manual_server.handle_msg(input_msg)
-        return 200
+        return ''
 
 class mnl:
     def __init__(self, config):
