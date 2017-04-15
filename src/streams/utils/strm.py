@@ -299,7 +299,8 @@ class strm:
         temp_trending = dict(self.trending)
         if len(temp_trending) > 0:
             min_key = min(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
-            if (len(self.enrich) > self.config['enrich_min_len']) & (self.enrich[0]['time'] < temp_trending[min_key]['first_rcv_time']):
+            #if (len(self.enrich) > self.config['enrich_min_len']) & (self.enrich[0]['time'] < temp_trending[min_key]['first_rcv_time']):
+            if (len(self.enrich) > self.config['enrich_min_len']):
                 #try: self.enrich decaying
                 try:
                     old_enrich = self.enrich.pop(0)
