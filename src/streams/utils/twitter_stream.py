@@ -111,9 +111,9 @@ class TwitterStream(strm):
                     self.content[matched_msg]['score'] = max(self.content[matched_msg]['score'],temp_trending[msg_key]['score'])
                     # self.content[matched_msg]['last_mtch_time'] = temp_trending[msg_key]['last_mtch_time']
 
-            image_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if len(temp_trending[x]['media_url'])>0 else 0)
-            if (len(temp_trending[image_key]['media_url'])>0) and (temp_trending[image_key]['score']>self.default_image['score']):
-                self.default_image = {'image':temp_trending[image_key]['media_url'][0], 'score':temp_trending[image_key]['score']}
+            image_key = max(self.content, key=lambda x: self.content[x]['score'] if len(self.content[x]['media_url'])>0 else 0)
+            if (len(self.content[image_key]['media_url'])>0):
+                self.default_image = {'image':self.content[image_key]['media_url'][0], 'score':self.content[image_key]['score']}
 
     #Main func
     def run(self):        
