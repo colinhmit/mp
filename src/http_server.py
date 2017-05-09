@@ -109,7 +109,7 @@ class HTTPServer():
         threading.Thread(target = self.process_data).start()
         threading.Thread(target = self.process_analytics).start()
         #threading.Thread(target = self.twitch_monitor).start()
-        threading.Thread(target = self.twitter_monitor).start()
+        #threading.Thread(target = self.twitter_monitor).start()
         #threading.Thread(target = self.reddit_monitor).start()
 
     def process_data(self):
