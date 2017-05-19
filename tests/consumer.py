@@ -7,6 +7,7 @@ def consumer():
     # recieve work
     consumer_receiver = context.socket(zmq.SUB)
     consumer_receiver.bind("tcp://127.0.0.1:8000")
+    consumer_receiver.setsockopt(zmq.SUBSCRIBE, "")
     for work in iter(consumer_receiver.recv, 'STOP'):
         print work
 
