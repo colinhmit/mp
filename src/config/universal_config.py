@@ -130,7 +130,7 @@ input_config = {
         'zmq_input_port': ntv_input_port,
         'zmq_proc_port': ntv_proc_port,
         'zmq_output_port': ntv_stream_port
-    }
+    },
 
     'mnl_config': {
         'mnl_port': manual_port,
@@ -341,7 +341,7 @@ stream_config = {
         'zmq_http_host': http_host,
         'zmq_data_host': local_host,
         # ZMQ messaging ports
-        'zmq_input_port': mnl_stream_port,
+        'zmq_input_port': ntv_stream_port,
         'zmq_http_port': http_port,
         'zmq_data_port': data_port,
 

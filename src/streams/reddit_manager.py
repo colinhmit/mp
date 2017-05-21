@@ -61,6 +61,9 @@ class RedditManager(strm_mgr):
                         self.add_stream(featured_stream)
 
                     self.curated_enrich = curated_enrich
+        except Exception, e:
+            pp('Reddit get curated failed.')
+            pp(e)
 
     def add_stream(self, stream):
         try:
