@@ -181,8 +181,8 @@ stream_config = {
         #'featured_data_range': 'Twitter Featured!A2:E',
         #'featured_live_range': 'Twitter Featured!G2',
         #Dev Ranges
-        'featured_data_range': 'Dev Twitter Featured!A2:G',
-        'featured_live_range': 'Dev Twitter Featured!I2'
+        'featured_data_range': 'Dev Twitter Featured!A2:H',
+        'featured_live_range': 'Dev Twitter Featured!J2'
     },
 
     # Twitch Stream Config

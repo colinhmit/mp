@@ -40,17 +40,19 @@ class mnl:
         #try: json may not be set up properly.
         try:
             json_msg = json.loads(input_msg)
+
+            if json_msg['type'] == 'message':
+                self.Q.put(input_msg)
+            elif json_msg['type'] == 'replay':
+                if json_msg['stream'] in self.replays:
+                    self.replays[json_msg['stream']].stop = True
+                self.replays[json_msg['stream']] = rply(self.Q, self.config['log_path'], json_msg['logfile'], json_msg['stream'], json_msg['timestart'])
+
         except Exception, e:
-            json_msg = {'type':'null'}
+            pp('Handling message failed')
             pp(e)
 
-        if json_msg['type'] == 'message':
-            self.Q.put(input_msg)
-        elif json_msg['type'] == 'replay':
-            if json_msg['stream'] in self.replays:
-                self.replays[json_msg['stream']].stop = True
-            self.replays[json_msg['stream']] = rply(self.Q, self.config['log_path'], json_msg['logfile'], json_msg['stream'], json_msg['timestart'])
-
+        
     def serve(self):
         self.alive = True
         while self.alive:
