@@ -13,7 +13,7 @@ class RedditManager(strm_mgr):
         pp('Initializing Reddit Stream Manager...')
         strm_mgr.__init__(self, config, config['reddit_config']['self'], rddt)
 
-        self.curated = []
+        self.curated_enrich = []
         self.featured_buffer = []
 
         for stream in init_streams:
@@ -28,7 +28,40 @@ class RedditManager(strm_mgr):
 
     def init_threads(self):
         pass
+
+    def get_featured(self):
+        self.get_curated()
         
+    def get_curated(self):
+        try:
+            live_data = self.service.spreadsheets().values().get(spreadsheetId=self.config['google_sheets']['spreadsheetID'], range=self.config['google_sheets']['featured_live_range']).execute()
+            live_values = live_data.get('values', [])
+
+            if int(live_values[0][0]) == 1:
+                data = self.service.spreadsheets().values().get(spreadsheetId=self.config['google_sheets']['spreadsheetID'], range=self.config['google_sheets']['featured_data_range']).execute()
+                values = data.get('values', [])
+
+                curated_enrich = []
+                for row in values:
+                    curated_enrich.extend(row[3].split(","))
+
+                if curated_enrich != self.curated_enrich:
+                    for old_stream in self.curated_enrich:
+                        if (old_stream not in curated_enrich) and (old_stream in self.streams):
+                            try:
+                                self.streams[old_stream].terminate()
+                                del self.streams[old_stream]
+                                self.send_delete([old_stream])
+                            except Exception, e:
+                                pp(e)
+
+                    self.inpt.batch_streams(curated_enrich, self.curated_enrich)
+
+                    for featured_stream in curated_enrich:
+                        self.add_stream(featured_stream)
+
+                    self.curated_enrich = curated_enrich
+
     def add_stream(self, stream):
         try:
             if stream not in self.streams:

@@ -62,7 +62,7 @@ class mnl:
         resource = mnlWebServer()
         resource.manual_server = self
         factory = Site(resource)
-        reactor.listenTCP(self.config['port'], factory)
+        reactor.listenTCP(self.config['mnl_port'], factory)
 
         pp('Starting Manual Web Server...')
         reactor.run(installSignalHandlers=False)

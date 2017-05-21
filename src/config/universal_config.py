@@ -3,11 +3,15 @@
 # local_host = '0.0.0.0'
 # http_host = '172.31.3.149'
 # server_host = '172.31.13.182'
+# native_host = '172.31.13.182'
+# manual_host = '172.31.13.182'
 
 #DEV SETTING
 local_host = '127.0.0.1'
 http_host = '127.0.0.1'
 server_host = '127.0.0.1'
+native_host = '127.0.0.1'
+manual_host = '127.0.0.1'
 
 irc_input_port = 8002
 irc_proc_port = 8012
@@ -21,9 +25,9 @@ rddt_input_port = 8004
 rddt_proc_port = 8014
 rddt_stream_port = 8024
 
-mnl_input_port = 8005
-mnl_proc_port = 8015
-mnl_stream_port = 8025
+ntv_input_port = 8005
+ntv_proc_port = 8015
+ntv_stream_port = 8025
 
 http_port = 8081
 http_data_port = 8085
@@ -33,7 +37,8 @@ server_port = 8083
 
 # main_port = 80
 main_port = 4808
-manual_port = 8000
+native_port = 8000
+manual_port = 8001
 
 input_config = {    
     # IRC Config
@@ -115,19 +120,27 @@ input_config = {
         'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)'
     },
 
+    'ntv_config': {
+        'ntv_host': native_host,
+        'ntv_port': native_port,
+
+        'zmq_input_host': local_host,
+        'zmq_proc_host': local_host,
+        'num_procs': 5,
+        'zmq_input_port': ntv_input_port,
+        'zmq_proc_port': ntv_proc_port,
+        'zmq_output_port': ntv_stream_port
+    }
+
     'mnl_config': {
-        'port': manual_port,
+        'mnl_port': manual_port,
         #AWS Log Path
         'log_path': '/home/ec2-user/mp/src/logs/',
         #DEV Log Path
         #'log_path': '/Users/colinh/Repositories/mp/src/logs/',
 
         'zmq_input_host': local_host,
-        'zmq_proc_host': local_host,
-        'num_procs': 5,
-        'zmq_input_port': mnl_input_port,
-        'zmq_proc_port': mnl_proc_port,
-        'zmq_output_port': mnl_stream_port
+        'zmq_input_port': ntv_input_port
     }
 }
 
@@ -162,8 +175,12 @@ stream_config = {
         #'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
         'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
         'spreadsheetID': '1lz4g3-WvT8EjVc2hogalhnGQmkMb1d1fIvatpLUsano',
-        'featured_data_range': 'Twitter Featured!A2:E',
-        'featured_live_range': 'Twitter Featured!G2'
+        #PROD Ranges
+        #'featured_data_range': 'Twitter Featured!A2:E',
+        #'featured_live_range': 'Twitter Featured!G2',
+        #Dev Ranges
+        'featured_data_range': 'Dev Twitter Featured!A2:G',
+        'featured_live_range': 'Dev Twitter Featured!I2'
     },
 
     # Twitch Stream Config

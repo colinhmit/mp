@@ -1,5 +1,4 @@
 import threading
-import multiprocessing
 import requests
 import json
 
@@ -7,13 +6,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
 
 from utils.functions_general import *
-from utils.native_stream import NativeStream
-from strm_mgr import strm_mgr
 
-class NativeManager(strm_mgr):
+class AdServer():
     def __init__(self, config):
         pp('Initializing Native Stream Manager...')
-        strm_mgr.__init__(self, config, config['native_config']['self'], None)
 
         self.init_featured()
         self.init_threads()
@@ -64,20 +60,3 @@ class NativeManager(strm_mgr):
         except Exception, e:
             pp('Get Native manual featured failed.')
             pp(e)
-
-    def add_stream(self, stream):
-        try:
-            if stream not in self.streams:
-                self.streams[stream] = multiprocessing.Process(target=NativeStream, args=(self.config['native_config'], stream)) 
-                self.streams[stream].start()
-        except Exception, e:
-            pp(e)
-
-    def delete_stream(self, stream):
-        if stream in self.streams:
-            try:
-                self.streams[stream].terminate()
-                del self.streams[stream]
-                self.send_delete([stream])
-            except Exception, e:
-                pp(e)
