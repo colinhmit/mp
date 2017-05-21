@@ -1,6 +1,6 @@
 import json
 import zmq
-import threading
+import multiprocessing
 import Queue
 
 from functions_general import *

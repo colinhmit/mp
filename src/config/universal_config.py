@@ -26,6 +26,7 @@ rddt_proc_port = 8014
 rddt_stream_port = 8024
 
 ntv_input_port = 8005
+mnl_input_port = 8006
 ntv_proc_port = 8015
 ntv_stream_port = 8025
 
@@ -128,6 +129,7 @@ input_config = {
         'zmq_proc_host': local_host,
         'num_procs': 5,
         'zmq_input_port': ntv_input_port,
+        'zmq_input_port_2': mnl_input_port,
         'zmq_proc_port': ntv_proc_port,
         'zmq_output_port': ntv_stream_port
     },
@@ -140,7 +142,7 @@ input_config = {
         #'log_path': '/Users/colinh/Repositories/mp/src/logs/',
 
         'zmq_input_host': local_host,
-        'zmq_input_port': ntv_input_port
+        'zmq_input_port': mnl_input_port
     }
 }
 
