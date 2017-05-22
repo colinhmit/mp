@@ -9,7 +9,6 @@ class ntv:
     def __init__(self, config):
         pp('Initializing Native Input...')
         self.config = config
-        self.replays = {}
 
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         self.stream_conn.start()
@@ -39,4 +38,4 @@ class ntv:
 
         for raw_data in iter(self.in_pipe.recv, 'STOP'):
             pp(raw_data)
-            self.out_pipe.send(raw_data)
+            self.out_pipe.send_string(raw_data)
