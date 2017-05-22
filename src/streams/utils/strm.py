@@ -113,18 +113,17 @@ class strm:
     def enrich_trending_thread(self):
         self.enrich_trending_loop = True
         while self.enrich_trending_loop:
-            if len(self.trending)>0:
-                curr_time = datetime.datetime.now()
-                if ((curr_time - self.last_rcv_time).total_seconds()>self.config['last_rcv_enrich_timeout']) or ((curr_time - self.last_enrch_time).total_seconds()>self.config['last_enrch_enrich_timeout']):
-                    idstr = str(uuid.uuid4())
-                    enrich_item = {
-                        'id': idstr,
-                        'time': curr_time
-                    }
-                    self.enrich.append(enrich_item)
-                    self.decay_enrich()
-                    self.last_enrch_time = curr_time
-                time.sleep(self.config['enrich_trending_timeout'])
+            curr_time = datetime.datetime.now()
+            if ((curr_time - self.last_rcv_time).total_seconds()>self.config['last_rcv_enrich_timeout']) or ((curr_time - self.last_enrch_time).total_seconds()>self.config['last_enrch_enrich_timeout']):
+                idstr = str(uuid.uuid4())
+                enrich_item = {
+                    'id': idstr,
+                    'time': curr_time
+                }
+                self.enrich.append(enrich_item)
+                self.decay_enrich()
+                self.last_enrch_time = curr_time
+            time.sleep(self.config['enrich_trending_timeout'])
 
     #Manager Processes
     def render_trending(self):
@@ -298,15 +297,19 @@ class strm:
                 
     def decay_enrich(self):
         temp_trending = dict(self.trending)
+        oldest = False
         if len(temp_trending) > 0:
             min_key = min(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
-            if (len(self.enrich) > self.config['enrich_min_len']) or (self.enrich[0]['time'] < temp_trending[min_key]['first_rcv_time']):
-                try:
-                    old_enrich = self.enrich.pop(0)
-                    self.enrichdecay.append(old_enrich['id'])
-                except Exception, e:
-                    pp('decay enrich failed')
-                    pp(e)
+            oldest = (self.enrich[0]['time'] < temp_trending[min_key]['first_rcv_time'])
+
+        if (len(self.enrich) > self.config['enrich_min_len']) or oldest:
+            try:
+                old_enrich = self.enrich.pop(0)
+                self.enrichdecay.append(old_enrich['id'])
+            except Exception, e:
+                pp('decay enrich failed')
+                pp(e)
+
 
     def process_message(self, msgdata, msgtime):
         #SET UP ANALYTICS CONFIG

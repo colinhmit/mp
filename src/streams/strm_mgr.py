@@ -38,25 +38,23 @@ class strm_mgr:
         self.refresh_loop = True
         while self.refresh_loop:
             self.get_featured()
+            self.send_featured()
             time.sleep(config['refresh_featured_timeout'])
 
     def get_featured(self):
         pass
 
     def send_featured(self, config):
-        self.send_featured_loop = True
-        while self.send_featured_loop:
-            try:
-                data = {
-                    'type': 'featured',
-                    'src': self.src,
-                    'data': self.featured
-                }
-                pickled_data = pickle.dumps(data)
-                self.http_socket.send(pickled_data)
-            except Exception, e:
-                pp(e)
-            time.sleep(config['refresh_featured_timeout'])
+        try:
+            data = {
+                'type': 'featured',
+                'src': self.src,
+                'data': self.featured
+            }
+            pickled_data = pickle.dumps(data)
+            self.http_socket.send(pickled_data)
+        except Exception, e:
+            pp(e)
 
     def send_delete(self, streams):
         try:
