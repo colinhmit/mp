@@ -30,8 +30,6 @@ class WebServer(Resource):
             return self.http_server.get_agg_streams(args)
         elif path[0:8] == '/content':
             return self.http_server.get_agg_content(args)
-        elif path[0:7] == '/enrich':
-            return self.http_server.get_enrich(args)
         elif path[0:9] == '/subjects':
             return self.http_server.get_agg_subjects(args)
         elif path[0:10] == '/sentiment':
@@ -331,7 +329,7 @@ class HTTPServer():
         if len(enrich_dict) > 0:
             tot_score = 0
             for msg in trending_output.keys():
-                totscore += trending_output[msg]['score']
+                tot_score += trending_output[msg]['score']
 
             num_enrich = len(enrich_dict)
             enrich_score = max(tot_score/(self.config['ad_slice']-num_enrich),1)
@@ -418,7 +416,7 @@ class HTTPServer():
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
                     enrich_output[max_key] = enrich[max_key]
-                    
+
         if ('native' in enrich_dict):
             for stream_id in enrich_dict['native']:
                 enrich = self.native_streams.get(stream_id,{}).get('trending',{})
