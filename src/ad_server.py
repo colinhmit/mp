@@ -12,6 +12,7 @@ from streams.utils.functions_general import *
 class AdServer():
     def __init__(self, config):
         pp('Initializing Ad Server...')
+        self.config = config
 
         self.ads = {}
         self.ads['demo'] = {}
