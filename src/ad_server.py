@@ -61,7 +61,7 @@ class AdServer():
 
                 ads = {}
                 for row in values:
-                    ads[row[2]] = {'sponsor':row[0], 'ad_id': row[1], 'media_url':[row[3]], 'score': row[4]}
+                    ads[row[2]] = {'sponsor':row[0], 'ad_id': row[1], 'media_url':[row[3]], 'score': float(row[4])}
                 
                 self.ads['demo'] = ads
         except Exception, e:
