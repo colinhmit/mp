@@ -10,8 +10,8 @@
 local_host = '127.0.0.1'
 http_host = '127.0.0.1'
 server_host = '127.0.0.1'
-native_host = '127.0.0.1'
-manual_host = '127.0.0.1'
+native_host = '0.0.0.0'
+manual_host = '0.0.0.0'
 
 irc_input_port = 8002
 irc_proc_port = 8012
