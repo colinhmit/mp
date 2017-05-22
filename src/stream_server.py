@@ -7,7 +7,7 @@ import zmq
 import pickle
 import datetime
 
-from config.universal_config import server_config, input_config, stream_config, data_config
+from config.universal_config import server_config, input_config, stream_config, data_config, ad_config
 from streams.utils.functions_general import *
 
 from streams.native_manager import NativeManager
@@ -16,9 +16,10 @@ from streams.twitter_manager import TwitterManager
 from streams.reddit_manager import RedditManager
 from input_server import InputServer
 from data_server import DataServer
+from ad_server import AdServer
 
 class StreamServer():
-    def __init__(self, config, inputconfig, streamconfig, dataconfig):
+    def __init__(self, config, inputconfig, streamconfig, dataconfig, ad_config):
         pp('Initializing Stream Server...')
         self.config = config
 
@@ -30,6 +31,8 @@ class StreamServer():
         self.reddit_manager = RedditManager(streamconfig, self.input_server.rddt, self.config['init_streams']['reddit'])
         
         #self.data_server = DataServer(dataconfig)
+
+        self.ad_server = AdServer(ad_config)
 
         self.init_sockets()
         self.init_threads()
@@ -130,4 +133,4 @@ class StreamServer():
             
 if __name__ == '__main__':
     #init
-    server = StreamServer(server_config, input_config, stream_config, data_config)
+    server = StreamServer(server_config, input_config, stream_config, data_config, ad_config)

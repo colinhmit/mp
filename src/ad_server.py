@@ -9,54 +9,59 @@ from utils.functions_general import *
 
 class AdServer():
     def __init__(self, config):
-        pp('Initializing Native Stream Manager...')
+        pp('Initializing Ad Server...')
 
-        self.init_featured()
+        self.ads = {}
+        self.ads['demo'] = {}
+
+        self.init_sockets()
         self.init_threads()
 
-    def init_featured(self):
+    def init_sockets(self):
         self.credentials = ServiceAccountCredentials.from_json_keyfile_name(self.config['google_sheets']['sheets_key'], self.config['google_sheets']['scopes'])
         self.service = build('sheets', 'v4', credentials=self.credentials)
 
+        context = zmq.Context()
+        self.http_socket = context.socket(zmq.PUSH)
+        self.http_socket.connect('tcp://'+self.config['zmq_http_host']+':'+str(self.config['zmq_http_port']))
+
     def init_threads(self):
-        pass
+        threading.Thread(target = self.refresh_ads, args=(self.config['timeout'],)).start()
 
-    def get_featured(self):
-        self.get_curated()
+    # Helper threads
+    def refresh_ads(self, timeout):
+        self.refresh_loop = True
+        while self.refresh_loop:
+            self.get_demo_ads()
+            self.send_ads()
+            time.sleep(timeout)
 
-    def get_curated(self):
+    def send_ads(self):
         try:
-            live_data = self.service.spreadsheets().values().get(spreadsheetId=self.config['google_sheets']['spreadsheetID'], range=self.config['google_sheets']['featured_live_range']).execute()
+            data = {
+                'type': 'ad',
+                'data': self.ads
+            }
+            pickled_data = pickle.dumps(data)
+            self.http_socket.send(pickled_data)
+        except Exception, e:
+            pp(e)
+
+    def get_demo_ads(self):
+        try:
+            live_data = self.service.spreadsheets().values().get(spreadsheetId=self.config['google_sheets']['spreadsheetID'], range=self.config['google_sheets']['ad_live_range']).execute()
             live_values = live_data.get('values', [])
 
             if int(live_values[0][0]) == 1:
-                data = self.service.spreadsheets().values().get(spreadsheetId=self.config['google_sheets']['spreadsheetID'], range=self.config['google_sheets']['featured_data_range']).execute()
+                data = self.service.spreadsheets().values().get(spreadsheetId=self.config['google_sheets']['spreadsheetID'], range=self.config['google_sheets']['ad_data_range']).execute()
                 values = data.get('values', [])
 
-                curated = []
+                ads = {}
                 for row in values:
-                    curated.append({'title':row[0], 'stream':row[1].split(","), 'enrich':{'twitter':row[2].split(","),'reddit':row[3].split(",")}, 'image':row[5], 'description':row[4], 'count':row[6]})
-
-                if curated != self.curated:
-                    current_streams = [x['stream'] for x in self.curated]
-                    current_streams = [val for sublist in current_streams for val in sublist]
-
-                    addition_streams = [x['stream'] for x in curated]
-                    addition_streams = [val for sublist in addition_streams for val in sublist]
-
-                    for old_stream in current_streams:
-                        if (old_stream not in addition_streams) and (old_stream in self.streams):
-                            try:
-                                self.streams[old_stream].terminate()
-                                del self.streams[old_stream]
-                                self.send_delete([old_stream])
-                            except Exception, e:
-                                pp(e)
-
-                    for featured_stream in addition_streams:
-                        self.add_stream(featured_stream)
-
-                    self.featured = curated
+                    ads[row[2]] = {'sponsor':row[0], 'ad_id': row[1], 'media_url':[row[3]], 'score': row[4]}
+                
+                self.ads['demo'] = ads
+                pp(ads)
         except Exception, e:
-            pp('Get Native manual featured failed.')
+            pp('Get Ads failed.')
             pp(e)

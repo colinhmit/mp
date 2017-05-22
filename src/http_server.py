@@ -82,6 +82,8 @@ class HTTPServer():
         self.twitch_analytics = {}
         self.reddit_analytics = {}
 
+        self.ads = {}
+
         self.enrich_map = {}
 
         self.twitch_hash = None
@@ -124,6 +126,8 @@ class HTTPServer():
                 self.process_stream(data)
             elif data['type'] == 'featured':
                 self.process_featured(data)
+            elif data['type'] == 'ad':
+                self.process_ad(data)
             elif data['type'] == 'delete':
                 self.process_delete(data)
 
@@ -199,6 +203,9 @@ class HTTPServer():
         elif data['src'] == 'reddit':
             self.reddit_featured = self.featured_helper(data['data'], data['src'])
 
+    def process_ad(self, data):
+        self.ads = data['data']
+        
     def featured_helper(self, featured, src):
         if src == 'twitter':
             for feat in featured:
@@ -274,6 +281,10 @@ class HTTPServer():
             enrich_dict['reddit'] = []
             for stream_id in [self.pattern.sub('',x).lower() for x in args['e_reddit'][0].split(',')]:
                 enrich_dict['reddit'].append(stream_id)
+        if ('ad' in args) and (len(args['ad'][0])>0):
+            enrich_dict['ad'] = []
+            for ad_id in [self.pattern.sub('',x).lower() for x in args['ad'][0].split(',')]:
+                enrich_dict['ad'].append(ad_id)
         hash_enrich_dict = hash(frozenset(enrich_dict))
 
         trend_dicts = []
@@ -318,18 +329,25 @@ class HTTPServer():
         [trending_output.update(d) for d in trend_dicts]
 
         if len(enrich_dict) > 0:
+            tot_score = 0
+            for msg in trending_output.keys():
+                totscore += trending_output[msg]['score']
+
+            num_enrich = len(enrich_dict)
+            enrich_score = max(tot_score/(self.config['ad_slice']-num_enrich),1)
+
             for enrich_item in enrich_items:
                 cache_enrich = self.enrich_map.get(enrich_item['id'],{}).get(hash_enrich_dict,None)
                 if cache_enrich is not None:
                     trending_output[cache_enrich[0]] = cache_enrich[1]
                 else:
                     if enrich_item['id'] in self.enrich_map:
-                        enrich = self.get_enrich(enrich_dict)
+                        enrich = self.get_enrich(enrich_dict, enrich_score)
                         self.enrich_map[enrich_item['id']][hash_enrich_dict] = enrich
                         trending_output[enrich[0]] = enrich[1]
                     else:
                         self.enrich_map[enrich_item['id']] = {}
-                        enrich = self.get_enrich(enrich_dict)
+                        enrich = self.get_enrich(enrich_dict, enrich_score)
                         self.enrich_map[enrich_item['id']][hash_enrich_dict] = enrich
                         trending_output[enrich[0]] = enrich[1]
 
@@ -392,8 +410,15 @@ class HTTPServer():
 
         return json.dumps({'content': content_output})
 
-    def get_enrich(self, enrich_dict):
+    def get_enrich(self, enrich_dict, enrich_score):
         enrich_output = {}
+        if ('ad' in enrich_dict):
+            for ad_id in enrich_dict['ad']:
+                enrich = self.ads.get(ad_id,{})
+                if len(enrich) > 0:
+                    max_key = max(enrich, key=lambda x: enrich[x]['score'])
+                    enrich_output[max_key] = enrich[max_key]
+                    
         if ('native' in enrich_dict):
             for stream_id in enrich_dict['native']:
                 enrich = self.native_streams.get(stream_id,{}).get('trending',{})
@@ -424,7 +449,7 @@ class HTTPServer():
 
         max_key = max(enrich_output, key=lambda x: enrich_output[x]['score'])
         enrich_output[max_key]['first_rcv_time'] = datetime.datetime.now().isoformat()
-        enrich_output[max_key]['score'] = 50.0
+        enrich_output[max_key]['score'] = enrich_score
         return (max_key, enrich_output[max_key])
 
     def get_agg_subjects(self, args):

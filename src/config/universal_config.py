@@ -169,7 +169,7 @@ stream_config = {
         'self': 'reddit',
         'refresh_featured_timeout': 1200
     },
-    
+
     'google_sheets':{
         #AWS Google API Key
         'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
@@ -183,7 +183,8 @@ stream_config = {
         #Dev Ranges
         'featured_data_range': 'Dev Twitter Featured!A2:H',
         'featured_live_range': 'Dev Twitter Featured!J2',
-        'featured_ad_range': 'Dev Ad Interface!A2:E'
+        'ad_data_range': 'Demo Ad Interface!A2:E',
+        'ad_live_range': 'Demo Ad Interface!J2'
     },
 
     # Twitch Stream Config
@@ -409,6 +410,32 @@ server_config = {
     }
 }
 
+ad_config = {
+    'self': 'advertisement',
+    'debug': False,
+
+    'zmq_http_host': http_host,
+    'zmq_http_port': http_port,
+    'timeout': 120,
+
+     'google_sheets':{
+        #AWS Google API Key
+        'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
+        #DEV Google API Key
+        #'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
+        'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+        'spreadsheetID': '1lz4g3-WvT8EjVc2hogalhnGQmkMb1d1fIvatpLUsano',
+        #PROD Ranges
+        #'featured_data_range': 'Twitter Featured!A2:E',
+        #'featured_live_range': 'Twitter Featured!G2',
+        #Dev Ranges
+        'featured_data_range': 'Dev Twitter Featured!A2:H',
+        'featured_live_range': 'Dev Twitter Featured!J2',
+        'ad_data_range': 'Demo Ad Interface!A2:E',
+        'ad_live_range': 'Demo Ad Interface!J2'
+    }
+}
+
 http_config = {
     'host': local_host,
     'port': main_port,
@@ -423,5 +450,7 @@ http_config = {
 
     'twitch_monitor_timeout': 15,
     'twitter_monitor_timeout': 15,
-    'reddit_monitor_timeout': 15
+    'reddit_monitor_timeout': 15,
+
+    'ad_slice': 8
 }
