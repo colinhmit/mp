@@ -208,12 +208,12 @@ class HTTPServer():
         if src == 'twitter':
             for feat in featured:
                 if len(feat['image']) == 0:
-                    feat['image'] = self.twitter_streams[feat['stream'][0]]['default_image']
+                    feat['image'] = self.twitter_streams.get(feat['stream'][0],{}).get('default_image',"")
 
         elif src == 'twitter':
             for feat in featured:
                 if len(feat['image']) == 0:
-                    feat['image'] = self.reddit_streams[feat['stream'][0]]['default_image']
+                    feat['image'] = self.reddit_streams.get(feat['stream'][0],{}).get('default_image',"")
 
         return featured
 
