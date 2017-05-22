@@ -334,29 +334,22 @@ class HTTPServer():
             num_enrich = len(enrich_dict)
             enrich_score = max(tot_score/(self.config['ad_slice']-num_enrich),1)
 
-            pp('///enriching///')
-            pp(enrich_dict)
-            pp(enrich_items)
             i = 0
             for enrich_item in enrich_items:
                 cache_enrich = self.enrich_map.get(enrich_item['id'],{}).get(hash_enrich_dict,None)
                 if cache_enrich is not None:
-                    pp('cached: '+enrich_item['id'])
                     trending_output[cache_enrich[0]+i*" "] = cache_enrich[1]
                 else:
                     if enrich_item['id'] in self.enrich_map:
-                        pp('cached2: '+enrich_item['id'])
-                        enrich = self.get_enrich(enrich_dict, enrich_score)
+                        enrich = self.get_enrich(enrich_dict, enrich_score, enrich_item['time'])
                         self.enrich_map[enrich_item['id']][hash_enrich_dict] = enrich
                         trending_output[enrich[0]+i*" "] = enrich[1]
                     else:
-                        pp('uncached: '+enrich_item['id'])
                         self.enrich_map[enrich_item['id']] = {}
-                        enrich = self.get_enrich(enrich_dict, enrich_score)
+                        enrich = self.get_enrich(enrich_dict, enrich_score, enrich_item['time'])
                         self.enrich_map[enrich_item['id']][hash_enrich_dict] = enrich
                         trending_output[enrich[0]+i*" "] = enrich[1]
                 i+=1
-            pp('///done enriching///')
 
         if ('filter' in args) and (len(args['filter'][0])>0):
             for keyword in args['filter'][0].split(','):
@@ -417,7 +410,7 @@ class HTTPServer():
 
         return json.dumps({'content': content_output})
 
-    def get_enrich(self, enrich_dict, enrich_score):
+    def get_enrich(self, enrich_dict, enrich_score, enrich_time):
         enrich_output = {}
         if ('ad' in enrich_dict):
             for ad_id in enrich_dict['ad']:
@@ -455,7 +448,7 @@ class HTTPServer():
                     enrich_output[max_key] = enrich[max_key]
 
         max_key = max(enrich_output, key=lambda x: enrich_output[x]['score'])
-        enrich_output[max_key]['first_rcv_time'] = datetime.datetime.now().isoformat()
+        enrich_output[max_key]['first_rcv_time'] = enrich_time.isoformat()
         enrich_output[max_key]['score'] = enrich_score
         return (max_key, enrich_output[max_key])
 

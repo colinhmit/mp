@@ -123,11 +123,6 @@ class strm:
                 self.enrich.append(enrich_item)
                 self.decay_enrich()
                 self.last_enrch_time = curr_time
-                if self.stream=='uspol':
-                    pp('///enriched///')
-                    pp(enrich_item)
-                    pp(self.enrich)
-                    pp('///done_enrich///')
             time.sleep(self.config['enrich_trending_timeout'])
 
     #Manager Processes
