@@ -64,7 +64,6 @@ class AdServer():
                     ads[row[2]] = {'sponsor':row[0], 'ad_id': row[1], 'media_url':[row[3]], 'score': row[4]}
                 
                 self.ads['demo'] = ads
-                pp(ads)
         except Exception, e:
             pp('Get Ads failed.')
             pp(e)
