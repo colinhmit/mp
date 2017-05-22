@@ -341,16 +341,22 @@ class HTTPServer():
                 cache_enrich = self.enrich_map.get(enrich_item['id'],{}).get(hash_enrich_dict,None)
                 if cache_enrich is not None:
                     pp('cached')
+                    pp(cache_enrich)
                     trending_output[cache_enrich[0]+i*" "] = cache_enrich[1]
                 else:
-                    pp('not cached')
                     if enrich_item['id'] in self.enrich_map:
+                        pp('cached kinda')
+                        pp(enrich_item['id'])
                         enrich = self.get_enrich(enrich_dict, enrich_score, enrich_item['time'])
+                        pp(enrich)
                         self.enrich_map[enrich_item['id']][hash_enrich_dict] = enrich
                         trending_output[enrich[0]+i*" "] = enrich[1]
                     else:
+                        pp('not cached')
+                        pp(enrich_item['id'])
                         self.enrich_map[enrich_item['id']] = {}
                         enrich = self.get_enrich(enrich_dict, enrich_score, enrich_item['time'])
+                        pp(enrich)
                         self.enrich_map[enrich_item['id']][hash_enrich_dict] = enrich
                         trending_output[enrich[0]+i*" "] = enrich[1]
                 i+=1
@@ -452,10 +458,13 @@ class HTTPServer():
                     enrich_eval[max_key] = enrich[max_key]
 
         max_key = max(enrich_eval, key=lambda x: enrich_eval[x]['score'])
-        pp('called first_rcv_time')
+        pp('///get enriched///')
         enrich_output = enrich_eval[max_key]
         enrich_output['first_rcv_time'] = enrich_time.isoformat()
         enrich_output['score'] = enrich_score
+        pp(enrich_eval)
+        pp(max_key)
+        pp(enrich_output)
         return (max_key, enrich_output)
 
     def get_agg_subjects(self, args):
