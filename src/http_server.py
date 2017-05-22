@@ -338,7 +338,7 @@ class HTTPServer():
             for enrich_item in enrich_items:
                 cache_enrich = self.enrich_map.get(enrich_item['id'],{}).get(hash_enrich_dict,None)
                 if cache_enrich is not None:
-                    trending_output[cache_enrich[0]] = cache_enrich[1]
+                    trending_output[cache_enrich[0]+i*" "] = cache_enrich[1]
                 else:
                     if enrich_item['id'] in self.enrich_map:
                         enrich = self.get_enrich(enrich_dict, enrich_score)

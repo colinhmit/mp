@@ -44,7 +44,7 @@ class strm_mgr:
     def get_featured(self):
         pass
 
-    def send_featured(self, config):
+    def send_featured(self):
         try:
             data = {
                 'type': 'featured',
