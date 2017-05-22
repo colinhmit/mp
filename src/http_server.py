@@ -334,12 +334,16 @@ class HTTPServer():
             num_enrich = len(enrich_dict)
             enrich_score = max(tot_score/(self.config['ad_slice']-num_enrich),1)
 
+            pp('//enriching//')
+            pp(enrich_items)
             i = 0
             for enrich_item in enrich_items:
                 cache_enrich = self.enrich_map.get(enrich_item['id'],{}).get(hash_enrich_dict,None)
                 if cache_enrich is not None:
+                    pp('cached')
                     trending_output[cache_enrich[0]+i*" "] = cache_enrich[1]
                 else:
+                    pp('not cached')
                     if enrich_item['id'] in self.enrich_map:
                         enrich = self.get_enrich(enrich_dict, enrich_score, enrich_item['time'])
                         self.enrich_map[enrich_item['id']][hash_enrich_dict] = enrich
