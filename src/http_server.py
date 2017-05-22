@@ -448,6 +448,7 @@ class HTTPServer():
                     enrich_output[max_key] = enrich[max_key]
 
         max_key = max(enrich_output, key=lambda x: enrich_output[x]['score'])
+        pp('called first_rcv_time')
         enrich_output[max_key]['first_rcv_time'] = enrich_time.isoformat()
         enrich_output[max_key]['score'] = enrich_score
         return (max_key, enrich_output[max_key])
