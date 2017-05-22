@@ -415,47 +415,48 @@ class HTTPServer():
         return json.dumps({'content': content_output})
 
     def get_enrich(self, enrich_dict, enrich_score, enrich_time):
-        enrich_output = {}
+        enrich_eval = {}
         if ('ad' in enrich_dict):
             for ad_id in enrich_dict['ad']:
                 enrich = self.ads.get(ad_id,{})
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
-                    enrich_output[max_key] = enrich[max_key]
+                    enrich_eval[max_key] = enrich[max_key]
 
         if ('native' in enrich_dict):
             for stream_id in enrich_dict['native']:
                 enrich = self.native_streams.get(stream_id,{}).get('trending',{})
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
-                    enrich_output[max_key] = enrich[max_key]
+                    enrich_eval[max_key] = enrich[max_key]
 
         if ('twitch' in enrich_dict):
             for stream_id in enrich_dict['twitch']:
                 enrich = self.twitch_streams.get(stream_id,{}).get('trending',{})
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
-                    enrich_output[max_key] = enrich[max_key]
+                    enrich_eval[max_key] = enrich[max_key]
 
         if ('twitter' in enrich_dict):
             for stream_id in enrich_dict['twitter']:
                 enrich = self.twitter_streams.get(stream_id,{}).get('trending',{})
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
-                    enrich_output[max_key] = enrich[max_key]
+                    enrich_eval[max_key] = enrich[max_key]
 
         if ('reddit' in enrich_dict):
             for stream_id in enrich_dict['reddit']:
                 enrich = self.reddit_streams.get(stream_id,{}).get('trending',{})
                 if len(enrich) > 0:
                     max_key = max(enrich, key=lambda x: enrich[x]['score'])
-                    enrich_output[max_key] = enrich[max_key]
+                    enrich_eval[max_key] = enrich[max_key]
 
-        max_key = max(enrich_output, key=lambda x: enrich_output[x]['score'])
+        max_key = max(enrich_eval, key=lambda x: enrich_eval[x]['score'])
         pp('called first_rcv_time')
-        enrich_output[max_key]['first_rcv_time'] = enrich_time.isoformat()
-        enrich_output[max_key]['score'] = enrich_score
-        return (max_key, enrich_output[max_key])
+        enrich_output = enrich_eval[max_key]
+        enrich_output['first_rcv_time'] = enrich_time.isoformat()
+        enrich_output['score'] = enrich_score
+        return (max_key, enrich_output)
 
     def get_agg_subjects(self, args):
         subjects_list = []
