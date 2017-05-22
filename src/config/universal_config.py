@@ -7,9 +7,9 @@
 # manual_host = '172.31.13.182'
 
 #DEV SETTING
-local_host = '127.0.0.1'
-http_host = '127.0.0.1'
-server_host = '127.0.0.1'
+local_host = '0.0.0.0'
+http_host = '0.0.0.0'
+server_host = '0.0.0.0'
 native_host = '0.0.0.0'
 manual_host = '0.0.0.0'
 
@@ -182,7 +182,8 @@ stream_config = {
         #'featured_live_range': 'Twitter Featured!G2',
         #Dev Ranges
         'featured_data_range': 'Dev Twitter Featured!A2:H',
-        'featured_live_range': 'Dev Twitter Featured!J2'
+        'featured_live_range': 'Dev Twitter Featured!J2',
+        'featured_ad_range': 'Dev Ad Interface!A2:E'
     },
 
     # Twitch Stream Config
