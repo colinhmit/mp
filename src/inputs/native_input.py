@@ -64,14 +64,20 @@ class NativeInput(std_inpt):
                 sendr.send(pickled_data)
 
     def parse(self, data):
-        jsondata = json.loads(data)
-        msg = {
-                'src': 'native',
-                'stream': jsondata['stream'],
-                'username': jsondata['username'],
-                'message': jsondata['message'],
-                'media_url': [],
-                'mp4_url': '',
-                'id': ''
-                }
-        return msg
+        try:
+            jsondata = json.loads(data)
+            msg = {
+                    'src': 'native',
+                    'stream': jsondata['stream'],
+                    'username': jsondata['username'],
+                    'message': jsondata['message'],
+                    'media_url': [],
+                    'mp4_url': '',
+                    'id': ''
+                    }
+            return msg
+        except Exception, e:
+            pp('parse native failed')
+            pp(e)
+            return {}
+        
