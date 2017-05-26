@@ -94,7 +94,8 @@ class RedditStream(strm):
                     'users' : [msgdata['username']],
                     'msgs' : dict(self.trending[matched_msg]['msgs']),
                     'visible' : 1,
-                    'id': msgdata['id']
+                    'id': msgdata['id'],
+                    'src_id': msgdata['src_id']
                 }
                 self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
                 del self.trending[matched_msg]['msgs'][submatched_msg]
@@ -125,7 +126,8 @@ class RedditStream(strm):
                             'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                             'media_url': temp_trending[msg_key]['media_url'],
                             'mp4_url': temp_trending[msg_key]['mp4_url'],
-                            'id': temp_trending[msg_key]['id']
+                            'id': temp_trending[msg_key]['id'],
+                            'src_id': temp_trending[msg_key]['src_id']
                         }
                     else:
                         min_key = min(self.content, key=lambda x: self.content[x]['score'])
@@ -137,7 +139,8 @@ class RedditStream(strm):
                                 'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                                 'media_url': temp_trending[msg_key]['media_url'],
                                 'mp4_url': temp_trending[msg_key]['mp4_url'],
-                                'id': temp_trending[msg_key]['id']
+                                'id': temp_trending[msg_key]['id'],
+                                'src_id': temp_trending[msg_key]['src_id']
                             }
 
                 elif len(matched) == 1:

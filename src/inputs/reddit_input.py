@@ -25,6 +25,7 @@ class RedditInput(std_inpt):
                 'message': jsondata['message'],
                 'media_url': [jsondata['media_url']],
                 'mp4_url': '',
-                'id': str(uuid.uuid1())
+                'id': str(uuid.uuid1()),
+                'src_id': jsondata['id']
                 }
         return msg

@@ -74,7 +74,8 @@ class NativeInput(std_inpt):
                     'message': jsondata['message'],
                     'media_url': [],
                     'mp4_url': '',
-                    'id': ''
+                    'id': str(uuid.uuid1()),
+                    'src_id': ''
                     }
             return msg
         except Exception, e:

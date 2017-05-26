@@ -45,7 +45,7 @@ class TwitterManager(strm_mgr):
     def get_featured_api(self):
         try:
             trends = self.inpt.api.trends_place(23424977)
-            output = [{'title':x['name'],'stream':[self.pattern.sub('',x['name']).lower()],'enrich':{'twitter':[self.pattern.sub('',x['name']).lower()]},'description':'','count':x['tweet_volume'], 'image':''} for x in trends[0]['trends'] if x['tweet_volume']!=None]
+            output = [{'title':x['name'],'src':'twitter', 'stream':[self.pattern.sub('',x['name']).lower()],'enrich':{},'description':'','count':x['tweet_volume'], 'image':''} for x in trends[0]['trends'] if x['tweet_volume']!=None]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
             sorted_output = sorted_output[0:self.config['twitter_featured']['num_featured']]
 

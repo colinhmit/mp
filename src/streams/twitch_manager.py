@@ -39,7 +39,7 @@ class TwitchManager(strm_mgr):
         headers = {'Accept':'application/vnd.twitchtv.v3+json', 'Client-ID':self.config['twitch_featured']['twitch_client_id']}
         try:
             r = self.sess.get('https://api.twitch.tv/kraken/streams', headers = headers)
-            output = [{'title':x['channel']['name'], 'stream':[x['channel']['name']], 'enrich':{'twitch':[x['channel']['name']]}, 'image': x['preview']['medium'], 'description': x['channel']['status'], 'game': x['game'], 'count': x['viewers']} for x in (json.loads(r.content))['streams']]
+            output = [{'title':x['channel']['name'], 'src':'twitch', 'stream':[x['channel']['name']], 'enrich':{}, 'image': x['preview']['medium'], 'description': x['channel']['status'], 'game': x['game'], 'count': x['viewers']} for x in (json.loads(r.content))['streams']]
             sorted_output = sorted(output, key=lambda k: k['count'], reverse=True) 
             self.featured = sorted_output[0:self.config['twitch_featured']['num_featured']]
         except Exception, e:

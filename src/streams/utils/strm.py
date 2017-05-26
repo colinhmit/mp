@@ -129,7 +129,7 @@ class strm:
     def render_trending(self):
         if len(self.trending)>0:
             temp_trending = dict(self.trending)
-            self.clean_trending = {msg_k: {'src':msg_v['src'], 'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
+            self.clean_trending = {msg_k: {'src':msg_v['src'], 'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id'], 'src_id':msg_v['src_id']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
 
     def filter_trending(self):
         if len(self.trending)>0:
@@ -181,7 +181,8 @@ class strm:
                         'users' : [msgdata['username']],
                         'msgs' : dict(self.trending[matched_msg]['msgs']),
                         'visible' : 1,
-                        'id': msgdata['id']
+                        'id': msgdata['id'],
+                        'src_id': msgdata['src_id']
                     }
                     self.trending[matched_msg]['score'] *= ((sum(self.trending[matched_msg]['msgs'].values())-self.trending[matched_msg]['msgs'][submatched_msg]) / sum(self.trending[matched_msg]['msgs'].values()))
                     del self.trending[matched_msg]['msgs'][submatched_msg]
@@ -206,7 +207,8 @@ class strm:
                 'users' : [msgdata['username']],
                 'msgs' : {msgdata['message']: 1.0},
                 'visible' : 0,
-                'id': msgdata['id']
+                'id': msgdata['id'],
+                'src_id': msgdata['src_id']
             }
 
     def nlp_compare(self, msgdata):

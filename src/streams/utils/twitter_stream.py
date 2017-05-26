@@ -85,7 +85,8 @@ class TwitterStream(strm):
                             'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                             'media_url': temp_trending[msg_key]['media_url'],
                             'mp4_url': temp_trending[msg_key]['mp4_url'],
-                            'id': temp_trending[msg_key]['id']
+                            'id': temp_trending[msg_key]['id'],
+                            'src_id': temp_trending[msg_key]['src_id']
                         }
                     else:
                         min_key = min(self.content, key=lambda x: self.content[x]['score'])
@@ -97,7 +98,8 @@ class TwitterStream(strm):
                                 'last_mtch_time': temp_trending[msg_key]['last_mtch_time'],
                                 'media_url': temp_trending[msg_key]['media_url'],
                                 'mp4_url': temp_trending[msg_key]['mp4_url'],
-                                'id': temp_trending[msg_key]['id']
+                                'id': temp_trending[msg_key]['id'],
+                                'src_id': temp_trending[msg_key]['src_id']
                             }
 
                 elif len(matched) == 1:
