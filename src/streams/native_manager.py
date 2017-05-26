@@ -23,7 +23,7 @@ class NativeManager(strm_mgr):
         self.service = build('sheets', 'v4', credentials=self.credentials)
 
     def init_threads(self):
-        pass
+        threading.Thread(target = self.refresh_featured, args=(self.config['native_featured'],)).start()
 
     def get_featured(self):
         self.get_curated()

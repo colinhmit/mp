@@ -170,6 +170,11 @@ stream_config = {
         'refresh_featured_timeout': 1200
     },
 
+    'native_featured':{
+        'self': 'native',
+        'refresh_featured_timeout': 1200
+    },
+
     'google_sheets':{
         #AWS Google API Key
         'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
