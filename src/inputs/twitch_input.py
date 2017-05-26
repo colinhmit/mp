@@ -1,5 +1,6 @@
 import multiprocessing
 import re
+import uuid
 
 #import utils
 from utils.functions_general import *
@@ -23,6 +24,6 @@ class TwitchInput(std_inpt):
                 'message': re.findall(r'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0],
                 'media_url': [],
                 'mp4_url': '',
-                'id': ''
+                'id': str(uuid.uuid1())
                 }
         return msg

@@ -115,7 +115,7 @@ class strm:
         while self.enrich_trending_loop:
             curr_time = datetime.datetime.now()
             if ((curr_time - max(self.last_rcv_time,self.last_enrch_time)).total_seconds()>self.config['last_rcv_enrich_timeout']) or ((curr_time - self.last_enrch_time).total_seconds()>self.config['last_enrch_enrich_timeout']):
-                idstr = str(uuid.uuid4())
+                idstr = str(uuid.uuid1())
                 enrich_item = {
                     'id': idstr,
                     'time': curr_time

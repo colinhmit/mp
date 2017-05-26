@@ -1,5 +1,6 @@
 import json
 import multiprocessing
+import uuid
 
 #import utils
 from utils.functions_general import *
@@ -36,7 +37,7 @@ class TwitterInput(std_inpt):
                                         'message': jsondata['retweeted_status']['text'],
                                         'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
                                         'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
-                                        'id': jsondata['id_str']
+                                        'id': str(uuid.uuid1())
                                         }
                                 else:
                                     msg = {
@@ -45,7 +46,7 @@ class TwitterInput(std_inpt):
                                         'message': jsondata['retweeted_status']['text'],
                                         'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
                                         'mp4_url': '',
-                                        'id': jsondata['id_str']
+                                        'id': str(uuid.uuid1())
                                         }
                             else:
                                 msg = {
@@ -54,7 +55,7 @@ class TwitterInput(std_inpt):
                                     'message': jsondata['retweeted_status']['text'],
                                     'media_url': [jsondata['retweeted_status']['entities']['media'][0]['media_url']],
                                     'mp4_url': '',
-                                    'id': jsondata['id_str']
+                                    'id': str(uuid.uuid1())
                                     }
                         else:
                             msg = {
@@ -63,7 +64,7 @@ class TwitterInput(std_inpt):
                                 'message': jsondata['retweeted_status']['text'],
                                 'media_url': [],
                                 'mp4_url': '',
-                                'id': jsondata['id_str']
+                                'id': str(uuid.uuid1())
                                 }
                 elif 'text' in jsondata:
                     if 'media' in jsondata['entities']:
@@ -75,7 +76,7 @@ class TwitterInput(std_inpt):
                                     'message': jsondata['text'],
                                     'media_url': [jsondata['entities']['media'][0]['media_url']],
                                     'mp4_url': max(jsondata['extended_entities']['media'][0].get('video_info',{}).get('variants',[{'url':'','bitrate':1,'content_type':"video/mp4"}]), key=lambda x:x['bitrate'] if x['content_type']=="video/mp4" else 0)['url'],
-                                    'id': jsondata['id_str']
+                                    'id': str(uuid.uuid1())
                                     }
                             else:
                                 msg = {
@@ -84,7 +85,7 @@ class TwitterInput(std_inpt):
                                     'message': jsondata['text'],
                                     'media_url': [jsondata['entities']['media'][0]['media_url']],
                                     'mp4_url': '',
-                                    'id': jsondata['id_str']
+                                    'id': str(uuid.uuid1())
                                     }
                         else:
                             msg = {
@@ -93,7 +94,7 @@ class TwitterInput(std_inpt):
                                 'message': jsondata['text'],
                                 'media_url': jsondata['entities']['media'][0]['media_url'],
                                 'mp4_url': [],
-                                'id': jsondata['id_str']
+                                'id': str(uuid.uuid1())
                                 }
                     else:
                         msg = {
@@ -102,6 +103,6 @@ class TwitterInput(std_inpt):
                             'message': jsondata['text'],
                             'media_url': [],
                             'mp4_url': '',
-                            'id': jsondata['id_str']
+                            'id': str(uuid.uuid1())
                             }
         return msg

@@ -1,5 +1,6 @@
 import json
 import multiprocessing
+import uuid
 
 #import utils
 from inputs.utils.functions_general import *
@@ -24,6 +25,6 @@ class RedditInput(std_inpt):
                 'message': jsondata['message'],
                 'media_url': [jsondata['media_url']],
                 'mp4_url': '',
-                'id': jsondata['id']
+                'id': str(uuid.uuid1())
                 }
         return msg

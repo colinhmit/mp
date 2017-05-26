@@ -6,6 +6,8 @@ import re
 import pickle
 import datetime
 import zmq
+import uuid
+import random
 
 from twisted.internet import reactor
 from twisted.web.resource import Resource
@@ -428,45 +430,41 @@ class HTTPServer():
     def get_enrich(self, enrich_dict, enrich_score, enrich_time):
         enrich_eval = {}
         if ('ad' in enrich_dict):
-            for ad_id in enrich_dict['ad']:
-                enrich_eval_dict = dict(self.ads.get(ad_id,{}))
-                if len(enrich_eval_dict) > 0:
-                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
-                    enrich_eval[max_key] = enrich_eval_dict[max_key]
+            enrich_eval_dict = self.ads.get(random.choice(enrich_dict['ad']),{})
+            if len(enrich_eval_dict) > 0:
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         if ('native' in enrich_dict):
-            for stream_id in enrich_dict['native']:
-                enrich_eval_dict = dict(self.native_streams.get(stream_id,{}).get('trending',{}))
-                if len(enrich_eval_dict) > 0:
-                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
-                    enrich_eval[max_key] = enrich_eval_dict[max_key]
+            enrich_eval_dict = self.native_streams.get(random.choice(enrich_dict['native']),{}).get('trending',{})
+            if len(enrich_eval_dict) > 0:
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         if ('twitch' in enrich_dict):
-            for stream_id in enrich_dict['twitch']:
-                enrich_eval_dict = dict(self.twitch_streams.get(stream_id,{}).get('trending',{}))
-                if len(enrich_eval_dict) > 0:
-                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
-                    enrich_eval[max_key] = enrich_eval_dict[max_key]
+            enrich_eval_dict = self.twitch_streams.get(random.choice(enrich_dict['twitch']),{}).get('trending',{})
+            if len(enrich_eval_dict) > 0:
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         if ('twitter' in enrich_dict):
-            for stream_id in enrich_dict['twitter']:
-                enrich_eval_dict = dict(self.twitter_streams.get(stream_id,{}).get('trending',{}))
-                if len(enrich_eval_dict) > 0:
-                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
-                    enrich_eval[max_key] = enrich_eval_dict[max_key]
+            enrich_eval_dict = self.twitter_streams.get(random.choice(enrich_dict['twitter']),{}).get('trending',{})
+            if len(enrich_eval_dict) > 0:
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         if ('reddit' in enrich_dict):
-            for stream_id in enrich_dict['reddit']:
-                enrich_eval_dict = dict(self.reddit_streams.get(stream_id,{}).get('trending',{}))
-                if len(enrich_eval_dict) > 0:
-                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
-                    enrich_eval[max_key] = enrich_eval_dict[max_key]
+            enrich_eval_dict = self.reddit_streams.get(random.choice(enrich_dict['reddit']),{}).get('trending',{})
+            if len(enrich_eval_dict) > 0:
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         max_key = max(enrich_eval, key=lambda x: enrich_eval[x]['score'])
         # pp('///get enriched///')
         enrich_output = dict(enrich_eval[max_key])
         enrich_output['first_rcv_time'] = enrich_time.isoformat()
         enrich_output['score'] = enrich_score
+        enrich_output['id'] = str(uuid.uuid1())
         # pp(enrich_eval)
         # pp(max_key)
         # pp(enrich_output)
