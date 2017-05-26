@@ -91,6 +91,7 @@ class RedditStream(strm):
                     'media_url': msgdata['media_url'],
                     'mp4_url': msgdata['mp4_url'],
                     'svos': msgdata['svos'],
+                    'username': msgdata['username'],
                     'users' : [msgdata['username']],
                     'msgs' : dict(self.trending[matched_msg]['msgs']),
                     'visible' : 1,

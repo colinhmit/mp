@@ -118,7 +118,7 @@ class TwitterStream(strm):
                 self.default_image = {'image':self.content[image_key]['media_url'][0], 'score':self.content[image_key]['score']}
 
     #Main func
-    def run(self):        
+    def run(self):
         for data in iter(self.input_socket.recv, 'STOP'):
             #try: msg_data may be unpickleable?
             try:
