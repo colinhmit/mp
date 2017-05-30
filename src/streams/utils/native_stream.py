@@ -31,7 +31,7 @@ class NativeStream(strm):
             try:
                 msg_data = pickle.loads(data)
                 if len(msg_data) == 0:
-                    pp('Twitch connection was lost...')
+                    pp('Native connection was lost...')
                 if self.stream == msg_data['stream']:
                     messagetime = datetime.datetime.now()
                     self.process_message(msg_data, messagetime)  

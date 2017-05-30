@@ -40,5 +40,5 @@ class ntv:
         pp(self.config['ntv_host'])
         pp(self.config['ntv_port'])
         for raw_data in iter(self.in_pipe.recv, 'STOP'):
-            pp(raw_data)
+            pp('sending raw_data')
             self.out_pipe.send_string(raw_data)

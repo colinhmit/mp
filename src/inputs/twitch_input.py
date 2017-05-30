@@ -24,6 +24,7 @@ class TwitchInput(std_inpt):
                 'message': re.findall(r'PRIVMSG #[a-zA-Z0-9_]+ :(.+)', data)[0],
                 'media_url': [],
                 'mp4_url': '',
-                'id': str(uuid.uuid1())
+                'id': str(uuid.uuid1()),
+                'src_id': ''
                 }
         return msg

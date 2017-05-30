@@ -164,7 +164,7 @@ class RedditStream(strm):
             try:
                 msg_data = pickle.loads(data)
                 if len(msg_data) == 0:
-                    pp('Twitter connection was lost...')
+                    pp('Reddit connection was lost...')
                 if self.stream == msg_data['subreddit']:
                     messagetime = datetime.datetime.now()
                     self.process_message(msg_data, messagetime)  
