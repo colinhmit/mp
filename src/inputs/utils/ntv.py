@@ -36,10 +36,6 @@ class ntv:
             except Exception, e:
                 pass
 
-        pp('connected')
-        pp(self.config['ntv_host'])
-        pp(self.config['ntv_port'])
         for raw_data in iter(self.in_pipe.recv, 'STOP'):
-            pp('sending raw_data')
-            data = raw_data.decode('utf-8')
+            data = raw_data.decode('utf-8', errors='ignore')
             self.out_pipe.send_string(data)

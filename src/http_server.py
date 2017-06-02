@@ -447,6 +447,12 @@ class HTTPServer():
                 max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                 enrich_eval[max_key] = enrich_eval_dict[max_key]
         else:
+            if ('ad' in enrich_dict):
+                enrich_eval_dict = self.ads.get(random.choice(enrich_dict['ad']),{})
+                if len(enrich_eval_dict) > 0:
+                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
+                    enrich_eval[max_key] = enrich_eval_dict[max_key]
+                    
             if ('native' in enrich_dict):
                 enrich_eval_dict = self.native_streams.get(random.choice(enrich_dict['native']),{}).get('trending',{})
                 if len(enrich_eval_dict) > 0:

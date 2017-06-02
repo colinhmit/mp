@@ -72,10 +72,10 @@ class NativeInput(std_inpt):
                     'stream': jsondata['stream'],
                     'username': jsondata['username'],
                     'message': jsondata['message'],
-                    'media_url': [],
+                    'media_url': jsondata.get('media_url',[]),
                     'mp4_url': '',
                     'id': str(uuid.uuid1()),
-                    'src_id': ''
+                    'src_id': jsondata.get('src_id','')
                     }
             return msg
         except Exception, e:

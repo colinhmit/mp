@@ -45,19 +45,18 @@ class NativeStream(strm):
     # Manager Processes
     def set_nlp_match_thread(self):
         self.set_nlp_match_loop = True
-        self.nlp_match = False
         self.freq_mavgs = []
         self.freq_count = 0
         while self.set_nlp_match_loop:
             #try: reset subjs could break?
             try:
-                if len(self.freq_mavgs) >= 4:
-                    self.freq_mavgs.pop(0)
                 self.freq_mavgs.append(self.freq_count)
-                if (float(sum(self.freq_mavgs))/max(len(self.freq_mavgs), 1)) >= self.config['nlp_match_threshold']:
-                    self.nlp_match = True
-                else:
-                    self.nlp_match = False
+                if len(self.freq_mavgs) >= 5:
+                    self.freq_mavgs.pop(0)
+                    if (float(sum(self.freq_mavgs))/max(len(self.freq_mavgs), 1)) < self.config['nlp_match_threshold']:
+                        self.nlp_match = False
+                    else:
+                        self.nlp_match = True
                 self.freq_count = 0
             except Exception, e:
                 pp('failed set_nlp_match')
@@ -66,6 +65,10 @@ class NativeStream(strm):
 
     def set_ad_trigger_thread(self):
         self.set_ad_trigger_loop = True
+        self.last_ad_time = datetime.datetime.now()
         while self.set_nlp_match_loop:
-            self.ad_trigger = True
-            time.sleep(self.config['ad_timeout_base'])
+            curr_time = datetime.datetime.now()
+            if (curr_time - self.last_ad_time).total_seconds() > self.config['ad_timeout_base']:
+                self.ad_trigger = True
+                self.last_ad_time = curr_time
+            time.sleep(self.config['ad_loop_timeout'])

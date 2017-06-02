@@ -24,13 +24,24 @@ class rply:
         strmdict = {}
         for line in f:
             str_msg = line.split("_")
-            msg = {
-                'type': 'message',
-                'stream': self.stream,
-                'username': str_msg[1],
-                'message': str_msg[2].decode('utf-8')
-            }
-            strmdict[float(str_msg[0])] = msg
+            if len(str_msg) == 3:
+                msg = {
+                    'type': 'message',
+                    'stream': self.stream,
+                    'username': str_msg[1],
+                    'message': str_msg[2].decode('utf-8')
+                }
+                strmdict[float(str_msg[0])] = msg
+            elif len(str_msg) == 5:
+                msg = {
+                    'type': 'message',
+                    'stream': self.stream,
+                    'username': str_msg[1],
+                    'message': str_msg[2].decode('utf-8'),
+                    'media_url': [str_msg[3]],
+                    'src_id': str_msg[4]
+                }
+                strmdict[float(str_msg[0])] = msg
             
         timekeys = sorted(strmdict.iterkeys())
         ts_start = time.time()

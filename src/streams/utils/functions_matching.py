@@ -1,10 +1,10 @@
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
-from numpy import dot
-from numpy.linalg import norm
+import numpy as np
+np.seterr(divide='ignore', invalid='ignore')
 
-cosine = lambda v1, v2: dot(v1, v2) / (norm(v1) * norm(v2))
+cosine = lambda v1, v2: np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 
 def fwts_compare(msg1, msg2):
     return fuzz.token_set_ratio(msg1,msg2)

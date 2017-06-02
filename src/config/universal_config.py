@@ -362,8 +362,8 @@ stream_config = {
         'render_trending_timeout': 0.05,
         'enrich_trending_timeout': 1.0,
 
-        'set_nlp_match_timeout': 30,
-        'nlp_match_threshold': 30,
+        'set_nlp_match_timeout': 5,
+        'nlp_match_threshold': 3,
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -379,6 +379,7 @@ stream_config = {
         'last_enrch_enrich_timeout': 45,
         #ad params
         'ad_timeout_base': 180,
+        'ad_loop_timeout': 5,
         #twitter trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
