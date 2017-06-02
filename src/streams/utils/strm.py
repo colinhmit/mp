@@ -199,6 +199,7 @@ class strm:
         if len(msgdata['message']) > 0:
             if self.config['debug']:
                 pp("??? "+msgdata['message']+" ???")
+            vis_bool = (msgtime - self.last_rcv_time).total_seconds() > self.config['filter_trending_timeout']
             self.trending[msgdata['message']] = { 
                 'src': self.config['self'],
                 'score':  self.config['matched_init_base'],
@@ -210,7 +211,7 @@ class strm:
                 'username': msgdata['username'],
                 'users' : [msgdata['username']],
                 'msgs' : {msgdata['message']: 1.0},
-                'visible' : 0,
+                'visible' : vis_bool,
                 'id': msgdata['id'],
                 'src_id': msgdata['src_id']
             }

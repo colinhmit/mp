@@ -354,12 +354,12 @@ stream_config = {
         'zmq_http_port': http_port,
         'zmq_data_port': data_port,
 
-        'send_stream_timeout': 0.1,
+        'send_stream_timeout': 0.05,
         'send_analytics_timeout': 60,
         'reset_subjs_timeout': 600,
-        'filter_trending_timeout': 0.1,
+        'filter_trending_timeout': 0.7,
         'filter_content_timeout': 5,
-        'render_trending_timeout': 0.1,
+        'render_trending_timeout': 0.05,
         'enrich_trending_timeout': 1.0,
 
         'set_nlp_match_timeout': 30,
