@@ -341,6 +341,8 @@ class HTTPServer():
 
             # pp('//enriching//')
             # pp(enrich_items)
+            uncached = []
+            cached_msgs = []
             i = 0
             for enrich_item in enrich_items:
                 cache_enrich = self.enrich_map.get(enrich_item['id'],{}).get(hash_enrich_args,None)
@@ -348,24 +350,32 @@ class HTTPServer():
                     # pp('cached')
                     # pp(cache_enrich)
                     trending_output[cache_enrich[0]+i*" "] = cache_enrich[1]
+                    trending_output[cache_enrich[0]+i*" "]['score'] = enrich_score
+                    cached_msgs.append(cache_enrich[0])
+                    i+=1
                 else:
-                    if enrich_item['id'] in self.enrich_map:
-                        # pp('cached kinda')
-                        # pp(enrich_item['id'])
-                        enrich = self.get_enrich(enrich_dict, enrich_score, enrich_item['time'])
-                        # pp(enrich)
-                        self.enrich_map[enrich_item['id']][hash_enrich_args] = enrich
-                        trending_output[enrich[0]+i*" "] = enrich[1]
-                        # pp(trending_output)
-                    else:
-                        # pp('not cached')
-                        # pp(enrich_item['id'])
-                        self.enrich_map[enrich_item['id']] = {}
-                        enrich = self.get_enrich(enrich_dict, enrich_score, enrich_item['time'])
-                        # pp(enrich)
-                        self.enrich_map[enrich_item['id']][hash_enrich_args] = enrich
-                        trending_output[enrich[0]+i*" "] = enrich[1]
-                        # pp(trending_output)
+                    uncached.append(enrich_item)
+
+            for enrich_item in uncached:
+                if enrich_item['id'] in self.enrich_map:
+                    # pp('cached kinda')
+                    # pp(enrich_item['id'])
+                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs)
+                    # pp(enrich)
+                    self.enrich_map[enrich_item['id']][hash_enrich_args] = enrich
+                    trending_output[enrich[0]+i*" "] = enrich[1]
+                    trending_output[enrich[0]+i*" "]['score'] = enrich_score
+                    # pp(trending_output)
+                else:
+                    # pp('not cached')
+                    # pp(enrich_item['id'])
+                    self.enrich_map[enrich_item['id']] = {}
+                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs)
+                    # pp(enrich)
+                    self.enrich_map[enrich_item['id']][hash_enrich_args] = enrich
+                    trending_output[enrich[0]+i*" "] = enrich[1]
+                    trending_output[enrich[0]+i*" "]['score'] = enrich_score
+                    # pp(trending_output)
                 i+=1
 
         if ('filter' in args) and (len(args['filter'][0])>0):
@@ -427,43 +437,42 @@ class HTTPServer():
 
         return json.dumps({'content': content_output})
 
-    def get_enrich(self, enrich_dict, enrich_score, enrich_time):
+    def get_enrich(self, enrich_dict, enrich_time, curr_enriches):
         enrich_eval = {}
         if ('ad' in enrich_dict):
             enrich_eval_dict = self.ads.get(random.choice(enrich_dict['ad']),{})
             if len(enrich_eval_dict) > 0:
-                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                 enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         if ('native' in enrich_dict):
             enrich_eval_dict = self.native_streams.get(random.choice(enrich_dict['native']),{}).get('trending',{})
             if len(enrich_eval_dict) > 0:
-                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                 enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         if ('twitch' in enrich_dict):
             enrich_eval_dict = self.twitch_streams.get(random.choice(enrich_dict['twitch']),{}).get('trending',{})
             if len(enrich_eval_dict) > 0:
-                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                 enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         if ('twitter' in enrich_dict):
             enrich_eval_dict = self.twitter_streams.get(random.choice(enrich_dict['twitter']),{}).get('trending',{})
             if len(enrich_eval_dict) > 0:
-                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                 enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         if ('reddit' in enrich_dict):
             enrich_eval_dict = self.reddit_streams.get(random.choice(enrich_dict['reddit']),{}).get('trending',{})
             if len(enrich_eval_dict) > 0:
-                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'])
+                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                 enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         max_key = max(enrich_eval, key=lambda x: enrich_eval[x]['score'])
         # pp('///get enriched///')
         enrich_output = dict(enrich_eval[max_key])
         enrich_output['first_rcv_time'] = enrich_time.isoformat()
-        enrich_output['score'] = enrich_score
         enrich_output['id'] = str(uuid.uuid1())
         # pp(enrich_eval)
         # pp(max_key)

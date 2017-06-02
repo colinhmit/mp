@@ -20,6 +20,8 @@ class strm:
         self.enrich = []
         self.enrichdecay = []
 
+        self.nlp_match = True
+
         self.init_sockets()
 
     def init_sockets(self):
@@ -260,21 +262,27 @@ class strm:
                     pp(e)
 
     def get_match(self, msgdata):
-        matched = fweb_compare(msgdata['message'], self.trending.keys(), self.config['fo_compare_threshold'])
-        if (len(matched) == 0):
-            #try: nlp compare can fail if global is flushed
-            try:
-                return self.nlp_compare(msgdata) 
-            except Exception, e:
-                pp(self.config['self']+' SVO Matching Failed.')
-                pp(e)
-                return None
-        elif len(matched) == 1:
-            return matched[0][0]
+        if self.nlp_match:
+            matched = fweb_compare(msgdata['message'], self.trending.keys(), self.config['fo_compare_threshold'])
+            if (len(matched) == 0):
+                #try: nlp compare can fail if global is flushed
+                try:
+                    return self.nlp_compare(msgdata) 
+                except Exception, e:
+                    pp(self.config['self']+' SVO Matching Failed.')
+                    pp(e)
+                    return None
+            elif len(matched) == 1:
+                return matched[0][0]
+            else:
+                matched_msgs = [x[0] for x in matched]
+                (matched_msg, score) = fweo_tsort_compare(msgdata['message'], matched_msgs)
+                return matched_msg
         else:
-            matched_msgs = [x[0] for x in matched]
-            (matched_msg, score) = fweo_tsort_compare(msgdata['message'], matched_msgs)
-            return matched_msg
+            if msgdata['message'] in self.trending.keys():
+                return msgdata['message']
+            else:
+                return None
 
     def decay(self, msgdata, msgtime):
         prev_msgtime = self.last_rcv_time

@@ -19,6 +19,7 @@ class NativeStream(strm):
         threading.Thread(target = self.render_trending_thread).start()
         threading.Thread(target = self.reset_subjs_thread).start()
         threading.Thread(target = self.enrich_trending_thread).start()
+        threading.Thread(target = self.set_nlp_match_thread).start()
 
         #data connections
         threading.Thread(target = self.send_stream).start()
@@ -36,5 +37,28 @@ class NativeStream(strm):
                     messagetime = datetime.datetime.now()
                     self.process_message(msg_data, messagetime)  
                     self.last_rcv_time = messagetime
+                    self.freq_count += 1
             except Exception, e:
                 pp(e)
+
+    # Manager Processes
+    def set_nlp_match_thread(self):
+        self.set_nlp_match_loop = True
+        self.nlp_match = False
+        self.freq_mavgs = []
+        self.freq_count = 0
+        while self.set_nlp_match_loop:
+            #try: reset subjs could break?
+            try:
+                if len(self.freq_emas) >= 4:
+                    self.freq_emas.pop(0)
+                self.freq_mavgs.append(self.freq_count)
+                if (float(sum(self.freq_mavgs))/max(len(self.freq_mavgs), 1)) >= self.config['nlp_match_threshold']:
+                    self.nlp_match = True
+                else:
+                    self.nlp_match = False
+                self.freq_count = 0
+            except Exception, e:
+                pp('failed set_nlp_match')
+                pp(e)
+            time.sleep(self.config['set_nlp_match_timeout'])
