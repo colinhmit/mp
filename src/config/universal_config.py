@@ -377,6 +377,8 @@ stream_config = {
         'enrich_min_len': 5,
         'last_rcv_enrich_timeout': 5,
         'last_enrch_enrich_timeout': 45,
+        #ad params
+        'ad_timeout_base': 180,
         #twitter trending params
         'matched_init_base': 50,
         'matched_add_base': 15,
@@ -460,5 +462,5 @@ http_config = {
     'twitter_monitor_timeout': 15,
     'reddit_monitor_timeout': 15,
 
-    'ad_slice': 8
+    'enrich_base': 7
 }

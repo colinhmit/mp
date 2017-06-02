@@ -265,6 +265,7 @@ class HTTPServer():
     # Aggregation functions
     def get_agg_streams(self, args):
         enrich_dict = {}
+        ad_trigger = False
         if ('e_native' in args) and (len(args['e_native'][0])>0):
             enrich_dict['native'] = []
             for stream_id in [self.pattern.sub('',x).lower() for x in args['e_native'][0].split(',')]:
@@ -300,6 +301,7 @@ class HTTPServer():
 
                 trend_dicts.append(self.native_streams.get(stream_id,{}).get('trending',{"This stream has no messages yet!": {"src": "native", "mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "", "id": "123", "src_id": "123", "username":"abc"}}))
                 enrich_items += self.native_streams.get(stream_id,{}).get('enrich',[])
+                ad_trigger = ad_trigger or self.native_streams.get(stream_id,{}).get('ad_trigger',False)
 
         if ('twitch' in args) and (len(args['twitch'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
@@ -336,8 +338,8 @@ class HTTPServer():
             for msg in trending_output.keys():
                 tot_score += trending_output[msg]['score']
 
-            num_enrich = len(enrich_dict)
-            enrich_score = max(tot_score/(self.config['ad_slice']-num_enrich),1)
+            num_enrich = len(enrich_items)
+            enrich_score = max(float(tot_score)/(self.config['enrich_base']-num_enrich),1)
 
             # pp('//enriching//')
             # pp(enrich_items)
@@ -360,7 +362,7 @@ class HTTPServer():
                 if enrich_item['id'] in self.enrich_map:
                     # pp('cached kinda')
                     # pp(enrich_item['id'])
-                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs)
+                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs, ad_trigger)
                     # pp(enrich)
                     self.enrich_map[enrich_item['id']][hash_enrich_args] = enrich
                     trending_output[enrich[0]+i*" "] = enrich[1]
@@ -370,7 +372,7 @@ class HTTPServer():
                     # pp('not cached')
                     # pp(enrich_item['id'])
                     self.enrich_map[enrich_item['id']] = {}
-                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs)
+                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs, ad_trigger)
                     # pp(enrich)
                     self.enrich_map[enrich_item['id']][hash_enrich_args] = enrich
                     trending_output[enrich[0]+i*" "] = enrich[1]
@@ -437,37 +439,37 @@ class HTTPServer():
 
         return json.dumps({'content': content_output})
 
-    def get_enrich(self, enrich_dict, enrich_time, curr_enriches):
+    def get_enrich(self, enrich_dict, enrich_time, curr_enriches, ad_bool):
         enrich_eval = {}
-        if ('ad' in enrich_dict):
+        if ad_bool and ('ad' in enrich_dict):
             enrich_eval_dict = self.ads.get(random.choice(enrich_dict['ad']),{})
             if len(enrich_eval_dict) > 0:
                 max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                 enrich_eval[max_key] = enrich_eval_dict[max_key]
+        else:
+            if ('native' in enrich_dict):
+                enrich_eval_dict = self.native_streams.get(random.choice(enrich_dict['native']),{}).get('trending',{})
+                if len(enrich_eval_dict) > 0:
+                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
+                    enrich_eval[max_key] = enrich_eval_dict[max_key]
 
-        if ('native' in enrich_dict):
-            enrich_eval_dict = self.native_streams.get(random.choice(enrich_dict['native']),{}).get('trending',{})
-            if len(enrich_eval_dict) > 0:
-                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
-                enrich_eval[max_key] = enrich_eval_dict[max_key]
+            if ('twitch' in enrich_dict):
+                enrich_eval_dict = self.twitch_streams.get(random.choice(enrich_dict['twitch']),{}).get('trending',{})
+                if len(enrich_eval_dict) > 0:
+                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
+                    enrich_eval[max_key] = enrich_eval_dict[max_key]
 
-        if ('twitch' in enrich_dict):
-            enrich_eval_dict = self.twitch_streams.get(random.choice(enrich_dict['twitch']),{}).get('trending',{})
-            if len(enrich_eval_dict) > 0:
-                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
-                enrich_eval[max_key] = enrich_eval_dict[max_key]
+            if ('twitter' in enrich_dict):
+                enrich_eval_dict = self.twitter_streams.get(random.choice(enrich_dict['twitter']),{}).get('trending',{})
+                if len(enrich_eval_dict) > 0:
+                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
+                    enrich_eval[max_key] = enrich_eval_dict[max_key]
 
-        if ('twitter' in enrich_dict):
-            enrich_eval_dict = self.twitter_streams.get(random.choice(enrich_dict['twitter']),{}).get('trending',{})
-            if len(enrich_eval_dict) > 0:
-                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
-                enrich_eval[max_key] = enrich_eval_dict[max_key]
-
-        if ('reddit' in enrich_dict):
-            enrich_eval_dict = self.reddit_streams.get(random.choice(enrich_dict['reddit']),{}).get('trending',{})
-            if len(enrich_eval_dict) > 0:
-                max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
-                enrich_eval[max_key] = enrich_eval_dict[max_key]
+            if ('reddit' in enrich_dict):
+                enrich_eval_dict = self.reddit_streams.get(random.choice(enrich_dict['reddit']),{}).get('trending',{})
+                if len(enrich_eval_dict) > 0:
+                    max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
+                    enrich_eval[max_key] = enrich_eval_dict[max_key]
 
         max_key = max(enrich_eval, key=lambda x: enrich_eval[x]['score'])
         # pp('///get enriched///')

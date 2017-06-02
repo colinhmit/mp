@@ -20,6 +20,7 @@ class NativeStream(strm):
         threading.Thread(target = self.reset_subjs_thread).start()
         threading.Thread(target = self.enrich_trending_thread).start()
         threading.Thread(target = self.set_nlp_match_thread).start()
+        threading.Thread(target = self.set_ad_trigger_thread).start()
 
         #data connections
         threading.Thread(target = self.send_stream).start()
@@ -62,3 +63,9 @@ class NativeStream(strm):
                 pp('failed set_nlp_match')
                 pp(e)
             time.sleep(self.config['set_nlp_match_timeout'])
+
+    def set_ad_trigger_thread(self):
+        self.set_ad_trigger_loop = True
+        while self.set_nlp_match_loop:
+            self.ad_trigger = True
+            time.sleep(self.config['ad_timeout_base'])

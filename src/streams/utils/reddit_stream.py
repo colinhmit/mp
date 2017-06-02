@@ -42,6 +42,7 @@ class RedditStream(strm):
                         'trending': dict(self.clean_trending), 
                         'content': dict(self.content),
                         'enrich': list(self.enrich),
+                        'ad_trigger': self.ad_trigger,
                         'default_image': self.default_image['image']
                     }
                 }

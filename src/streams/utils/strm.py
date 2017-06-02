@@ -21,6 +21,7 @@ class strm:
         self.enrichdecay = []
 
         self.nlp_match = True
+        self.ad_trigger = False
 
         self.init_sockets()
 
@@ -49,12 +50,14 @@ class strm:
                     'enrichdecay': list(self.enrichdecay),
                     'data': {
                         'trending': dict(self.clean_trending),
-                        'enrich': list(self.enrich)
+                        'enrich': list(self.enrich),
+                        'ad_trigger': self.ad_trigger
                     }
                 }
                 pickled_data = pickle.dumps(data)
                 self.http_socket.send(pickled_data)
                 self.enrichdecay = []
+                self.ad_trigger = False
             except Exception, e:
                 pp('failed send_stream')
                 pp(e)
