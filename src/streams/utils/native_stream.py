@@ -50,8 +50,8 @@ class NativeStream(strm):
         while self.set_nlp_match_loop:
             #try: reset subjs could break?
             try:
-                if len(self.freq_emas) >= 4:
-                    self.freq_emas.pop(0)
+                if len(self.freq_mavgs) >= 4:
+                    self.freq_mavgs.pop(0)
                 self.freq_mavgs.append(self.freq_count)
                 if (float(sum(self.freq_mavgs))/max(len(self.freq_mavgs), 1)) >= self.config['nlp_match_threshold']:
                     self.nlp_match = True
