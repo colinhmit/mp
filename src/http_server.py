@@ -566,7 +566,7 @@ class HTTPServer():
 
             for stream in self.twitch_streams.values():
                 try:
-                    curr_dict.update(stream['trending'])
+                    curr_dict.update(stream.get('trending',{})
                 except Exception, e:
                     pp(e)
 
@@ -587,7 +587,7 @@ class HTTPServer():
 
             for stream in self.twitter_streams.values():
                 try:
-                    curr_dict.update(stream['trending'])
+                    curr_dict.update(stream.get('trending',{})
                 except Exception, e:
                     pp('monitor broke')
                     pp(stream)
@@ -610,7 +610,7 @@ class HTTPServer():
 
             for stream in self.reddit_streams.values():
                 try:
-                    curr_dict.update(stream['trending'])
+                    curr_dict.update(stream.get('trending',{})
                 except Exception, e:
                     pp(e)
 
