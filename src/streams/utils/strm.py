@@ -319,7 +319,7 @@ class strm:
     def decay_enrich(self):
         temp_trending = dict(self.trending)
         oldest = False
-        if len(temp_trending) > 0:
+        if (len(temp_trending) > 0) or (len(self.enrich) > 0):
             min_key = min(temp_trending, key=lambda x: temp_trending[x]['first_rcv_time'])
             oldest = (self.enrich[0]['time'] < temp_trending[min_key]['first_rcv_time'])
 
