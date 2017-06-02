@@ -13,6 +13,7 @@ class strm:
         self.stream = stream
         self.last_rcv_time = datetime.datetime.now()
         self.last_enrch_time = datetime.datetime.now()
+        self.last_decay_time = datetime.datetime.now()
 
         self.trending = {}
         self.clean_trending = {}
@@ -128,6 +129,10 @@ class strm:
                 self.enrich.append(enrich_item)
                 self.decay_enrich()
                 self.last_enrch_time = curr_time
+                self.last_decay_time = curr_time
+            elif (curr_time - self.last_decay_time).total_seconds()>self.config['last_rcv_enrich_timeout']:
+                self.decay_enrich()
+                self.last_decay_time = curr_time
             time.sleep(self.config['enrich_trending_timeout'])
 
     #Manager Processes
