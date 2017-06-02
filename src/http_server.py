@@ -452,12 +452,13 @@ class HTTPServer():
                 if len(enrich_eval_dict) > 0:
                     max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                     enrich_eval[max_key] = enrich_eval_dict[max_key]
-                    
+
             if ('native' in enrich_dict):
                 enrich_eval_dict = self.native_streams.get(random.choice(enrich_dict['native']),{}).get('trending',{})
                 if len(enrich_eval_dict) > 0:
                     max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                     enrich_eval[max_key] = enrich_eval_dict[max_key]
+                    enrich_eval[max_key]['src'] = 'twitter'
 
             if ('twitch' in enrich_dict):
                 enrich_eval_dict = self.twitch_streams.get(random.choice(enrich_dict['twitch']),{}).get('trending',{})
