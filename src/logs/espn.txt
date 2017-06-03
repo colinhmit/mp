@@ -1,273 +1,273 @@
-0.5_user0.5_AggreGator
-1.0_user1.0_Babble Breaker
-1.5_user1.5_Cat in the Chat
-2.0_user2.0_Chatchke
-2.5_user2.5_Chateau 
-3.0_user3.0_Chating Tatum
-3.5_user3.5_Chatmunity
-4.0_user4.0_Chatsparency
-4.5_user4.5_Chatstity
-5.0_user5.0_Chatter
-5.5_user5.5_Deconchatinate
-6.0_user6.0_Gibberish...
-6.5_user6.5_Hat in the Chat
-7.0_user7.0_Manchattan
-7.5_user7.5_Momentum Messenger
-8.0_user8.0_Needle in the Haychat
-8.5_user8.5_NoNoise 
-9.0_user9.0_Peanut Gallery
-9.5_user9.5_PhraseFilter
-10.0_user10.0_Sentiment Screen
-10.5_user10.5_SentimentSorter
-11.0_user11.0_The Mad Chatter
-11.5_user11.5_The Manchattan Project
-12.0_user12.0_Twitchat
-12.5_user12.5_ChatStat
-13.0_user13.0_Threanding
-13.5_user13.5_Parrot
-14.0_user14.0_Lingo
-14.5_user14.5_miner 
-15.0_user15.0_porcupine
-15.5_user15.5_in a nutshell
-16.0_user16.0_through the grapevine
-16.5_user16.5_highlighter
-17.0_user17.0_concentrate
-17.5_user17.5_boiledown
-18.0_user18.0_trndy
-18.5_user18.5_trendin
-19.0_user19.0_rehashed
-19.5_user19.5_rehash
-20.0_user20.0_socialite
-20.5_user20.5_Streamsurf
-21.0_user21.0_upstreamer
-21.5_user21.5_castcurrent
-22.0_user22.0_castcur.rent
-22.5_user22.5_current
-23.0_user23.0_HashFeed
-23.5_user23.5_AggreGator
-24.0_user24.0_Babble Breaker
-24.5_user24.5_Cat in the Chat
-25.0_user25.0_Chatchke
-25.5_user25.5_Chateau 
-26.0_user26.0_Chating Tatum
-26.5_user26.5_Chatmunity
-27.0_user27.0_Chatsparency
-27.5_user27.5_Chatstity
-28.0_user28.0_Chatter
-28.5_user28.5_Deconchatinate
-29.0_user29.0_Gibberish...
-29.5_user29.5_Hat in the Chat
-30.0_user30.0_Manchattan
-30.5_user30.5_Momentum Messenger
-31.0_user31.0_Needle in the Haychat
-31.5_user31.5_NoNoise 
-32.0_user32.0_Peanut Gallery
-32.5_user32.5_PhraseFilter
-33.0_user33.0_Sentiment Screen
-33.5_user33.5_SentimentSorter
-34.0_user34.0_The Mad Chatter
-34.5_user34.5_The Manchattan Project
-35.0_user35.0_Twitchat
-35.5_user35.5_ChatStat
-36.0_user36.0_Threanding
-36.5_user36.5_Parrot
-37.0_user37.0_Lingo
-37.5_user37.5_miner 
-38.0_user38.0_porcupine
-38.5_user38.5_in a nutshell
-39.0_user39.0_through the grapevine
-39.5_user39.5_highlighter
-40.0_user40.0_concentrate
-40.5_user40.5_boiledown
-41.0_user41.0_trndy
-41.5_user41.5_trendin
-42.0_user42.0_rehashed
-42.5_user42.5_rehash
-43.0_user43.0_socialite
-43.5_user43.5_Streamsurf
-44.0_user44.0_upstreamer
-44.5_user44.5_castcurrent
-45.0_user45.0_castcur.rent
-45.5_user45.5_current
-46.0_user46.0_HashFeed
-46.5_user46.5_AggreGator
-47.0_user47.0_AggreGator
-47.5_user47.5_Babble Breaker
-48.0_user48.0_Cat in the Chat
-48.5_user48.5_Chatchke
-49.0_user49.0_Chateau 
-49.5_user49.5_Chating Tatum
-50.0_user50.0_Chatmunity
-50.5_user50.5_Chatsparency
-51.0_user51.0_Chatstity
-51.5_user51.5_Chatter
-52.0_user52.0_Deconchatinate
-52.5_user52.5_Gibberish...
-53.0_user53.0_Hat in the Chat
-53.5_user53.5_Manchattan
-54.0_user54.0_Momentum Messenger
-54.5_user54.5_Needle in the Haychat
-55.0_user55.0_NoNoise 
-55.5_user55.5_Peanut Gallery
-56.0_user56.0_PhraseFilter
-56.5_user56.5_Sentiment Screen
-57.0_user57.0_SentimentSorter
-57.5_user57.5_The Mad Chatter
-58.0_user58.0_The Manchattan Project
-58.5_user58.5_Twitchat
-59.0_user59.0_ChatStat
-59.5_user59.5_Threanding
-60.0_user60.0_Parrot
-60.5_user60.5_Lingo
-61.0_user61.0_miner 
-61.5_user61.5_porcupine
-62.0_user62.0_in a nutshell
-62.5_user62.5_through the grapevine
-63.0_user63.0_highlighter
-63.5_user63.5_concentrate
-64.0_user64.0_boiledown
-64.5_user64.5_trndy
-65.0_user65.0_trendin
-65.5_user65.5_rehashed
-66.0_user66.0_rehash
-66.5_user66.5_socialite
-67.0_user67.0_Streamsurf
-67.5_user67.5_upstreamer
-68.0_user68.0_castcurrent
-68.5_user68.5_castcur.rent
-69.0_user69.0_current
-69.5_user69.5_HashFeed
-70.0_user70.0_AggreGator
-70.5_user70.5_AggreGator
-71.0_user71.0_Babble Breaker
-71.5_user71.5_Cat in the Chat
-72.0_user72.0_Chatchke
-72.5_user72.5_Chateau 
-73.0_user73.0_Chating Tatum
-73.5_user73.5_Chatmunity
-74.0_user74.0_Chatsparency
-74.5_user74.5_Chatstity
-75.0_user75.0_Chatter
-75.5_user75.5_Deconchatinate
-76.0_user76.0_Gibberish...
-76.5_user76.5_Hat in the Chat
-77.0_user77.0_Manchattan
-77.5_user77.5_Momentum Messenger
-78.0_user78.0_Needle in the Haychat
-78.5_user78.5_NoNoise 
-79.0_user79.0_Peanut Gallery
-79.5_user79.5_PhraseFilter
-80.0_user80.0_Sentiment Screen
-80.5_user80.5_SentimentSorter
-81.0_user81.0_The Mad Chatter
-81.5_user81.5_The Manchattan Project
-82.0_user82.0_Twitchat
-82.5_user82.5_ChatStat
-83.0_user83.0_Threanding
-83.5_user83.5_Parrot
-84.0_user84.0_Lingo
-84.5_user84.5_miner 
-85.0_user85.0_porcupine
-85.5_user85.5_in a nutshell
-86.0_user86.0_through the grapevine
-86.5_user86.5_highlighter
-87.0_user87.0_concentrate
-87.5_user87.5_boiledown
-88.0_user88.0_trndy
-88.5_user88.5_trendin
-89.0_user89.0_rehashed
-89.5_user89.5_rehash
-90.0_user90.0_socialite
-90.5_user90.5_Streamsurf
-91.0_user91.0_upstreamer
-91.5_user91.5_castcurrent
-92.0_user92.0_castcur.rent
-92.5_user92.5_current
-93.0_user93.0_HashFeed
-93.5_user93.5_AggreGator
-94.0_user94.0_AggreGator
-94.5_user94.5_Babble Breaker
-95.0_user95.0_Cat in the Chat
-95.5_user95.5_Chatchke
-96.0_user96.0_Chateau 
-96.5_user96.5_Chating Tatum
-97.0_user97.0_Chatmunity
-97.5_user97.5_Chatsparency
-98.0_user98.0_Chatstity
-98.5_user98.5_Chatter
-99.0_user99.0_Deconchatinate
-99.5_user99.5_Gibberish...
-100.0_user100.0_Hat in the Chat
-100.5_user100.5_Manchattan
-101.0_user101.0_Momentum Messenger
-101.5_user101.5_Needle in the Haychat
-102.0_user102.0_NoNoise 
-102.5_user102.5_Peanut Gallery
-103.0_user103.0_PhraseFilter
-103.5_user103.5_Sentiment Screen
-104.0_user104.0_SentimentSorter
-104.5_user104.5_The Mad Chatter
-105.0_user105.0_The Manchattan Project
-105.5_user105.5_Twitchat
-106.0_user106.0_ChatStat
-106.5_user106.5_Threanding
-107.0_user107.0_Parrot
-107.5_user107.5_Lingo
-108.0_user108.0_miner 
-108.5_user108.5_porcupine
-109.0_user109.0_in a nutshell
-109.5_user109.5_through the grapevine
-110.0_user110.0_highlighter
-110.5_user110.5_concentrate
-111.0_user111.0_boiledown
-111.5_user111.5_trndy
-112.0_user112.0_trendin
-112.5_user112.5_rehashed
-113.0_user113.0_rehash
-113.5_user113.5_socialite
-114.0_user114.0_Streamsurf
-114.5_user114.5_upstreamer
-115.0_user115.0_castcurrent
-115.5_user115.5_castcur.rent
-116.0_user116.0_current
-116.5_user116.5_HashFeed
-117.0_user117.0_AggreGator
-117.5_user117.5_AggreGator
-118.0_user118.0_Babble Breaker
-118.5_user118.5_Cat in the Chat
-119.0_user119.0_Chatchke
-119.5_user119.5_Chateau 
-120.0_user120.0_Chating Tatum
-120.5_user120.5_Chatmunity
-121.0_user121.0_Chatsparency
-121.5_user121.5_Chatstity
-122.0_user122.0_Chatter
-122.5_user122.5_Deconchatinate
-123.0_user123.0_Gibberish...
-123.5_user123.5_Hat in the Chat
-124.0_user124.0_Manchattan
-124.5_user124.5_Momentum Messenger
-125.0_user125.0_Needle in the Haychat
-125.5_user125.5_NoNoise 
-126.0_user126.0_Peanut Gallery
-126.5_user126.5_PhraseFilter
-127.0_user127.0_Sentiment Screen
-127.5_user127.5_SentimentSorter
-128.0_user128.0_The Mad Chatter
-128.5_user128.5_The Manchattan Project
-129.0_user129.0_Twitchat
-129.5_user129.5_ChatStat
-130.0_user130.0_Threanding
-130.5_user130.5_Parrot
-131.0_user131.0_Lingo
-131.5_user131.5_miner 
-132.0_user132.0_porcupine
-132.5_user132.5_in a nutshell
-133.0_user133.0_through the grapevine
-133.5_user133.5_highlighter
-134.0_user134.0_concentrate
-134.5_user134.5_boiledown
-135.0_user135.0_trndy
-135.5_user135.5_trendin
-136.0_user136.0_rehashed
-136.5_user136.5_rehash
+0.5_user0.5_Go Cavaliers
+1.0_user1.0_Go Warriors
+1.5_user1.5_their defense is unbelievable
+2.0_user2.0_wow they are so good this year
+2.5_user2.5_unstoppable
+3.0_user3.0_I wonder how many championships in a row the Warriors are going to win
+3.5_user3.5_Steph Curry for President
+4.0_user4.0_and people thought that this game was going to be an actual game...
+4.5_user4.5_there is no chance the Cavaliers can keep up with the Warriors
+5.0_user5.0_when do they give the Warriors a trophy?
+5.5_user5.5_this defense though
+6.0_user6.0_Lebron looks like he has never played basketball before
+6.5_user6.5_this is what is looks like when men play boys
+7.0_user7.0_Kevin Durant made a smart choice
+7.5_user7.5_All around game for Warriors in unstoppable
+8.0_user8.0_how many times will we hear Lebron cry when they get swept
+8.5_user8.5_look at how well they move their feet
+9.0_user9.0_this is unreal
+9.5_user9.5_Boom DEFENSE!
+10.0_user10.0_Go Cavaliers
+10.5_user10.5_Go Warriors
+11.0_user11.0_their defense is unbelievable
+11.5_user11.5_wow they are so good this year
+12.0_user12.0_unstoppable
+12.5_user12.5_I wonder how many championships in a row the Warriors are going to win
+13.0_user13.0_Steph Curry for President
+13.5_user13.5_and people thought that this game was going to be an actual game...
+14.0_user14.0_there is no chance the Cavaliers can keep up with the Warriors
+14.5_user14.5_when do they give the Warriors a trophy?
+15.0_user15.0_this defense though
+15.5_user15.5_Lebron looks like he has never played basketball before
+16.0_user16.0_this is what is looks like when men play boys
+16.5_user16.5_Kevin Durant made a smart choice
+17.0_user17.0_All around game for Warriors in unstoppable
+17.5_user17.5_how many times will we hear Lebron cry when they get swept
+18.0_user18.0_look at how well they move their feet
+18.5_user18.5_this is unreal
+19.0_user19.0_Boom DEFENSE!
+19.5_user19.5_Go Cavaliers
+20.0_user20.0_Go Warriors
+20.5_user20.5_their defense is unbelievable
+21.0_user21.0_wow they are so good this year
+21.5_user21.5_unstoppable
+22.0_user22.0_I wonder how many championships in a row the Warriors are going to win
+22.5_user22.5_Steph Curry for President
+23.0_user23.0_and people thought that this game was going to be an actual game...
+23.5_user23.5_there is no chance the Cavaliers can keep up with the Warriors
+24.0_user24.0_when do they give the Warriors a trophy?
+24.5_user24.5_this defense though
+25.0_user25.0_Lebron looks like he has never played basketball before
+25.5_user25.5_this is what is looks like when men play boys
+26.0_user26.0_Kevin Durant made a smart choice
+26.5_user26.5_All around game for Warriors in unstoppable
+27.0_user27.0_how many times will we hear Lebron cry when they get swept
+27.5_user27.5_look at how well they move their feet
+28.0_user28.0_this is unreal
+28.5_user28.5_Boom DEFENSE!
+29.0_user29.0_Go Cavaliers
+29.5_user29.5_Go Warriors
+30.0_user30.0_their defense is unbelievable
+30.5_user30.5_wow they are so good this year
+31.0_user31.0_unstoppable
+31.5_user31.5_I wonder how many championships in a row the Warriors are going to win
+32.0_user32.0_Steph Curry for President
+32.5_user32.5_and people thought that this game was going to be an actual game...
+33.0_user33.0_there is no chance the Cavaliers can keep up with the Warriors
+33.5_user33.5_when do they give the Warriors a trophy?
+34.0_user34.0_this defense though
+34.5_user34.5_Lebron looks like he has never played basketball before
+35.0_user35.0_this is what is looks like when men play boys
+35.5_user35.5_Kevin Durant made a smart choice
+36.0_user36.0_All around game for Warriors in unstoppable
+36.5_user36.5_how many times will we hear Lebron cry when they get swept
+37.0_user37.0_look at how well they move their feet
+37.5_user37.5_this is unreal
+38.0_user38.0_Boom DEFENSE!
+38.5_user38.5_Go Cavaliers
+39.0_user39.0_Go Warriors
+39.5_user39.5_their defense is unbelievable
+40.0_user40.0_wow they are so good this year
+40.5_user40.5_unstoppable
+41.0_user41.0_I wonder how many championships in a row the Warriors are going to win
+41.5_user41.5_Steph Curry for President
+42.0_user42.0_and people thought that this game was going to be an actual game...
+42.5_user42.5_there is no chance the Cavaliers can keep up with the Warriors
+43.0_user43.0_when do they give the Warriors a trophy?
+43.5_user43.5_this defense though
+44.0_user44.0_Lebron looks like he has never played basketball before
+44.5_user44.5_this is what is looks like when men play boys
+45.0_user45.0_Kevin Durant made a smart choice
+45.5_user45.5_All around game for Warriors in unstoppable
+46.0_user46.0_how many times will we hear Lebron cry when they get swept
+46.5_user46.5_look at how well they move their feet
+47.0_user47.0_this is unreal
+47.5_user47.5_Boom DEFENSE!
+48.0_user48.0_Go Cavaliers
+48.5_user48.5_Go Warriors
+49.0_user49.0_their defense is unbelievable
+49.5_user49.5_wow they are so good this year
+50.0_user50.0_unstoppable
+50.5_user50.5_I wonder how many championships in a row the Warriors are going to win
+51.0_user51.0_Steph Curry for President
+51.5_user51.5_and people thought that this game was going to be an actual game...
+52.0_user52.0_there is no chance the Cavaliers can keep up with the Warriors
+52.5_user52.5_when do they give the Warriors a trophy?
+53.0_user53.0_this defense though
+53.5_user53.5_Lebron looks like he has never played basketball before
+54.0_user54.0_this is what is looks like when men play boys
+54.5_user54.5_Kevin Durant made a smart choice
+55.0_user55.0_All around game for Warriors in unstoppable
+55.5_user55.5_how many times will we hear Lebron cry when they get swept
+56.0_user56.0_look at how well they move their feet
+56.5_user56.5_this is unreal
+57.0_user57.0_Boom DEFENSE!
+57.5_user57.5_Go Cavaliers
+58.0_user58.0_Go Warriors
+58.5_user58.5_their defense is unbelievable
+59.0_user59.0_wow they are so good this year
+59.5_user59.5_unstoppable
+60.0_user60.0_I wonder how many championships in a row the Warriors are going to win
+60.5_user60.5_Steph Curry for President
+61.0_user61.0_and people thought that this game was going to be an actual game...
+61.5_user61.5_there is no chance the Cavaliers can keep up with the Warriors
+62.0_user62.0_when do they give the Warriors a trophy?
+62.5_user62.5_this defense though
+63.0_user63.0_Lebron looks like he has never played basketball before
+63.5_user63.5_this is what is looks like when men play boys
+64.0_user64.0_Kevin Durant made a smart choice
+64.5_user64.5_All around game for Warriors in unstoppable
+65.0_user65.0_how many times will we hear Lebron cry when they get swept
+65.5_user65.5_look at how well they move their feet
+66.0_user66.0_this is unreal
+66.5_user66.5_Boom DEFENSE!
+67.0_user67.0_Go Cavaliers
+67.5_user67.5_Go Warriors
+68.0_user68.0_their defense is unbelievable
+68.5_user68.5_wow they are so good this year
+69.0_user69.0_unstoppable
+69.5_user69.5_I wonder how many championships in a row the Warriors are going to win
+70.0_user70.0_Steph Curry for President
+70.5_user70.5_and people thought that this game was going to be an actual game...
+71.0_user71.0_there is no chance the Cavaliers can keep up with the Warriors
+71.5_user71.5_when do they give the Warriors a trophy?
+72.0_user72.0_this defense though
+72.5_user72.5_Lebron looks like he has never played basketball before
+73.0_user73.0_this is what is looks like when men play boys
+73.5_user73.5_Kevin Durant made a smart choice
+74.0_user74.0_All around game for Warriors in unstoppable
+74.5_user74.5_how many times will we hear Lebron cry when they get swept
+75.0_user75.0_look at how well they move their feet
+75.5_user75.5_this is unreal
+76.0_user76.0_Boom DEFENSE!
+76.5_user76.5_Go Cavaliers
+77.0_user77.0_Go Warriors
+77.5_user77.5_their defense is unbelievable
+78.0_user78.0_wow they are so good this year
+78.5_user78.5_unstoppable
+79.0_user79.0_I wonder how many championships in a row the Warriors are going to win
+79.5_user79.5_Steph Curry for President
+80.0_user80.0_and people thought that this game was going to be an actual game...
+80.5_user80.5_there is no chance the Cavaliers can keep up with the Warriors
+81.0_user81.0_when do they give the Warriors a trophy?
+81.5_user81.5_this defense though
+82.0_user82.0_Lebron looks like he has never played basketball before
+82.5_user82.5_this is what is looks like when men play boys
+83.0_user83.0_Kevin Durant made a smart choice
+83.5_user83.5_All around game for Warriors in unstoppable
+84.0_user84.0_how many times will we hear Lebron cry when they get swept
+84.5_user84.5_look at how well they move their feet
+85.0_user85.0_this is unreal
+85.5_user85.5_Boom DEFENSE!
+86.0_user86.0_Go Cavaliers
+86.5_user86.5_Go Warriors
+87.0_user87.0_their defense is unbelievable
+87.5_user87.5_wow they are so good this year
+88.0_user88.0_unstoppable
+88.5_user88.5_I wonder how many championships in a row the Warriors are going to win
+89.0_user89.0_Steph Curry for President
+89.5_user89.5_and people thought that this game was going to be an actual game...
+90.0_user90.0_there is no chance the Cavaliers can keep up with the Warriors
+90.5_user90.5_when do they give the Warriors a trophy?
+91.0_user91.0_this defense though
+91.5_user91.5_Lebron looks like he has never played basketball before
+92.0_user92.0_this is what is looks like when men play boys
+92.5_user92.5_Kevin Durant made a smart choice
+93.0_user93.0_All around game for Warriors in unstoppable
+93.5_user93.5_how many times will we hear Lebron cry when they get swept
+94.0_user94.0_look at how well they move their feet
+94.5_user94.5_this is unreal
+95.0_user95.0_Boom DEFENSE!
+95.5_user95.5_Go Cavaliers
+96.0_user96.0_Go Warriors
+96.5_user96.5_their defense is unbelievable
+97.0_user97.0_wow they are so good this year
+97.5_user97.5_unstoppable
+98.0_user98.0_I wonder how many championships in a row the Warriors are going to win
+98.5_user98.5_Steph Curry for President
+99.0_user99.0_and people thought that this game was going to be an actual game...
+99.5_user99.5_there is no chance the Cavaliers can keep up with the Warriors
+100.0_user100.0_when do they give the Warriors a trophy?
+100.5_user100.5_this defense though
+101.0_user101.0_Lebron looks like he has never played basketball before
+101.5_user101.5_this is what is looks like when men play boys
+102.0_user102.0_Kevin Durant made a smart choice
+102.5_user102.5_All around game for Warriors in unstoppable
+103.0_user103.0_how many times will we hear Lebron cry when they get swept
+103.5_user103.5_look at how well they move their feet
+104.0_user104.0_this is unreal
+104.5_user104.5_Boom DEFENSE!
+105.0_user105.0_Go Cavaliers
+105.5_user105.5_Go Warriors
+106.0_user106.0_their defense is unbelievable
+106.5_user106.5_wow they are so good this year
+107.0_user107.0_unstoppable
+107.5_user107.5_I wonder how many championships in a row the Warriors are going to win
+108.0_user108.0_Steph Curry for President
+108.5_user108.5_and people thought that this game was going to be an actual game...
+109.0_user109.0_there is no chance the Cavaliers can keep up with the Warriors
+109.5_user109.5_when do they give the Warriors a trophy?
+110.0_user110.0_this defense though
+110.5_user110.5_Lebron looks like he has never played basketball before
+111.0_user111.0_this is what is looks like when men play boys
+111.5_user111.5_Kevin Durant made a smart choice
+112.0_user112.0_All around game for Warriors in unstoppable
+112.5_user112.5_how many times will we hear Lebron cry when they get swept
+113.0_user113.0_look at how well they move their feet
+113.5_user113.5_this is unreal
+114.0_user114.0_Boom DEFENSE!
+114.5_user114.5_Go Cavaliers
+115.0_user115.0_Go Warriors
+115.5_user115.5_their defense is unbelievable
+116.0_user116.0_wow they are so good this year
+116.5_user116.5_unstoppable
+117.0_user117.0_I wonder how many championships in a row the Warriors are going to win
+117.5_user117.5_Steph Curry for President
+118.0_user118.0_and people thought that this game was going to be an actual game...
+118.5_user118.5_there is no chance the Cavaliers can keep up with the Warriors
+119.0_user119.0_when do they give the Warriors a trophy?
+119.5_user119.5_this defense though
+120.0_user120.0_Lebron looks like he has never played basketball before
+120.5_user120.5_this is what is looks like when men play boys
+121.0_user121.0_Kevin Durant made a smart choice
+121.5_user121.5_All around game for Warriors in unstoppable
+122.0_user122.0_how many times will we hear Lebron cry when they get swept
+122.5_user122.5_look at how well they move their feet
+123.0_user123.0_this is unreal
+123.5_user123.5_Boom DEFENSE!
+124.0_user124.0_Go Cavaliers
+124.5_user124.5_Go Warriors
+125.0_user125.0_their defense is unbelievable
+125.5_user125.5_wow they are so good this year
+126.0_user126.0_unstoppable
+126.5_user126.5_I wonder how many championships in a row the Warriors are going to win
+127.0_user127.0_Steph Curry for President
+127.5_user127.5_and people thought that this game was going to be an actual game...
+128.0_user128.0_there is no chance the Cavaliers can keep up with the Warriors
+128.5_user128.5_when do they give the Warriors a trophy?
+129.0_user129.0_this defense though
+129.5_user129.5_Lebron looks like he has never played basketball before
+130.0_user130.0_this is what is looks like when men play boys
+130.5_user130.5_Kevin Durant made a smart choice
+131.0_user131.0_All around game for Warriors in unstoppable
+131.5_user131.5_how many times will we hear Lebron cry when they get swept
+132.0_user132.0_look at how well they move their feet
+132.5_user132.5_this is unreal
+133.0_user133.0_Boom DEFENSE!
+133.5_user133.5_Go Cavaliers
+134.0_user134.0_Go Warriors
+134.5_user134.5_their defense is unbelievable
+135.0_user135.0_wow they are so good this year
+135.5_user135.5_unstoppable
+136.0_user136.0_I wonder how many championships in a row the Warriors are going to win
+136.5_user136.5_Steph Curry for President
