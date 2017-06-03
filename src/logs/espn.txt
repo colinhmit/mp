@@ -1,42 +1,42 @@
 0.5_user0.5_Go Cavaliers
 1.0_user1.0_Go Warriors
 1.5_user1.5_their defense is unbelievable
-2.0_user2.0_wow they are so good this year
-2.5_user2.5_unstoppable
-3.0_user3.0_I wonder how many championships in a row the Warriors are going to win
+2.0_user2.0_defense is shutting the Cavaliers down
+2.5_user2.5_defense is shutting the Cavaliers down
+3.0_user3.0_defense is shutting the Cavaliers down
 3.5_user3.5_Steph Curry for President
 4.0_user4.0_and people thought that this game was going to be an actual game...
-4.5_user4.5_there is no chance the Cavaliers can keep up with the Warriors
-5.0_user5.0_when do they give the Warriors a trophy?
-5.5_user5.5_this defense though
+4.5_user4.5_LeBron cant even save the Cavaliers
+5.0_user5.0_LeBron cant even save the Cavaliers
+5.5_user5.5_LeBron cant even save the Cavaliers
 6.0_user6.0_Lebron looks like he has never played basketball before
 6.5_user6.5_this is what is looks like when men play boys
-7.0_user7.0_Kevin Durant made a smart choice
+7.0_user7.0_this is what is looks like when men play boys
 7.5_user7.5_All around game for Warriors in unstoppable
-8.0_user8.0_how many times will we hear Lebron cry when they get swept
-8.5_user8.5_look at how well they move their feet
-9.0_user9.0_this is unreal
+8.0_user8.0_All around game for Warriors in unstoppable
+8.5_user8.5_All around game for Warriors in unstoppable
+9.0_user9.0_Boom DEFENSE!
 9.5_user9.5_Boom DEFENSE!
-10.0_user10.0_Go Cavaliers
-10.5_user10.5_Go Warriors
-11.0_user11.0_their defense is unbelievable
-11.5_user11.5_wow they are so good this year
+10.0_user10.0_Boom DEFENSE!
+10.5_user10.5_Boom DEFENSE!
+11.0_user11.0_Boom DEFENSE!
+11.5_user11.5_Boom DEFENSE!
 12.0_user12.0_unstoppable
 12.5_user12.5_I wonder how many championships in a row the Warriors are going to win
 13.0_user13.0_Steph Curry for President
-13.5_user13.5_and people thought that this game was going to be an actual game...
-14.0_user14.0_there is no chance the Cavaliers can keep up with the Warriors
+13.5_user13.5_when do they give the Warriors a trophy?
+14.0_user14.0_when do they give the Warriors a trophy?
 14.5_user14.5_when do they give the Warriors a trophy?
-15.0_user15.0_this defense though
-15.5_user15.5_Lebron looks like he has never played basketball before
-16.0_user16.0_this is what is looks like when men play boys
+15.0_user15.0_Steph Curry for President
+15.5_user15.5_Steph Curry for President
+16.0_user16.0_when do they give the Warriors a trophy?
 16.5_user16.5_Kevin Durant made a smart choice
-17.0_user17.0_All around game for Warriors in unstoppable
+17.0_user17.0_look at how well they move their feet
 17.5_user17.5_how many times will we hear Lebron cry when they get swept
 18.0_user18.0_look at how well they move their feet
-18.5_user18.5_this is unreal
-19.0_user19.0_Boom DEFENSE!
-19.5_user19.5_Go Cavaliers
+18.5_user18.5_STEPH CURRY!!!!!
+19.0_user19.0_STEPH CURRY!!!!!
+19.5_user19.5_STEPH CURRY!!!!!
 20.0_user20.0_STEPH CURRY!!!!!
 20.5_user20.5_STEPH CURRY!!!!!
 21.0_user21.0_STEPH CURRY!!!!!
