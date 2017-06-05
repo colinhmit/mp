@@ -9,7 +9,7 @@
 4.5_user4.5_LeBron cant even save the Cavaliers
 5.0_user5.0_LeBron cant even save the Cavaliers
 5.5_user5.5_LeBron cant even save the Cavaliers
-6.0_user6.0_Lebron looks like he has never played basketball before
+6.0_user6.0_LeBron cant even save the Cavaliers
 6.5_user6.5_this is what is looks like when men play boys
 7.0_user7.0_this is what is looks like when men play boys
 7.5_user7.5_All around game for Warriors in unstoppable
@@ -21,9 +21,9 @@
 10.5_user10.5_Boom DEFENSE!
 11.0_user11.0_Boom DEFENSE!
 11.5_user11.5_Boom DEFENSE!
-12.0_user12.0_unstoppable
+12.0_user12.0_I wonder how many championships in a row the Warriors are going to win
 12.5_user12.5_I wonder how many championships in a row the Warriors are going to win
-13.0_user13.0_Steph Curry for President
+13.0_user13.0_I wonder how many championships in a row the Warriors are going to win
 13.5_user13.5_when do they give the Warriors a trophy?
 14.0_user14.0_when do they give the Warriors a trophy?
 14.5_user14.5_when do they give the Warriors a trophy?
@@ -31,9 +31,9 @@
 15.5_user15.5_Steph Curry for President
 16.0_user16.0_when do they give the Warriors a trophy?
 16.5_user16.5_Kevin Durant made a smart choice
-17.0_user17.0_look at how well they move their feet
-17.5_user17.5_how many times will we hear Lebron cry when they get swept
-18.0_user18.0_look at how well they move their feet
+17.0_user17.0_Kevin Durant made a smart choice
+17.5_user17.5_Kevin Durant made a smart choice
+18.0_user18.0_Kevin Durant made a smart choice
 18.5_user18.5_STEPH CURRY!!!!!
 19.0_user19.0_STEPH CURRY!!!!!
 19.5_user19.5_STEPH CURRY!!!!!
@@ -45,115 +45,76 @@
 22.5_user22.5_STEPH CURRY!!!!!
 23.0_user23.0_STEPH CURRY!!!!!
 23.5_user23.5_He is lethal
-24.0_user24.0_That three pointer is a dagger
-24.5_user24.5_three pointer!
-25.0_user25.0_this game is over!
-25.5_user25.5_this game is over!
-26.0_user26.0_Kevin Durant made a smart choice
-26.5_user26.5_All around game for Warriors in unstoppable
-27.0_user27.0_how many times will we hear Lebron cry when they get swept
-27.5_user27.5_look at how well they move their feet
-28.0_user28.0_this is unreal
-28.5_user28.5_Boom DEFENSE!
-29.0_user29.0_Go Cavaliers
+24.0_user24.0_He is lethal
+24.5_user24.5_What a HUGE shot by Curry!
+25.0_user25.0_He is lethal
+25.5_user25.5_He is lethal
+26.0_user26.0_What a HUGE shot by Curry!
+26.5_user26.5_What a HUGE shot by Curry!
+27.0_user27.0_What a HUGE shot by Curry!
+27.5_user27.5_What a HUGE shot by Curry!
+28.0_user28.0_Go Warriors
+28.5_user28.5_Go Warriors
+29.0_user29.0_Go Warriors
 29.5_user29.5_Go Warriors
-30.0_user30.0_their defense is unbelievable
-30.5_user30.5_wow they are so good this year
+30.0_user30.0_Go Warriors
+30.5_user30.5_Go Warriors
 31.0_user31.0_unstoppable
 31.5_user31.5_I wonder how many championships in a row the Warriors are going to win
-32.0_user32.0_Steph Curry for President
-32.5_user32.5_and people thought that this game was going to be an actual game...
-33.0_user33.0_there is no chance the Cavaliers can keep up with the Warriors
-33.5_user33.5_when do they give the Warriors a trophy?
-34.0_user34.0_this defense though
-34.5_user34.5_Lebron looks like he has never played basketball before
-35.0_user35.0_this is what is looks like when men play boys
-35.5_user35.5_Kevin Durant made a smart choice
+32.0_user32.0_I wonder how many championships in a row the Warriors are going to win
+32.5_user32.5_I wonder how many championships in a row the Warriors are going to win
+33.0_user33.0_I wonder how many championships in a row the Warriors are going to win
+33.5_user33.5_I wonder how many championships in a row the Warriors are going to win
+34.0_user34.0_and people thought that this game was going to be an actual game...
+34.5_user34.5_and people thought that this game was going to be an actual game...
+35.0_user35.0_and people thought that this game was going to be an actual game...
+35.5_user35.5_and people thought that this game was going to be an actual game...
 36.0_user36.0_All around game for Warriors in unstoppable
-36.5_user36.5_how many times will we hear Lebron cry when they get swept
-37.0_user37.0_look at how well they move their feet
-37.5_user37.5_this is unreal
-38.0_user38.0_Boom DEFENSE!
-38.5_user38.5_Go Cavaliers
-39.0_user39.0_Go Warriors
-39.5_user39.5_their defense is unbelievable
-40.0_user40.0_wow they are so good this year
-40.5_user40.5_unstoppable
-41.0_user41.0_I wonder how many championships in a row the Warriors are going to win
-41.5_user41.5_Steph Curry for President
-42.0_user42.0_and people thought that this game was going to be an actual game...
+36.5_user36.5_All around game for Warriors in unstoppable
+37.0_user37.0_All around game for Warriors in unstoppable
+37.5_user37.5_All around game for Warriors in unstoppable
+38.0_user38.0_All around game for Warriors in unstoppable
+38.5_user38.5_All around game for Warriors in unstoppable
+39.0_user39.0_All around game for Warriors in unstoppable
+39.5_user39.5_Go Cavaliers
+40.0_user40.0_Go Cavaliers
+40.5_user40.5_Go Cavaliers
+41.0_user41.0_Go Cavaliers
+41.5_user41.5_Go Cavaliers
+42.0_user42.0_Go Cavaliers
 42.5_user42.5_there is no chance the Cavaliers can keep up with the Warriors
-43.0_user43.0_when do they give the Warriors a trophy?
-43.5_user43.5_this defense though
-44.0_user44.0_Lebron looks like he has never played basketball before
-44.5_user44.5_this is what is looks like when men play boys
-45.0_user45.0_Kevin Durant made a smart choice
-45.5_user45.5_All around game for Warriors in unstoppable
-46.0_user46.0_how many times will we hear Lebron cry when they get swept
+43.0_user43.0_there is no chance the Cavaliers can keep up with the Warriors
+43.5_user43.5_there is no chance the Cavaliers can keep up with the Warriors
+44.0_user44.0_there is no chance the Cavaliers can keep up with the Warriors
+44.5_user44.5_there is no chance the Cavaliers can keep up with the Warriors
+45.0_user45.0_there is no chance the Cavaliers can keep up with the Warriors
+45.5_user45.5_look at how well they move their feet
+46.0_user46.0_look at how well they move their feet
 46.5_user46.5_look at how well they move their feet
-47.0_user47.0_this is unreal
-47.5_user47.5_Boom DEFENSE!
-48.0_user48.0_Go Cavaliers
-48.5_user48.5_Go Warriors
+47.0_user47.0_look at how well they move their feet
+47.5_user47.5_look at how well they move their feet
+48.0_user48.0_look at how well they move their feet
+48.5_user48.5_their defense is unbelievable
 49.0_user49.0_their defense is unbelievable
-49.5_user49.5_wow they are so good this year
-50.0_user50.0_unstoppable
-50.5_user50.5_I wonder how many championships in a row the Warriors are going to win
-51.0_user51.0_Steph Curry for President
-51.5_user51.5_and people thought that this game was going to be an actual game...
-52.0_user52.0_there is no chance the Cavaliers can keep up with the Warriors
-52.5_user52.5_when do they give the Warriors a trophy?
-53.0_user53.0_this defense though
-53.5_user53.5_Lebron looks like he has never played basketball before
-54.0_user54.0_this is what is looks like when men play boys
-54.5_user54.5_Kevin Durant made a smart choice
-55.0_user55.0_All around game for Warriors in unstoppable
-55.5_user55.5_how many times will we hear Lebron cry when they get swept
-56.0_user56.0_look at how well they move their feet
-56.5_user56.5_this is unreal
-57.0_user57.0_Boom DEFENSE!
+49.5_user49.5_their defense is unbelievable
+50.0_user50.0_their defense is unbelievable
+50.5_user50.5_their defense is unbelievable
+51.0_user51.0_their defense is unbelievable
+51.5_user51.5_unstoppable
+52.0_user52.0_unstoppable
+52.5_user52.5_unstoppable
+53.0_user53.0_unstoppable
+53.5_user53.5_unstoppable
+54.0_user54.0_unstoppable
+54.5_user54.5_LeBron is probably crying after this game
+55.0_user55.0_LeBron is probably crying after this game
+55.5_user55.5_LeBron is probably crying after this game
+56.0_user56.0_LeBron is probably crying after this game
+56.5_user56.5_LeBron is probably crying after this game
+57.0_user57.0_Go Cavaliers
 57.5_user57.5_Go Cavaliers
-58.0_user58.0_Go Warriors
-58.5_user58.5_their defense is unbelievable
-59.0_user59.0_wow they are so good this year
-59.5_user59.5_unstoppable
+58.0_user58.0_Go Cavaliers
+58.5_user58.5_I wonder how many championships in a row the Warriors are going to win
+59.0_user59.0_I wonder how many championships in a row the Warriors are going to win
+59.5_user59.5_I wonder how many championships in a row the Warriors are going to win
 60.0_user60.0_I wonder how many championships in a row the Warriors are going to win
-60.5_user60.5_Steph Curry for President
-61.0_user61.0_and people thought that this game was going to be an actual game...
-61.5_user61.5_there is no chance the Cavaliers can keep up with the Warriors
-62.0_user62.0_when do they give the Warriors a trophy?
-62.5_user62.5_this defense though
-63.0_user63.0_Lebron looks like he has never played basketball before
-63.5_user63.5_this is what is looks like when men play boys
-64.0_user64.0_Kevin Durant made a smart choice
-64.5_user64.5_All around game for Warriors in unstoppable
-65.0_user65.0_how many times will we hear Lebron cry when they get swept
-65.5_user65.5_look at how well they move their feet
-66.0_user66.0_this is unreal
-66.5_user66.5_Boom DEFENSE!
-67.0_user67.0_Go Cavaliers
-67.5_user67.5_Go Warriors
-68.0_user68.0_their defense is unbelievable
-68.5_user68.5_wow they are so good this year
-69.0_user69.0_unstoppable
-69.5_user69.5_I wonder how many championships in a row the Warriors are going to win
-70.0_user70.0_Steph Curry for President
-70.5_user70.5_and people thought that this game was going to be an actual game...
-71.0_user71.0_there is no chance the Cavaliers can keep up with the Warriors
-71.5_user71.5_when do they give the Warriors a trophy?
-72.0_user72.0_this defense though
-72.5_user72.5_Lebron looks like he has never played basketball before
-73.0_user73.0_this is what is looks like when men play boys
-73.5_user73.5_Kevin Durant made a smart choice
-74.0_user74.0_All around game for Warriors in unstoppable
-74.5_user74.5_how many times will we hear Lebron cry when they get swept
-75.0_user75.0_look at how well they move their feet
-75.5_user75.5_this is unreal
-76.0_user76.0_Boom DEFENSE!
-76.5_user76.5_Go Cavaliers
-77.0_user77.0_Go Warriors
-77.5_user77.5_their defense is unbelievable
-78.0_user78.0_wow they are so good this year
-78.5_user78.5_unstoppable
-79.0_user79.0_I wonder how many championships in a row the Warriors are going to win
-79.5_user79.5_Steph Curry for President
