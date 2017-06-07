@@ -23,6 +23,7 @@ class strm:
 
         self.nlp_match = True
         self.ad_trigger = False
+        self.enrich_trigger = False
 
         self.init_sockets()
 
@@ -120,7 +121,7 @@ class strm:
         self.enrich_trending_loop = True
         while self.enrich_trending_loop:
             curr_time = datetime.datetime.now()
-            if ((curr_time - max(self.last_rcv_time,self.last_enrch_time)).total_seconds()>self.config['last_rcv_enrich_timeout']) or ((curr_time - self.last_enrch_time).total_seconds()>self.config['last_enrch_enrich_timeout']):
+            if ((curr_time - max(self.last_rcv_time,self.last_enrch_time)).total_seconds()>self.config['last_rcv_enrich_timeout']) or ((curr_time - self.last_enrch_time).total_seconds()>self.config['last_enrch_enrich_timeout']) or self.enrich_trigger:
                 idstr = str(uuid.uuid1())
                 enrich_item = {
                     'id': idstr,
@@ -130,6 +131,7 @@ class strm:
                 self.decay_enrich()
                 self.last_enrch_time = curr_time
                 self.last_decay_time = curr_time
+                self.enrich_trigger = False
             elif (curr_time - self.last_decay_time).total_seconds()>self.config['last_rcv_enrich_timeout']:
                 self.decay_enrich()
                 self.last_decay_time = curr_time
@@ -331,10 +333,18 @@ class strm:
                 pp('decay enrich failed')
                 pp(e)
 
+    def check_triggers(self, msgdata):
+        if "|AD_TRIGGER|" in msgdata['message']:
+            self.ad_trigger = True
+            self.last_ad_time = curr_time
+
+        if "|ENRICH_TRIGGER|" in msgdata['message']:
+            self.enrich_trigger = True
 
     def process_message(self, msgdata, msgtime):
         #SET UP ANALYTICS CONFIG
         self.process_subjs(msgdata)
+        self.check_triggers(msgdata)
 
         #cleanup RT
         if msgdata['message'][:4] == 'RT @':

@@ -440,7 +440,7 @@ class HTTPServer():
         return json.dumps({'content': content_output})
 
     def get_enrich(self, enrich_dict, enrich_time, curr_enriches, ad_bool):
-        enrich_eval = {"Something went wrong with the enrich call :(": {"src": "twitter", "mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ["https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"], "id": "123", "src_id": "869858333477523458", "username":"abc"}}
+        enrich_eval = {"Something went wrong with the enrich call.": {"src": "twitter", "mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ["https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"], "id": "123", "src_id": "869858333477523458", "username":"abc"}}
         if ad_bool and ('ad' in enrich_dict):
             enrich_eval_dict = self.ads.get(random.choice(enrich_dict['ad']),{})
             if len(enrich_eval_dict) > 0:
