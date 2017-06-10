@@ -345,11 +345,10 @@ class strm:
             }
             self.enrich.append(enrich_item)
             return True
-
         elif "|ENRICHTRIGGER|" in msgdata['message']:
             self.enrich_trigger = True
             return True
-        else
+        else:
             return False
 
 
