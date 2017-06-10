@@ -83,6 +83,11 @@ class HTTPServer():
         self.reddit_analytics = {}
 
         self.ads = {}
+        self.ad_triggers = {}
+        self.ad_triggers['native'] = {}
+        self.ad_triggers['twitch'] = {}
+        self.ad_triggers['twitter'] = {}
+        self.ad_triggers['reddit'] = {}
 
         self.enrich_map = {}
 
@@ -154,6 +159,9 @@ class HTTPServer():
 
         for enrich_msg in data['enrichdecay']:
             self.enrichdecay_helper(enrich_msg)
+
+        if data['ad_trigger']:
+            self.ad_triggers[data['src']][data['stream']] = True
 
     def enrichdecay_helper(self, msg):
         try:
@@ -266,6 +274,8 @@ class HTTPServer():
     def get_agg_streams(self, args):
         enrich_dict = {}
         ad_trigger = False
+        ad_src = None
+        ad_stream = None
         if ('e_native' in args) and (len(args['e_native'][0])>0):
             enrich_dict['native'] = []
             for stream_id in [self.pattern.sub('',x).lower() for x in args['e_native'][0].split(',')]:
@@ -301,7 +311,10 @@ class HTTPServer():
 
                 trend_dicts.append(self.native_streams.get(stream_id,{}).get('trending',{"This stream has no messages yet!": {"src": "native", "mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": "", "id": "123", "src_id": "123", "username":"abc"}}))
                 enrich_items += self.native_streams.get(stream_id,{}).get('enrich',[])
-                ad_trigger = ad_trigger or self.native_streams.get(stream_id,{}).get('ad_trigger',False)
+                if self.ad_triggers['native'].get(stream_id,False):
+                    ad_trigger = True
+                    ad_src = 'native'
+                    ad_stream = stream_id
 
         if ('twitch' in args) and (len(args['twitch'][0])>0):
             for stream_id in [self.pattern.sub('',x).lower() for x in args['twitch'][0].split(',')]:
@@ -341,16 +354,12 @@ class HTTPServer():
             num_enrich = len(enrich_items)
             enrich_score = max(float(tot_score)/(self.config['enrich_base']-num_enrich),1)
 
-            # pp('//enriching//')
-            # pp(enrich_items)
             uncached = []
             cached_msgs = []
             i = 0
             for enrich_item in enrich_items:
                 cache_enrich = self.enrich_map.get(enrich_item['id'],{}).get(hash_enrich_args,None)
                 if cache_enrich is not None:
-                    # pp('cached')
-                    # pp(cache_enrich)
                     trending_output[cache_enrich[0]+i*" "] = cache_enrich[1]
                     trending_output[cache_enrich[0]+i*" "]['score'] = enrich_score
                     cached_msgs.append(cache_enrich[0])
@@ -360,24 +369,16 @@ class HTTPServer():
 
             for enrich_item in uncached:
                 if enrich_item['id'] in self.enrich_map:
-                    # pp('cached kinda')
-                    # pp(enrich_item['id'])
-                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs, ad_trigger)
-                    # pp(enrich)
+                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs, ad_trigger, ad_src, ad_stream)
                     self.enrich_map[enrich_item['id']][hash_enrich_args] = enrich
                     trending_output[enrich[0]+i*" "] = enrich[1]
                     trending_output[enrich[0]+i*" "]['score'] = enrich_score
-                    # pp(trending_output)
                 else:
-                    # pp('not cached')
-                    # pp(enrich_item['id'])
                     self.enrich_map[enrich_item['id']] = {}
-                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs, ad_trigger)
-                    # pp(enrich)
+                    enrich = self.get_enrich(enrich_dict, enrich_item['time'], cached_msgs, ad_trigger, ad_src, ad_stream)
                     self.enrich_map[enrich_item['id']][hash_enrich_args] = enrich
                     trending_output[enrich[0]+i*" "] = enrich[1]
                     trending_output[enrich[0]+i*" "]['score'] = enrich_score
-                    # pp(trending_output)
                 i+=1
 
         if ('filter' in args) and (len(args['filter'][0])>0):
@@ -439,13 +440,18 @@ class HTTPServer():
 
         return json.dumps({'content': content_output})
 
-    def get_enrich(self, enrich_dict, enrich_time, curr_enriches, ad_bool):
+    def get_enrich(self, enrich_dict, enrich_time, curr_enriches, ad_bool, ad_src, ad_stream):
         enrich_eval = {"Something went wrong with the enrich call.": {"src": "twitter", "mp4_url": "", "score": 0.0001, "first_rcv_time": "2001-01-01T00:00:00.000000", "media_url": ["https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif"], "id": "123", "src_id": "869858333477523458", "username":"abc"}}
         if ad_bool and ('ad' in enrich_dict):
             enrich_eval_dict = self.ads.get(random.choice(enrich_dict['ad']),{})
             if len(enrich_eval_dict) > 0:
                 max_key = max(enrich_eval_dict, key=lambda x: enrich_eval_dict[x]['score'] if x not in curr_enriches else 0)
                 enrich_eval[max_key] = enrich_eval_dict[max_key]
+                try:
+                    self.ad_triggers[ad_src][ad_stream] = False
+                except Exception, e:
+                    pp('enrich ad failed')
+                    pp(e)
         else:
             if ('native' in enrich_dict):
                 enrich_eval_dict = self.native_streams.get(random.choice(enrich_dict['native']),{}).get('trending',{})

@@ -38,11 +38,11 @@ class RedditStream(strm):
                     'src': self.config['self'],
                     'stream': self.stream,
                     'enrichdecay': list(self.enrichdecay),
+                    'ad_trigger': self.ad_trigger,
                     'data': {
                         'trending': dict(self.clean_trending), 
                         'content': dict(self.content),
                         'enrich': list(self.enrich),
-                        'ad_trigger': self.ad_trigger,
                         'default_image': self.default_image['image']
                     }
                 }

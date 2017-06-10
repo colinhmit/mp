@@ -50,10 +50,10 @@ class strm:
                     'src': self.config['self'],
                     'stream': self.stream,
                     'enrichdecay': list(self.enrichdecay),
+                    'ad_trigger': self.ad_trigger,
                     'data': {
                         'trending': dict(self.clean_trending),
-                        'enrich': list(self.enrich),
-                        'ad_trigger': self.ad_trigger
+                        'enrich': list(self.enrich)
                     }
                 }
                 pickled_data = pickle.dumps(data)
