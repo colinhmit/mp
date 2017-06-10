@@ -1,1 +1,1 @@
-0.5_busse_enrich test_https://pbs.twimg.com/tweet_video_thumb/DBSH9iMWAAAAPGN.jpg_870470204639375361
+0.5_busse_enrich test_http://static3.businessinsider.com/image/5548e273eab8ead132f3a0b2-480/steph-curry.jpg_870470204639375361
