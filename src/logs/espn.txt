@@ -59,7 +59,7 @@
 29.5_user29.5_Go Warriors
 30.0_user30.0_Go Warriors
 30.5_user30.5_Go Warriors
-31.0_user31.0_unstoppable
+31.0_user31.0_|ENRICH_TRIGGER|
 31.5_user31.5_I wonder how many championships in a row the Warriors are going to win
 32.0_user32.0_I wonder how many championships in a row the Warriors are going to win
 32.5_user32.5_I wonder how many championships in a row the Warriors are going to win
@@ -81,7 +81,7 @@
 40.5_user40.5_Go Cavaliers
 41.0_user41.0_Go Cavaliers
 41.5_user41.5_Go Cavaliers
-42.0_user42.0_Go Cavaliers
+42.0_user42.0_|AD_TRIGGER|
 42.5_user42.5_there is no chance the Cavaliers can keep up with the Warriors
 43.0_user43.0_there is no chance the Cavaliers can keep up with the Warriors
 43.5_user43.5_there is no chance the Cavaliers can keep up with the Warriors
