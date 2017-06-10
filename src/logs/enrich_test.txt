@@ -1,1 +1,1 @@
-0.5_busse_enrich test_http://pbs.twimg.com/media/DBWs-mfXgAAgtXB.jpg_870804498091999236
+0.5_busse_enrich test_https://pbs.twimg.com/tweet_video_thumb/DBSH9iMWAAAAPGN.jpg_870470204639375361
