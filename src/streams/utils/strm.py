@@ -334,11 +334,11 @@ class strm:
                 pp(e)
 
     def check_triggers(self, msgdata):
-        if "|AD_TRIGGER|" in msgdata['message']:
+        if "|ADTRIGGER|" in msgdata['message']:
             self.ad_trigger = True
             self.last_ad_time = curr_time
 
-        if "|ENRICH_TRIGGER|" in msgdata['message']:
+        if "|ENRICHTRIGGER|" in msgdata['message']:
             self.enrich_trigger = True
 
     def process_message(self, msgdata, msgtime):
