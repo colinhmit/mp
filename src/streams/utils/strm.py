@@ -336,11 +336,10 @@ class strm:
     def check_triggers(self, msgdata):
         if "|ADTRIGGER|" in msgdata['message']:
             self.ad_trigger = True
-            self.last_ad_time = curr_time
             curr_time = datetime.datetime.now()
-            idstr = str(uuid.uuid1())
+            self.last_ad_time = curr_time
             enrich_item = {
-                'id': idstr,
+                'id': str(uuid.uuid1()),
                 'time': curr_time
             }
             self.enrich.append(enrich_item)
