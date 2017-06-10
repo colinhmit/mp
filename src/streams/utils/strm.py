@@ -337,33 +337,48 @@ class strm:
         if "|ADTRIGGER|" in msgdata['message']:
             self.ad_trigger = True
             self.last_ad_time = curr_time
+            curr_time = datetime.datetime.now()
+            idstr = str(uuid.uuid1())
+            enrich_item = {
+                'id': idstr,
+                'time': curr_time
+            }
+            self.enrich.append(enrich_item)
+            return True
 
-        if "|ENRICHTRIGGER|" in msgdata['message']:
+        elif "|ENRICHTRIGGER|" in msgdata['message']:
             self.enrich_trigger = True
+            return True
+        else
+            return False
+
 
     def process_message(self, msgdata, msgtime):
-        #SET UP ANALYTICS CONFIG
-        self.process_subjs(msgdata)
-        self.check_triggers(msgdata)
-
-        #cleanup RT
-        if msgdata['message'][:4] == 'RT @':
-            msgdata['message'] = msgdata['message'][msgdata['message'].find(':')+1:]
-
-        if len(self.trending)>0:
-            try:
-                matched_msg = self.get_match(msgdata)
-            except Exception, e:
-                pp(self.config['self']+' matching failed.')
-                pp(e)
-                matched_msg = None
-
-            if matched_msg is None:
-                self.handle_new(msgdata, msgtime)
-            else:
-                self.handle_match(matched_msg, msgdata, msgtime)
-
+        #!!!!DEMO HACKY!!!!!
+        if self.check_triggers(msgdata):
+            pass
         else:
-            self.handle_new(msgdata, msgtime)
+            #SET UP ANALYTICS CONFIG
+            self.process_subjs(msgdata)
 
-        self.decay(msgdata, msgtime)
+            #cleanup RT
+            if msgdata['message'][:4] == 'RT @':
+                msgdata['message'] = msgdata['message'][msgdata['message'].find(':')+1:]
+
+            if len(self.trending)>0:
+                try:
+                    matched_msg = self.get_match(msgdata)
+                except Exception, e:
+                    pp(self.config['self']+' matching failed.')
+                    pp(e)
+                    matched_msg = None
+
+                if matched_msg is None:
+                    self.handle_new(msgdata, msgtime)
+                else:
+                    self.handle_match(matched_msg, msgdata, msgtime)
+
+            else:
+                self.handle_new(msgdata, msgtime)
+
+            self.decay(msgdata, msgtime)
