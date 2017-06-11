@@ -1,8 +1,8 @@
 0.5_user0.5_What a great game!
 1.0_user1.0_Warriors wont let the Cavs even get close to the rim...
-1.5_user1.5_how many teams do we need to see get swept
+1.5_user1.5_NBA playoffs are so much better than NHL playoffs
 2.0_user2.0_look at how well they move their feet
-2.5_user2.5_look at how well they move their feet
+2.5_user2.5_Curry wont have enough fingers for how many rings he will get in his career
 3.0_user3.0_look at how well they move their feet
 3.5_user3.5_nothing will stop them now!
 4.0_user4.0_Can't think of two better teams to play each other
@@ -17,8 +17,8 @@
 8.5_user8.5_This is the beginning of the end for LeBron
 9.0_user9.0_look at how well they move their feet
 9.5_user9.5_Can I call Warriors in 4, or is that too early?
-10.0_user10.0_Go Cavaliers
-10.5_user10.5_Go Warriors
+10.0_user10.0_Let's Go Cavaliers!
+10.5_user10.5_The Cavaliers really need a rally here.
 11.0_user11.0_I want the refs to call a mercy rule this game
 11.5_user11.5_defense is shutting the Cavaliers down
 12.0_user12.0_We need Korver in the game!
@@ -30,23 +30,23 @@
 15.0_user15.0_LeBron cant even save the Cavaliers
 15.5_user15.5_LeBron cant even save the Cavaliers
 16.0_user16.0_this is what is looks like when men play boys
-16.5_user16.5_this is what is looks like when men play boys
+16.5_user16.5_I want to see this series go to seven games
 17.0_user17.0_AI is the best defender. Even at his age!
 17.5_user17.5_All around game for Warriors in unstoppable
-18.0_user18.0_All around game for Warriors in unstoppable
+18.0_user18.0_How can you say that MJ is better than LBJ... he is breaking every record
 18.5_user18.5_Call the game right now, this is some textbook DEFENSE!
-19.0_user19.0_Call the game right now, this is some textbook DEFENSE!
+19.0_user19.0_Warriors combination of offense and defense is best in history
 19.5_user19.5_Steve Kerr is the real MVP
-20.0_user20.0_Call the game right now, this is some textbook DEFENSE!
+20.0_user20.0_Lebron is going to have a long offseason after these losses...
 20.5_user20.5_Call the game right now, this is some textbook DEFENSE!
-21.0_user21.0_Steve Kerr is the real MVP
+21.0_user21.0_Call the game right now, this is some textbook DEFENSE!
 21.5_user21.5_I wonder how many championships in a row the Warriors are going to win
-22.0_user22.0_I wonder how many championships in a row the Warriors are going to win
+22.0_user22.0_Durant will be chasing championship teams his whole career
 22.5_user22.5_I wonder how many championships in a row the Warriors are going to win
 23.0_user23.0_when do they give the Warriors a trophy?
-23.5_user23.5_when do they give the Warriors a trophy?
+23.5_user23.5_Livingston needs more minutes for the Warriors
 24.0_user24.0_when do they give the Warriors a trophy?
-24.5_user24.5_Steph Curry for President
+24.5_user24.5_That last call by the refs was a joke... not a foul
 25.0_user25.0_Steph Curry for President
 25.5_user25.5_when do they give the Warriors a trophy?
 26.0_user26.0_Kevin Durant made a smart choice
@@ -102,19 +102,6 @@
 51.0_user51.0_Go Cavaliers
 51.5_user51.5_Go Cavaliers
 52.0_user52.0_there is no chance the Cavaliers can keep up with the Warriors
-52.5_user52.5_there is no chance the Cavaliers can keep up with the Warriors
-53.0_user53.0_there is no chance the Cavaliers can keep up with the Warriors
-53.5_user53.5_there is no chance the Cavaliers can keep up with the Warriors
-54.0_user54.0_there is no chance the Cavaliers can keep up with the Warriors
-54.5_user54.5_there is no chance the Cavaliers can keep up with the Warriors
 55.0_user55.0_look at how well they move their feet
-55.5_user55.5_look at how well they move their feet
-56.0_user56.0_look at how well they move their feet
-56.5_user56.5_look at how well they move their feet
-57.0_user57.0_look at how well they move their feet
-57.5_user57.5_look at how well they move their feet
-58.0_user58.0_their defense is unbelievable
-58.5_user58.5_their defense is unbelievable
-59.0_user59.0_their defense is unbelievable
-59.5_user59.5_their defense is unbelievable
+58.0_user58.0_Basketball at it's best!
 60.0_user60.0_their defense is unbelievable
