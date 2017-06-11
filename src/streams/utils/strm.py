@@ -50,10 +50,10 @@ class strm:
                     'src': self.config['self'],
                     'stream': self.stream,
                     'enrichdecay': list(self.enrichdecay),
+                    'ad_trigger': self.ad_trigger,
                     'data': {
                         'trending': dict(self.clean_trending),
-                        'enrich': list(self.enrich),
-                        'ad_trigger': self.ad_trigger
+                        'enrich': list(self.enrich)
                     }
                 }
                 pickled_data = pickle.dumps(data)
@@ -334,36 +334,49 @@ class strm:
                 pp(e)
 
     def check_triggers(self, msgdata):
-        if "|AD_TRIGGER|" in msgdata['message']:
+        if "|ADTRIGGER|" in msgdata['message']:
             self.ad_trigger = True
+            curr_time = datetime.datetime.now()
             self.last_ad_time = curr_time
-
-        if "|ENRICH_TRIGGER|" in msgdata['message']:
+            enrich_item = {
+                'id': str(uuid.uuid1()),
+                'time': curr_time
+            }
+            self.enrich.append(enrich_item)
+            return True
+        elif "|ENRICHTRIGGER|" in msgdata['message']:
             self.enrich_trigger = True
+            return True
+        else:
+            return False
+
 
     def process_message(self, msgdata, msgtime):
-        #SET UP ANALYTICS CONFIG
-        self.process_subjs(msgdata)
-        self.check_triggers(msgdata)
-
-        #cleanup RT
-        if msgdata['message'][:4] == 'RT @':
-            msgdata['message'] = msgdata['message'][msgdata['message'].find(':')+1:]
-
-        if len(self.trending)>0:
-            try:
-                matched_msg = self.get_match(msgdata)
-            except Exception, e:
-                pp(self.config['self']+' matching failed.')
-                pp(e)
-                matched_msg = None
-
-            if matched_msg is None:
-                self.handle_new(msgdata, msgtime)
-            else:
-                self.handle_match(matched_msg, msgdata, msgtime)
-
+        #!!!!DEMO HACKY!!!!!
+        if self.check_triggers(msgdata):
+            pass
         else:
-            self.handle_new(msgdata, msgtime)
+            #SET UP ANALYTICS CONFIG
+            self.process_subjs(msgdata)
 
-        self.decay(msgdata, msgtime)
+            #cleanup RT
+            if msgdata['message'][:4] == 'RT @':
+                msgdata['message'] = msgdata['message'][msgdata['message'].find(':')+1:]
+
+            if len(self.trending)>0:
+                try:
+                    matched_msg = self.get_match(msgdata)
+                except Exception, e:
+                    pp(self.config['self']+' matching failed.')
+                    pp(e)
+                    matched_msg = None
+
+                if matched_msg is None:
+                    self.handle_new(msgdata, msgtime)
+                else:
+                    self.handle_match(matched_msg, msgdata, msgtime)
+
+            else:
+                self.handle_new(msgdata, msgtime)
+
+            self.decay(msgdata, msgtime)
