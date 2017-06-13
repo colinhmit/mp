@@ -124,6 +124,7 @@ class HTTPServer():
             try:
                 data = pickle.loads(raw_data)
             except Exception, e:
+                pp('proc_data failed')
                 pp(e)
                 data = {'type': 'invalid'}
 
@@ -141,6 +142,7 @@ class HTTPServer():
             try:
                 data = pickle.loads(raw_data)
             except Exception, e:
+                pp('proc_analytics failed')
                 pp(e)
                 data = {'type': 'invalid'}
 
@@ -168,6 +170,7 @@ class HTTPServer():
             if msg in self.enrich_map.keys():
                 del self.enrich_map[msg]
         except Exception, e:
+            pp('enrichdecay helper failed')
             pp(e)
         
     def process_delete(self, data):
@@ -189,7 +192,8 @@ class HTTPServer():
                     if stream in self.reddit_streams:
                         del self.reddit_streams[stream]
         except Exception, e:
-            raise e
+            pp('process delete failed')
+            pp(e)
         
     def process_clusters(self, data):
         if data['src'] == 'native':
@@ -407,6 +411,7 @@ class HTTPServer():
                     content = self.twitter_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.twitter_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", "id":"123", "src_id": "123"}})
                     content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id'], 'src_id':msg_v['src_id']} for msg_k, msg_v in content.items() if (timestamp - msg_v['last_mtch_time']).total_seconds() <= horizon})
                 except Exception, e:
+                    pp('get agg content failed - twitter')
                     pp(e)
 
         if ('reddit' in args) and (len(args['reddit'][0])>0):
@@ -419,6 +424,7 @@ class HTTPServer():
                     content = self.reddit_streams.get(stream_id,{}).get('content',{("This stream is not currently available. If this message does not dissapear, please try one of the following streams: " + str(self.reddit_streams.keys())): {"mp4_url": "", "score": 0.0001, "last_mtch_time": timestamp, "media_url": "https://media.giphy.com/media/a9xhxAxaqOfQs/giphy.gif", "id":"123", "src_id": "123"}})
                     content_dicts.append({msg_k: {'score':msg_v['score'], 'last_mtch_time': msg_v['last_mtch_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id'], 'src_id':msg_v['src_id']} for msg_k, msg_v in content.items() if (timestamp - msg_v['last_mtch_time']).total_seconds() <= horizon})
                 except Exception, e:
+                    pp('get agg content failed - reddit')
                     pp(e)
 
         content_output = {}

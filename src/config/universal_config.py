@@ -214,6 +214,7 @@ stream_config = {
         'filter_trending_timeout': 0.7,
         'render_trending_timeout': 0.3,
         'enrich_trending_timeout': 1.0,
+        'enrich_timer': False,
 
         # fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -261,6 +262,7 @@ stream_config = {
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
         'enrich_trending_timeout': 1.0,
+        'enrich_timer': False,
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -311,6 +313,7 @@ stream_config = {
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.7,
         'enrich_trending_timeout': 1.0,
+        'enrich_timer': False,
 
         #fw_eo output from funcions_matching threshold 
         'fo_compare_threshold': 65,
@@ -361,6 +364,7 @@ stream_config = {
         'filter_content_timeout': 5,
         'render_trending_timeout': 0.05,
         'enrich_trending_timeout': 1.0,
+        'enrich_timer': False,
 
         'set_nlp_match_timeout': 5,
         'nlp_match_threshold': 3,
