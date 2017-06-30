@@ -1,17 +1,17 @@
 #HOSTS & PORTS
 #PROD SETTING
-# local_host = '0.0.0.0'
-# http_host = '172.31.3.149'
-# server_host = '172.31.13.182'
-# native_host = '172.31.13.182'
-# manual_host = '172.31.13.182'
+local_host = '0.0.0.0'
+http_host = '172.31.3.149'
+server_host = '172.31.13.182'
+native_host = '172.31.13.182'
+manual_host = '172.31.13.182'
 
 #DEV SETTING
-local_host = '0.0.0.0'
-http_host = '0.0.0.0'
-server_host = '0.0.0.0'
-native_host = '0.0.0.0'
-manual_host = '0.0.0.0'
+# local_host = '0.0.0.0'
+# http_host = '0.0.0.0'
+# server_host = '0.0.0.0'
+# native_host = '0.0.0.0'
+# manual_host = '0.0.0.0'
 
 irc_input_port = 8002
 irc_proc_port = 8012
