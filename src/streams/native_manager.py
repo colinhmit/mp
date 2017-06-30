@@ -39,7 +39,8 @@ class NativeManager(strm_mgr):
 
                 curated = []
                 for row in values:
-                    curated.append({'title':row[0], 'src':'native', 'stream':row[1].split(","), 'enrich':{'twitter':row[2].split(","),'reddit':row[3].split(","),'ad':row[4].split(",")}, 'image':row[6], 'description':row[5], 'count':row[7]})
+                    #curated.append({'title':row[0], 'src':'native', 'stream':row[1].split(","), 'enrich':{'twitter':row[2].split(","),'reddit':row[3].split(","),'ad':row[4].split(",")}, 'image':row[6], 'description':row[5], 'count':row[7]})
+                    curated.append({'title':row[0], 'src':'twitter', 'stream':row[2].split(","), 'enrich':{'reddit':row[3].split(","),'ad':row[4].split(",")}, 'image':row[6], 'description':row[5], 'count':row[7]})
 
                 if curated != self.featured:
                     current_streams = [x['stream'] for x in self.featured]
