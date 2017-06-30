@@ -36,8 +36,8 @@ data_port = 8082
 data_proc_port = 8050
 server_port = 8083
 
-# main_port = 80
-main_port = 4808
+main_port = 80
+#main_port = 4808
 native_port = 8000
 manual_port = 8001
 
