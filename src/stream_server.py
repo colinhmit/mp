@@ -32,7 +32,7 @@ class StreamServer():
         
         #self.data_server = DataServer(dataconfig)
 
-        self.ad_server = AdServer(ad_config)
+        #self.ad_server = AdServer(ad_config)
 
         self.init_sockets()
         self.init_threads()
