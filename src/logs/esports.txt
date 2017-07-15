@@ -434,6 +434,7 @@
 51.32_user1347_win PogChamp
 51.33_user1348_REKT
 51.43_user1349_WOOOOLF
+52.50_busse_|ENRICHTRIGGER|
 52.64_user1350_4 20? VapeNation
 52.65_user1351_gg
 52.68_user1352_GGWP
@@ -448,7 +449,6 @@
 52.99_user1361_WHOLY FK WOLF
 52.99_user1362_PogChamp
 53_user1363_GG
-53.00_busse_|ENRICHTRIGGER|
 53.02_user1364_WOLF PogChamp
 53.04_user1365_PogChamp
 53.09_user1366_WOLF PogChamp
@@ -560,12 +560,24 @@
 60.42_user1472_WOLF PogChamp
 60.43_user1473_WOLF CARRY
 60.49_user1474_END THE GAME BABY
-60.50_userjdfsf_This is such a great game!
-60.51_userfdsfsf_This is such a great game!
-60.52_usfdsfdsfsf_This is such a great game!
-60.53_usfdsasfkhjsfsf_This is such a great game!
-60.54_usfdsasfkhsdffsf_This is such a great game!
-60.55_ussfkhsdffsf_This is such a great game!
+60.50_userjdfsf_game over!
+60.51_userfdsfsf_game over!
+60.52_usfdsfdsfsf_game over!
+60.53_usfdsasfkhjsfsf_game over!
+60.54_usfdsasfkhsdffsf_game over!
+60.55_ussfkhsdffsf_game over!
+60.70_userjdfsf_SKT is unstoppable
+60.71_userfdsfsf_SKT is unstoppable
+60.72_usfdsfdsfsf_SKT is unstoppable
+60.73_usfdsasfkhjsfsf_SKT is unstoppable
+60.74_usfdsasfkhsdffsf_SKT is unstoppable
+60.75_ussfkhsdffsf_SKT is unstoppable
+60.90_userjdfsf_alpha af
+60.91_userfdsfsf_alpha af
+60.92_usfdsfdsfsf_alpha af
+60.93_usfdsasfkhjsfsf_alpha af
+60.94_usfdsasfkhsdffsf_alpha af
+60.95_ussfkhsdffsf_alpha af
 62.73_user1475_ftnaCHAMP ftnaCHAMP WOLF
 62.76_user1476_ggg
 62.78_user1477_ftnaCHAMP
