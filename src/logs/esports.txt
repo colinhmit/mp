@@ -560,24 +560,6 @@
 60.42_user1472_WOLF PogChamp
 60.43_user1473_WOLF CARRY
 60.49_user1474_END THE GAME BABY
-60.50_userjdfsf_game over!
-60.51_userfdsfsf_game over!
-60.52_usfdsfdsfsf_game over!
-60.53_usfdsasfkhjsfsf_game over!
-60.54_usfdsasfkhsdffsf_game over!
-60.55_ussfkhsdffsf_game over!
-60.70_userjdfsf_SKT is unstoppable
-60.71_userfdsfsf_SKT is unstoppable
-60.72_usfdsfdsfsf_SKT is unstoppable
-60.73_usfdsasfkhjsfsf_SKT is unstoppable
-60.74_usfdsasfkhsdffsf_SKT is unstoppable
-60.75_ussfkhsdffsf_SKT is unstoppable
-60.90_userjdfsf_alpha af
-60.91_userfdsfsf_alpha af
-60.92_usfdsfdsfsf_alpha af
-60.93_usfdsasfkhjsfsf_alpha af
-60.94_usfdsasfkhsdffsf_alpha af
-60.95_ussfkhsdffsf_alpha af
 62.73_user1475_ftnaCHAMP ftnaCHAMP WOLF
 62.76_user1476_ggg
 62.78_user1477_ftnaCHAMP
@@ -605,12 +587,12 @@
 63.86_user1499_WOLFFFFFFFFFFFFF
 63.89_user1500_LUL
 63.95_user1501_wolf so good
-64.00_busse_|ADTRIGGER|
 64.04_user1502_2:1
 64.05_user1503_GG
 64.36_user1504_BYE SKT??? LUL
 64.36_user1505_PogChamp Wolf PogChamp
 64.39_user1506_WHERE IS NA? LUL WHERE IS NA? LUL WHERE IS NA? LUL
+64.39_busse_|ADTRIGGER|
 64.39_user1507_Bye Eu LUL
 64.4_user1508_perkz didnt ult
 64.45_user1509_EU LUL
