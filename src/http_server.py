@@ -116,39 +116,38 @@ class HTTPServer():
         threading.Thread(target = self.process_data).start()
         threading.Thread(target = self.process_analytics).start()
         #threading.Thread(target = self.twitch_monitor).start()
-        #threading.Thread(target = self.twitter_monitor).start()
+        threading.Thread(target = self.twitter_monitor).start()
         #threading.Thread(target = self.reddit_monitor).start()
 
     def process_data(self):
         for raw_data in iter(self.http_socket.recv, 'STOP'):
             try:
                 data = pickle.loads(raw_data)
+
+                if data['type'] == 'stream':
+                    self.process_stream(data)
+                elif data['type'] == 'featured':
+                    self.process_featured(data)
+                elif data['type'] == 'ad':
+                    self.process_ad(data)
+                elif data['type'] == 'delete':
+                    self.process_delete(data)
+
             except Exception, e:
                 pp('proc_data failed')
-                pp(e)
-                data = {'type': 'invalid'}
-
-            if data['type'] == 'stream':
-                self.process_stream(data)
-            elif data['type'] == 'featured':
-                self.process_featured(data)
-            elif data['type'] == 'ad':
-                self.process_ad(data)
-            elif data['type'] == 'delete':
-                self.process_delete(data)
+                pp(e)         
 
     def process_analytics(self):
         for raw_data in iter(self.http_data_socket.recv, 'STOP'):
             try:
                 data = pickle.loads(raw_data)
+
+                if data['type'] == 'clusters':
+                    self.process_clusters(data)
             except Exception, e:
                 pp('proc_analytics failed')
                 pp(e)
-                data = {'type': 'invalid'}
-
-            if data['type'] == 'clusters':
-                self.process_clusters(data)
-
+            
     def process_stream(self, data):
         if data['src'] == 'native':
             self.native_streams[data['stream']] = data['data']
