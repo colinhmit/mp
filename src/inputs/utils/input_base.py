@@ -1,17 +1,18 @@
 import multiprocessing
 
-from functions_general import *
+from _functions_general import *
 
-#Input Framework
-class inpt:
+#input base framework
+class base:
     def __init__(self, config, init_streams):
+        pp(self.config['self']+': Initializing...')
         self.config = config
         self.init_streams = init_streams
         self.streams = init_streams
         self.stream_conn = None
 
     def refresh_streams(self):
-        pp(self.config['self']+' Refreshing streams...')
+        pp(self.config['self']+': Refreshing streams...')
         if self.stream_conn.is_alive():
             self.stream_conn.terminate()
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
@@ -19,7 +20,7 @@ class inpt:
             self.stream_conn.start()
 
     def reset_streams(self):
-        pp(self.config['self']+' Resetting streams...')
+        pp(self.config['self']+': Resetting streams...')
         self.streams = self.init_streams
         if self.stream_conn.is_alive():
             self.stream_conn.terminate()
@@ -29,7 +30,7 @@ class inpt:
 
     def join_stream(self, stream):
         if stream not in self.streams:
-            pp(self.config['self']+' Joining stream %s.' % stream)
+            pp(self.config['self']+': Joining stream %s.' % stream)
             if self.stream_conn.is_alive():
                 self.stream_conn.terminate()
             self.streams.append(stream)
@@ -38,7 +39,7 @@ class inpt:
 
     def leave_stream(self, stream):
         if stream in self.streams:
-            pp(self.config['self']+' Leaving stream %s.' % stream)
+            pp(self.config['self']+': Leaving stream %s.' % stream)
             self.streams.remove(stream)
             if self.stream_conn.is_alive():
                 self.stream_conn.terminate()
@@ -46,7 +47,7 @@ class inpt:
             if len(self.streams)>0:
                 self.stream_conn.start()
             else:
-                pp(self.config['self']+' No streams to stream from...')
+                pp(self.config['self']+': No streams to stream from...')
 
     def batch_streams(self, streams_to_add, streams_to_remove):
         if self.stream_conn.is_alive():

@@ -3,18 +3,31 @@ import socket
 import re
 import zmq
 
-from functions_general import *
-from inpt import inpt
+from utils._functions_general import *
+from utils.input_base import base
 
-class irc(inpt):
+class twitch(base):
     def __init__(self, config, init_streams):
-        inpt.__init__(self, config, init_streams)
-
+        base.__init__(self, config, init_streams)
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         if len(self.streams)>0:
             self.stream_conn.start()
 
-    def set_irc_socket(self):
+    def stream_connection(self):
+        self.context = zmq.Context()
+        self.set_sock()
+        self.set_pipe()
+            
+        self.alive = True
+        while self.alive:
+            data = self.sock.recv(self.config['socket_buffer_size']).rstrip()
+            if len(data) == 0:
+                self.set_sock()
+            self.check_for_ping(data)
+            if self.check_for_message(data):
+                self.pipe.send_string(self.config['self']+data.decode('utf-8', errors='ignore'))
+    
+    def set_sock(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(10)
         #try: connection might fail.
@@ -31,34 +44,22 @@ class irc(inpt):
         if self.check_login_status():
             pass
         else:
-            pp('Login unsuccessful. (hint: make sure your oauth token is set in self.config/self.config.py).', 'error')
+            pp('Login unsuccessful.', 'error')
 
         for stream in self.streams:
             self.sock.send('JOIN #%s\r\n' % stream)
     
-    def stream_connection(self):
-        self.set_irc_socket()
-
-        context = zmq.Context()
-        self.pipe = context.socket(zmq.PUSH)
+    def set_pipe(self):
+        self.pipe = self.context.socket(zmq.PUSH)
         connected = False
         while not connected:
             #try: bind may fail if prev bind hasn't cleaned up.
             try:
-                self.pipe.bind('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
+                self.pipe.bind('tcp://'+self.config['input_host']+':'+str(self.config['input_port']))
                 connected = True
             except Exception, e:
                 pass
-                
-        self.alive = True
-        while self.alive:
-            data = self.sock.recv(self.config['socket_buffer_size']).rstrip()
-            if len(data) == 0:
-                self.set_irc_socket()
-            self.check_for_ping(data)
-            if self.check_for_message(data):
-                self.pipe.send_string(data.decode('utf-8'))
-    
+
     def check_for_message(self, data):
         if re.match(r'^:[a-zA-Z0-9_]+\![a-zA-Z0-9_]+@[a-zA-Z0-9_]+(\.tmi\.twitch\.tv|\.testserver\.local) PRIVMSG #[a-zA-Z0-9_]+ :.+$', data):
             return True

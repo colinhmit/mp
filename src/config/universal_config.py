@@ -3,147 +3,165 @@
 local_host = '0.0.0.0'
 http_host = '172.31.3.149'
 server_host = '172.31.13.182'
-native_host = '172.31.13.182'
-manual_host = '172.31.13.182'
+internal_host = '172.31.13.182'
+http_host = '172.31.13.182'
+main_port = 80
 
 #DEV SETTING
 # local_host = '0.0.0.0'
 # http_host = '0.0.0.0'
 # server_host = '0.0.0.0'
-# native_host = '0.0.0.0'
-# manual_host = '0.0.0.0'
+# internal_host = '0.0.0.0'
+# http_host = '0.0.0.0'
+# main_port = 4808
 
-irc_input_port = 8002
-irc_proc_port = 8012
-irc_stream_port = 8022
 
-twtr_input_port = 8003
-twtr_proc_port = 8013
-twtr_stream_port = 8023
 
-rddt_input_port = 8004
-rddt_proc_port = 8014
-rddt_stream_port = 8024
+local_host = '0.0.0.0' / '0.0.0.0'
+internal_host = '0.0.0.0' / '172.31.13.182'
+input_host = '0.0.0.0' / '172.31.13.182'
 
-ntv_input_port = 8005
-mnl_input_port = 8006
-ntv_proc_port = 8015
-ntv_stream_port = 8025
+internal_port = 8000
 
-http_port = 8081
-http_data_port = 8085
-data_port = 8082
-data_proc_port = 8050
-server_port = 8083
+internal_input_port = 8010
+twitch_input_port = 8011
+twitter_input_port = 8012
+reddit_input_port = 8013
 
-main_port = 80
-#main_port = 4808
-native_port = 8000
-manual_port = 8001
+
+
+
+# internal_port = 8000
+# http_port = 8001
+
+# irc_input_port = 8002
+# irc_proc_port = 8012
+# irc_stream_port = 8022
+
+# twtr_input_port = 8003
+# twtr_proc_port = 8013
+# twtr_stream_port = 8023
+
+# rddt_input_port = 8004
+# rddt_proc_port = 8014
+# rddt_stream_port = 8024
+
+# internal_input_port = 8005
+
+# http_input_port = 8006
+
+
+
+# ntv_proc_port = 8015
+# ntv_stream_port = 8025
+
+# http_port = 8081
+# http_data_port = 8085
+# data_port = 8082
+# data_proc_port = 8050
+# server_port = 8083
+
+# http_config = {
+#     # attributes
+#     'self': 'http',
+
+#     # messaging
+#     'http_port': http_port,
+#     'input_host': local_host,
+#     'input_port': http_input_port,
+    
+#     # prod log path
+#     #'log_path': '/home/ec2-user/mp/src/logs/'
+#     # dev log path
+#     'log_path': '/Users/colinh/Repositories/mp/src/logs/'
+# }
+
+twitch_config = {
+    # attributes
+    'self': 'twitch',
+    'socket_buffer_size': 4096,
+
+    # messaging
+    'input_host': input_host,
+    'input_port': twitch_input_port,
+
+    # prod creds   
+    'server': 'irc.twitch.tv',
+    'port': 6667,
+    'username': 'chrendin',
+    'client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
+    'oauth_password': 'oauth:1a6qgh8wz0b0lb2ue5zenht2lrkcdx'
+}
+
+internal_config = {
+    # attributes
+    'self': 'internal',
+
+    # messaging
+    'input_host': input_host,
+    'input_port': internal_input_port,
+
+    # prod creds
+    'host': internal_host,
+    'port': internal_port
+}
+
+twitter_config = {
+    # attributes
+    'self': 'twitter',
+    'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
+
+    # messaging
+    'input_host': input_host,
+    'input_port': twitter_input_port,
+
+    # prod creds
+    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+    'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+    'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+    'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd'
+                    
+    # dev creds #1
+    # 'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
+    # 'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
+    # 'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
+    # 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw'
+
+    # dev creds #2
+    # 'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
+    # 'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
+    # 'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
+    # 'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt'
+
+    # dev creds #3
+    # 'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
+    # 'consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
+    # 'access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
+    # 'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq'
+}
+
+reddit_config = {
+    # attributes
+    'self': 'reddit',
+
+    # messaging
+    'input_host': input_host,
+    'input_port': reddit_input_port,
+
+    # prod creds
+    'client_token': 'bx_HkZiUhuYJCw',
+    'client_secret': '5l9swqgf2tAY2je0i61pNklgOCg',
+    'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)'
+}
 
 input_config = {    
-    # IRC Config
-    'irc_config': {
-        # Attributes
-        'self': 'twitch',
+    'num_procs': 5,
 
-        # ZMQ messaging
-        'zmq_input_host': local_host,
-        'zmq_proc_host': local_host,
-        'num_procs': 5,
-        'zmq_input_port': irc_input_port,
-        'zmq_proc_port': irc_proc_port,
-        'zmq_output_port': irc_stream_port,
+,
 
-        # Production Twitch IRC Login    
-        'server': 'irc.twitch.tv',
-        'port': 6667,
-        'username': 'chrendin',
-        'client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
-        'oauth_password': 'oauth:1a6qgh8wz0b0lb2ue5zenht2lrkcdx',
-        'socket_buffer_size': 4096
-    },
+    
 
-    # TWTR Config
-    'twtr_config': {
-        # Attributes
-        'self': 'twitter',
-        'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
-
-        # ZMQ messaging
-        'zmq_input_host': local_host,
-        'zmq_proc_host': local_host,
-        'num_procs': 15,
-        'zmq_input_port': twtr_input_port,
-        'zmq_proc_port': twtr_proc_port,
-        'zmq_output_port': twtr_stream_port,
-
-        # Production Twitter API Login
-        'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-        'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
-        'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-        'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd',
-                        
-        # AWS DEV Twitter API Login
-        # 'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
-        # 'consumer_secret': 'hkAYOdEN1nqmTtJBszgrC5VZE7gSFtN2nqgFsHxZbl8v8QVR0G',
-        # 'access_token': '805548030816645120-aNstjukeFNVparl3x8lb8dyfUgIQzbf',
-        # 'access_secret': 'QHpVzvSBDPTlQrY4k65ip0k3JFrQRIfKHv8JLUM43QTQw',
-
-        # Dev #2 Twitter API Login
-        # 'consumer_token': 'brULNlsL5AI80FsiMAeH3us42',
-        # 'consumer_secret': 'kdPYjOkOIR8NqnXqr7MZvTlR4mPwdMwF80KTytaeHUKFmNCCu5',
-        # 'access_token': '178112532-kQ62pLaDjRrPEEn3W7zqsI0tLJgDPMkZgzR0U5iG',
-        # 'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt'
-
-        # Dev #3 Twitter API Login
-        # 'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
-        # 'consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
-        # 'access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
-        # 'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
-    },
-
-    'rddt_config': {
-        # Attributes
-        'self': 'reddit',
-
-        # ZMQ messaging
-        'zmq_input_host': local_host,
-        'zmq_proc_host': local_host,
-        'num_procs': 5,
-        'zmq_input_port': rddt_input_port,
-        'zmq_proc_port': rddt_proc_port,
-        'zmq_output_port': rddt_stream_port,
-
-        # Reddit API Login
-        'client_token': 'bx_HkZiUhuYJCw',
-        'client_secret': '5l9swqgf2tAY2je0i61pNklgOCg',
-        'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)'
-    },
-
-    'ntv_config': {
-        'ntv_host': native_host,
-        'ntv_port': native_port,
-
-        'zmq_input_host': local_host,
-        'zmq_proc_host': local_host,
-        'num_procs': 5,
-        'zmq_input_port': ntv_input_port,
-        'zmq_input_port_2': mnl_input_port,
-        'zmq_proc_port': ntv_proc_port,
-        'zmq_output_port': ntv_stream_port
-    },
-
-    'mnl_config': {
-        'mnl_port': manual_port,
-        #AWS Log Path
-        'log_path': '/home/ec2-user/mp/src/logs/',
-        #DEV Log Path
-        #'log_path': '/Users/colinh/Repositories/mp/src/logs/',
-
-        'zmq_input_host': local_host,
-        'zmq_input_port': mnl_input_port
-    }
+   
 }
 
 stream_config = {

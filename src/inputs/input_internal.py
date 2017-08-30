@@ -1,0 +1,46 @@
+import json
+import zmq
+import multiprocessing
+import Queue
+
+from utils._functions_general import *
+from utils.input_base import base
+
+class internal(base):
+    def __init__(self, config):
+        base.__init__(self, config, [])
+        self.config = config
+
+        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        self.stream_conn.start()
+
+    def stream_connection(self):
+        self.context = zmq.Context()
+        self.set_sock()
+        self.set_pipe()
+        
+        for data in iter(self.sock.recv, '*STOP*'):
+            self.pipe.send_string(self.config['self']+data.decode('utf-8', errors='ignore'))
+
+    def set_sock(self):
+        self.sock = self.context.socket(zmq.SUB)
+        connected = False
+        while not connected:
+            #try: bind may fail if prev bind hasn't cleaned up.
+            try:
+                self.sock.bind('tcp://'+self.config['host']+':'+str(self.config['port']))
+                self.sock.setsockopt(zmq.SUBSCRIBE, "")
+                connected = True
+            except Exception, e:
+                pass
+
+    def set_pipe(self):
+        self.pipe = self.context.socket(zmq.PUSH)
+        connected = False
+        while not connected:
+            #try: bind may fail if prev bind hasn't cleaned up.
+            try:
+                self.pipe.bind('tcp://'+self.config['input_host']+':'+str(self.config['input_port']))
+                connected = True
+            except Exception, e:
+                pass
