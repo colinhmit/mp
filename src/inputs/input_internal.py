@@ -2,13 +2,17 @@ import json
 import zmq
 import multiprocessing
 import Queue
+import uuid
 
 from utils._functions_general import *
-from utils.input_base import base
+from utils.input_base import Base
 
-class internal(base):
+# 1. Internal Input Handler
+# 2. Internal Parser
+
+class Internal(Base):
     def __init__(self, config):
-        base.__init__(self, config, [])
+        Base.__init__(self, config, [])
         self.config = config
 
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
@@ -18,9 +22,10 @@ class internal(base):
         self.context = zmq.Context()
         self.set_sock()
         self.set_pipe()
-        
+
         for data in iter(self.sock.recv, '*STOP*'):
-            self.pipe.send_string(self.config['self']+data.decode('utf-8', errors='ignore'))
+            self.pipe.send_string(self.config['self']
+                                  + data.decode('utf-8', errors='ignore'))
 
     def set_sock(self):
         self.sock = self.context.socket(zmq.SUB)
@@ -28,7 +33,10 @@ class internal(base):
         while not connected:
             #try: bind may fail if prev bind hasn't cleaned up.
             try:
-                self.sock.bind('tcp://'+self.config['host']+':'+str(self.config['port']))
+                self.sock.bind('tcp://'
+                               + self.config['host']
+                               + ':'
+                               + str(self.config['port']))
                 self.sock.setsockopt(zmq.SUBSCRIBE, "")
                 connected = True
             except Exception, e:
@@ -40,7 +48,30 @@ class internal(base):
         while not connected:
             #try: bind may fail if prev bind hasn't cleaned up.
             try:
-                self.pipe.bind('tcp://'+self.config['input_host']+':'+str(self.config['input_port']))
+                self.pipe.bind('tcp://'
+                               + self.config['input_host']
+                               + ':' 
+                               + str(self.config['input_port']))
                 connected = True
             except Exception, e:
                 pass
+
+def parse_internal(data):
+    #try: data may be corrupt
+    try:
+        data = json.loads(data)
+        msg = {
+               'src':           'native',
+               'stream':        data.get('stream', ''),
+               'username':      data.get('username', ''),
+               'message':       data.get('message', ''),
+               'media_urls':    data.get('media_urls', []),
+               'mp4_url':       '',
+               'id':            str(uuid.uuid1()),
+               'src_id':        data.get('src_id', '')
+              }
+        return msg
+    except Exception, e:
+        pp('parse_internal failed', 'error')
+        pp(e, 'error')
+        return {}

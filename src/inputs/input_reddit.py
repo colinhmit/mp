@@ -4,15 +4,19 @@ import zmq
 import Queue
 import json
 import praw
+import uuid
 
 from utils._functions_general import *
-from utils.input_base import base
+from utils.input_base import Base
 
-class reddit(base):
+# 1. Reddit Input Handler
+# 2. Reddit Parser
+
+class Reddit(Base):
     def __init__(self, config, init_streams):
-        base.__init__(self, config, init_streams)
+        Base.__init__(self, config, init_streams)
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
-        if len(self.streams)>0:
+        if len(self.streams) > 0:
             self.stream_conn.start()
 
     def stream_connection(self):
@@ -21,12 +25,13 @@ class reddit(base):
         self.set_pipe()
 
         for data in iter(self.sock.get, '*STOP*'):
-            self.pipe.send_string(self.config['self']+data.decode('utf-8', errors='ignore'))
+            self.pipe.send_string(self.config['self']
+                                  + data.decode('utf-8', errors='ignore'))
 
     def set_sock(self):
         self.reddit = praw.Reddit(client_id=self.config['client_token'],
-                     client_secret=self.config['client_secret'],
-                     user_agent=self.config['user_agent'])
+                                  client_secret=self.config['client_secret'],
+                                  user_agent=self.config['user_agent'])
         self.sock = Queue.Queue()
         for stream in self.streams:
             threading.Thread(target=self.subreddit_monitor, args=(stream,)).start()
@@ -37,7 +42,10 @@ class reddit(base):
         while not connected:
             #try: bind may fail if prev bind hasn't cleaned up.
             try:
-                self.pipe.bind('tcp://'+self.config['input_host']+':'+str(self.config['input_port']))
+                self.pipe.bind('tcp://'
+                               + self.config['input_host']
+                               + ':'
+                               + str(self.config['input_port']))
                 connected = True
             except Exception, e:
                 pass
@@ -50,7 +58,7 @@ class reddit(base):
         while alive:
             #try: reddit praw may fail on hot iteration.
             try:
-                if len(content)>1000:
+                if len(content) > 1000:
                     content = {}
 
                 max_diff = 0
@@ -60,7 +68,7 @@ class reddit(base):
                     if post.id not in content:
                         content[post.id] = post.score
                     else:
-                        if (post.score - content[post.id])>max_diff:
+                        if (post.score - content[post.id]) > max_diff:
                             max_diff = post.score - content[post.id]
                             max_post = post
                         content[post.id] = post.score
@@ -68,21 +76,41 @@ class reddit(base):
                 if max_post:
                     if not max_post.author:
                         data = {
-                                'subreddit': stream,
+                                'stream': stream,
                                 'username': 'deleted',
                                 'message': max_post.title,
-                                'media_url': max_post.url,
-                                'id': max_post.id
+                                'media_urls': max_post.url,
+                                'src_id': max_post.id
                                 }
                     else:
                         data = {
-                                'subreddit': stream,
+                                'stream': stream,
                                 'username': max_post.author.name,
                                 'message': max_post.title,
-                                'media_url': max_post.url,
-                                'id': max_post.id
+                                'media_urls': max_post.url,
+                                'src_id': max_post.id
                                 }
                     self.sock.put(json.dumps(data)) 
             except Exception, e:
-                pp('////Reddit Subreddit Failed////','error')
-                pp(e,'error')
+                pp('////Reddit Subreddit Failed////', 'error')
+                pp(e, 'error')
+
+def parse_reddit(data):
+    #try: data may be corrupt
+    try:
+        data = json.loads(data)
+        msg = {
+               'src':           'reddit',
+               'stream':        data.get('stream', ''),
+               'username':      data.get('username', ''),
+               'message':       data.get('message', ''),
+               'media_urls':    data.get('media_urls', []),
+               'mp4_url':       '',
+               'id':            str(uuid.uuid1()),
+               'src_id':        data.get('src_id', '')
+              }
+        return msg
+    except Exception, e:
+        pp('parse_reddit failed', 'error')
+        pp(e, 'error')
+        return {}

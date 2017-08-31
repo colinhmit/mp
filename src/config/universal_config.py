@@ -17,18 +17,16 @@ main_port = 80
 
 
 
-local_host = '0.0.0.0' / '0.0.0.0'
-internal_host = '0.0.0.0' / '172.31.13.182'
-input_host = '0.0.0.0' / '172.31.13.182'
+LOCAL_HOST = '0.0.0.0' / '0.0.0.0'
+INTERNAL_HOST = '0.0.0.0' / '172.31.13.182'
+INPUT_HOST = '0.0.0.0' / '172.31.13.182'
 
-internal_port = 8000
+INTERNAL_PORT = 8000
 
-internal_input_port = 8010
-twitch_input_port = 8011
-twitter_input_port = 8012
-reddit_input_port = 8013
-
-
+INPUT_PORT_INTERNAL = 8010
+INPUT_PORT_TWITCH = 8011
+INPUT_PORT_TWITTER = 8012
+INPUT_PORT_REDDIT = 8013
 
 
 # internal_port = 8000
@@ -76,14 +74,28 @@ reddit_input_port = 8013
 #     'log_path': '/Users/colinh/Repositories/mp/src/logs/'
 # }
 
+
+internal_config = {
+    # attributes
+    'self': 'internal',
+
+    # messaging
+    'input_host': INPUT_HOST,
+    'input_port': INPUT_PORT_INTERNAL,
+
+    # prod creds
+    'host': INTERNAL_HOST,
+    'port': INTERNAL_PORT
+}
+
 twitch_config = {
     # attributes
     'self': 'twitch',
     'socket_buffer_size': 4096,
 
     # messaging
-    'input_host': input_host,
-    'input_port': twitch_input_port,
+    'input_host': INPUT_HOST,
+    'input_port': INPUT_PORT_TWITCH,
 
     # prod creds   
     'server': 'irc.twitch.tv',
@@ -93,27 +105,13 @@ twitch_config = {
     'oauth_password': 'oauth:1a6qgh8wz0b0lb2ue5zenht2lrkcdx'
 }
 
-internal_config = {
-    # attributes
-    'self': 'internal',
-
-    # messaging
-    'input_host': input_host,
-    'input_port': internal_input_port,
-
-    # prod creds
-    'host': internal_host,
-    'port': internal_port
-}
-
 twitter_config = {
     # attributes
     'self': 'twitter',
-    'blacklinks': ['rocksroman12.net', 'lovesomething24.com', 'worldtruepic.me', 'dashingsumit.mobi'],
 
     # messaging
-    'input_host': input_host,
-    'input_port': twitter_input_port,
+    'input_host': INPUT_HOST,
+    'input_port': INPUT_PORT_TWITTER,
 
     # prod creds
     'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
@@ -145,14 +143,16 @@ reddit_config = {
     'self': 'reddit',
 
     # messaging
-    'input_host': input_host,
-    'input_port': reddit_input_port,
+    'input_host': INPUT_HOST,
+    'input_port': INPUT_PORT_REDDIT,
 
     # prod creds
     'client_token': 'bx_HkZiUhuYJCw',
     'client_secret': '5l9swqgf2tAY2je0i61pNklgOCg',
     'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)'
 }
+
+
 
 input_config = {    
     'num_procs': 5,
