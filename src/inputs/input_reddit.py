@@ -12,10 +12,12 @@ from utils.input_base import Base
 # 1. Reddit Input Handler
 # 2. Reddit Parser
 
+
 class Reddit(Base):
     def __init__(self, config, init_streams):
         Base.__init__(self, config, init_streams)
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(
+                                                target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
 
@@ -25,8 +27,8 @@ class Reddit(Base):
         self.set_pipe()
 
         for data in iter(self.sock.get, '*STOP*'):
-            self.pipe.send_string(self.config['self']
-                                  + data.decode('utf-8', errors='ignore'))
+            self.pipe.send_string(self.config['self'] +
+                                  data.decode('utf-8', errors='ignore'))
 
     def set_sock(self):
         self.reddit = praw.Reddit(client_id=self.config['client_token'],
@@ -34,18 +36,19 @@ class Reddit(Base):
                                   user_agent=self.config['user_agent'])
         self.sock = Queue.Queue()
         for stream in self.streams:
-            threading.Thread(target=self.subreddit_monitor, args=(stream,)).start()
+            threading.Thread(target=self.subreddit_monitor,
+                             args=(stream,)).start()
 
     def set_pipe(self):
         self.pipe = self.context.socket(zmq.PUSH)
         connected = False
         while not connected:
-            #try: bind may fail if prev bind hasn't cleaned up.
+            # try: bind may fail if prev bind hasn't cleaned up.
             try:
-                self.pipe.bind('tcp://'
-                               + self.config['input_host']
-                               + ':'
-                               + str(self.config['input_port']))
+                self.pipe.bind('tcp://' +
+                               self.config['input_host'] +
+                               ':' +
+                               str(self.config['input_port']))
                 connected = True
             except Exception, e:
                 pass
@@ -56,7 +59,7 @@ class Reddit(Base):
 
         alive = True
         while alive:
-            #try: reddit praw may fail on hot iteration.
+            # try: reddit praw may fail on hot iteration.
             try:
                 if len(content) > 1000:
                     content = {}
@@ -90,13 +93,14 @@ class Reddit(Base):
                                 'media_urls': max_post.url,
                                 'src_id': max_post.id
                                 }
-                    self.sock.put(json.dumps(data)) 
+                    self.sock.put(json.dumps(data))
             except Exception, e:
                 pp('////Reddit Subreddit Failed////', 'error')
                 pp(e, 'error')
 
+
 def parse_reddit(data):
-    #try: data may be corrupt
+    # try: data may be corrupt
     try:
         data = json.loads(data)
         msg = {

@@ -7,17 +7,37 @@ import multiprocessing
 
 # import utils
 from utils._functions_general import *
-from utils.nlp import nlpParser
+
 
 class Worker:
     def __init__(self, config, nlp):
         self.config = config
         self.nlp_parser = nlp
 
+        self.context = zmq.Context()
+        self.set_sock()
+        self.set_pipe()
+
+        self.process(nlp)
+
+    def set_sock(self):
+        self.sock = self.context.socket(zmq.PULL)
+        for port in self.config['input_ports']:
+       		self.sock.connect('tcp://'+self.config['input_host']+':'+str(port))
+        
+    def set_pipe(self):
+        self.pipe = self.context.socket(zmq.PUB)
+       	for port in self.config['dist_ports']:
+       		self.pipe.connect('tcp://'+self.config['zmq_proc_host']+':'+str(self.config['zmq_proc_port']))
+	
+
     def process(self, nlp):
-        context = zmq.Context()
-        recvr = context.socket(zmq.PULL)
+        
+        recvr = 
         recvr.connect('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
+        recvr.connect('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
+        recvr.connect('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
+
 
         sendr = context.socket(zmq.PUB)
         sendr.connect('tcp://'+self.config['zmq_proc_host']+':'+str(self.config['zmq_proc_port']))

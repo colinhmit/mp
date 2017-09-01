@@ -14,18 +14,20 @@ from utils.input_base import Base
 # 2. STDListener
 # 3. Twitter Parser
 
+
 class Twitter(Base):
     def __init__(self, config, init_streams):
         Base.__init__(self, config, init_streams)
         self.set_sock()
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(
+                                                target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
 
     def stream_connection(self):
         self.context = zmq.Context()
         self.set_pipe()
-        #try: connection dies occasionally
+        # try: connection dies occasionally
         try:
             self.sock.filter(track=self.streams)
             gc.collect()
@@ -33,11 +35,11 @@ class Twitter(Base):
             pp('////Twitter Connection Died, Restarting////', 'error')
             pp(e, 'error')
 
-     def set_sock(self):
+    def set_sock(self):
         self.l = Listener(self.config['input_port'])
-        self.auth = OAuthHandler(self.config['consumer_token'], 
+        self.auth = OAuthHandler(self.config['consumer_token'],
                                  self.config['consumer_secret'])
-        self.auth.set_access_token(self.config['access_token'], 
+        self.auth.set_access_token(self.config['access_token'],
                                    self.config['access_secret'])
         self.api = API(self.auth)
         self.sock = Stream(self.auth, self.l)
@@ -46,15 +48,16 @@ class Twitter(Base):
         self.l.pipe = self.context.socket(zmq.PUSH)
         connected = False
         while not connected:
-            #try: bind may fail if prev bind hasn't cleaned up.
+            # try: bind may fail if prev bind hasn't cleaned up.
             try:
-                self.l.pipe.bind('tcp://'
-                                 + self.config['input_host']
-                                 + ':'
-                                 + str(self.config['input_port']))
+                self.l.pipe.bind('tcp://' +
+                                 self.config['input_host'] +
+                                 ':' +
+                                 str(self.config['input_port']))
                 connected = True
             except Exception, e:
                 pass
+
 
 class Listener(StreamListener):
     def __init__(self, config):
@@ -62,8 +65,8 @@ class Listener(StreamListener):
         self.pipe = None
 
     def on_data(self, data):
-        self.pipe.send_string(self.config['self']
-                              + data.decode('utf-8', errors='ignore'))
+        self.pipe.send_string(self.config['self'] +
+                              data.decode('utf-8', errors='ignore'))
         return True
 
     def on_error(self, status):
@@ -72,8 +75,9 @@ class Listener(StreamListener):
     def on_timeout(self):
         pp('Timeout...')
 
+
 def parse_twitter(data):
-    #try: data may be corrupt
+    # try: data may be corrupt
     try:
         data = json.loads(data)
 
@@ -96,31 +100,27 @@ def parse_twitter(data):
                 msg['media_urls'] = [data['retweeted_status']
                                          ['entities']['media'][0]
                                          ['media_url']]
-                if data.get('extended_entities', {})
-                       .get('media', [{}])[0]
-                       .get('video_info',{})
-                       .get('variants', False):
+                if data.get('extended_entities', {}).get('media', [{}])[0].get(
+                            'video_info', {}).get('variants', False):
                     msg['mp4_url'] = max(data['extended_entities']
                                              ['media'][0]['video_info']
                                              ['variants'],
                                          key=lambda x: x['bitrate']
-                                             if x['content_type'] == "video/mp4"
-                                             else 0)['url']
+                                         if x['content_type'] == "video/mp4"
+                                         else 0)['url']
         elif data.get('text', False):
             msg['message'] = data['text']
             if data['entities'].get('media', False):
                 msg['media_urls'] = [data['entities']['media'][0]
                                          ['media_url']]
-                if data.get('extended_entities', {})
-                       .get('media', [{}])[0]
-                       .get('video_info',{})
-                       .get('variants', False):
+                if data.get('extended_entities', {}).get('media', [{}])[0].get(
+                        'video_info', {}).get('variants', False):
                     msg['mp4_url'] = max(data['extended_entities']
                                              ['media'][0]['video_info']
                                              ['variants'],
                                          key=lambda x: x['bitrate']
-                                             if x['content_type'] == "video/mp4"
-                                             else 0)['url']
+                                         if x['content_type'] == "video/mp4"
+                                         else 0)['url']
         return msg
     except Exception, e:
         pp('parse_twitter failed', 'error')

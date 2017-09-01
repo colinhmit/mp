@@ -10,12 +10,14 @@ from utils.input_base import Base
 # 1. Internal Input Handler
 # 2. Internal Parser
 
+
 class Internal(Base):
     def __init__(self, config):
         Base.__init__(self, config, [])
         self.config = config
 
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(
+                                                target=self.stream_connection)
         self.stream_conn.start()
 
     def stream_connection(self):
@@ -24,19 +26,19 @@ class Internal(Base):
         self.set_pipe()
 
         for data in iter(self.sock.recv, '*STOP*'):
-            self.pipe.send_string(self.config['self']
-                                  + data.decode('utf-8', errors='ignore'))
+            self.pipe.send_string(self.config['self'] +
+                                  data.decode('utf-8', errors='ignore'))
 
     def set_sock(self):
         self.sock = self.context.socket(zmq.SUB)
         connected = False
         while not connected:
-            #try: bind may fail if prev bind hasn't cleaned up.
+            # try: bind may fail if prev bind hasn't cleaned up.
             try:
-                self.sock.bind('tcp://'
-                               + self.config['host']
-                               + ':'
-                               + str(self.config['port']))
+                self.sock.bind('tcp://' +
+                               self.config['host'] +
+                               ':' +
+                               str(self.config['port']))
                 self.sock.setsockopt(zmq.SUBSCRIBE, "")
                 connected = True
             except Exception, e:
@@ -46,18 +48,19 @@ class Internal(Base):
         self.pipe = self.context.socket(zmq.PUSH)
         connected = False
         while not connected:
-            #try: bind may fail if prev bind hasn't cleaned up.
+            # try: bind may fail if prev bind hasn't cleaned up.
             try:
-                self.pipe.bind('tcp://'
-                               + self.config['input_host']
-                               + ':' 
-                               + str(self.config['input_port']))
+                self.pipe.bind('tcp://' +
+                               self.config['input_host'] +
+                               ':' +
+                               str(self.config['input_port']))
                 connected = True
             except Exception, e:
                 pass
 
+
 def parse_internal(data):
-    #try: data may be corrupt
+    # try: data may be corrupt
     try:
         data = json.loads(data)
         msg = {

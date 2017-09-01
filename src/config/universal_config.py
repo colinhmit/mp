@@ -20,6 +20,7 @@ main_port = 80
 LOCAL_HOST = '0.0.0.0' / '0.0.0.0'
 INTERNAL_HOST = '0.0.0.0' / '172.31.13.182'
 INPUT_HOST = '0.0.0.0' / '172.31.13.182'
+DIST_HOST = '0.0.0.0' / '172.31.13.182'
 
 INTERNAL_PORT = 8000
 
@@ -28,6 +29,16 @@ INPUT_PORT_TWITCH = 8011
 INPUT_PORT_TWITTER = 8012
 INPUT_PORT_REDDIT = 8013
 
+INPUT_PORTS = [INPUT_PORT_INTERNAL, INPUT_PORT_TWITCH,
+               INPUT_PORT_TWITTER, INPUT_PORT_REDDIT]
+
+DIST_PORT_INTERNAL = 8020
+DIST_PORT_TWITCH = 8021
+DIST_PORT_TWITTER = 8022
+DIST_PORT_REDDIT = 8023
+
+DIST_PORTS = [DIST_PORT_INTERNAL, DIST_PORT_TWITCH,
+               DIST_PORT_TWITTER, DIST_PORT_REDDIT]
 
 # internal_port = 8000
 # http_port = 8001
@@ -159,6 +170,15 @@ input_config = {
 
 ,
 
+worker_config = {
+    # messaging
+    'input_host': INPUT_HOST,
+    'input_ports': INPUT_PORTS,
+
+    'dist_host': DIST_HOST,
+    'dist_ports': DIST_PORTS,
+
+}
     
 
    

@@ -2,7 +2,8 @@ import multiprocessing
 
 from _functions_general import *
 
-#Input Base Framework
+
+# Input Base Framework
 class Base:
     def __init__(self, config, init_streams):
         pp(self.config['self'] + ': Initializing...')
@@ -15,7 +16,8 @@ class Base:
         pp(self.config['self'] + ': Refreshing streams...')
         if self.stream_conn.is_alive():
             self.stream_conn.terminate()
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(
+                                                target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
 
@@ -24,7 +26,8 @@ class Base:
         self.streams = self.init_streams
         if self.stream_conn.is_alive():
             self.stream_conn.terminate()
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(
+                                                target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
 
@@ -34,7 +37,8 @@ class Base:
             if self.stream_conn.is_alive():
                 self.stream_conn.terminate()
             self.streams.append(stream)
-            self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+            self.stream_conn = multiprocessing.Process(
+                                                target=self.stream_connection)
             self.stream_conn.start()
 
     def leave_stream(self, stream):
@@ -43,7 +47,8 @@ class Base:
             self.streams.remove(stream)
             if self.stream_conn.is_alive():
                 self.stream_conn.terminate()
-            self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+            self.stream_conn = multiprocessing.Process(
+                                                target=self.stream_connection)
             if len(self.streams) > 0:
                 self.stream_conn.start()
             else:
@@ -58,6 +63,7 @@ class Base:
         for stream in streams_to_add:
             if stream not in self.streams:
                 self.streams.append(stream)
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(
+                                                target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()

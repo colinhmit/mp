@@ -9,10 +9,12 @@ from utils.input_base import Base
 # 1. Twitch Input Handler
 # 2. Twitch Parser
 
+
 class Twitch(Base):
     def __init__(self, config, init_streams):
         Base.__init__(self, config, init_streams)
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(
+                                                target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
 
@@ -20,7 +22,7 @@ class Twitch(Base):
         self.context = zmq.Context()
         self.set_sock()
         self.set_pipe()
-            
+
         self.alive = True
         while self.alive:
             data = self.sock.recv(self.config['socket_buffer_size']).rstrip()
@@ -28,19 +30,19 @@ class Twitch(Base):
                 self.set_sock()
             self.check_for_ping(data)
             if self.check_for_message(data):
-                self.pipe.send_string(self.config['self']
-                                      + data.decode('utf-8', errors='ignore'))
-    
+                self.pipe.send_string(self.config['self'] +
+                                      data.decode('utf-8', errors='ignore'))
+
     def set_sock(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(10)
-        #try: connection might fail.
+        # try: connection might fail.
         try:
             self.sock.connect((self.config['server'], self.config['port']))
         except:
-            pp('Cannot connect to server (%s:%s).' % (self.config['server'], 
-                                                      self.config['port']), 
-                                                     'error')
+            pp('Cannot connect to server (%s:%s).' % (self.config['server'],
+                                                      self.config['port']),
+               'error')
         self.sock.settimeout(None)
 
         self.sock.send('USER %s\r\n' % self.config['username'])
@@ -54,17 +56,17 @@ class Twitch(Base):
 
         for stream in self.streams:
             self.sock.send('JOIN #%s\r\n' % stream)
-    
+
     def set_pipe(self):
         self.pipe = self.context.socket(zmq.PUSH)
         connected = False
         while not connected:
-            #try: bind may fail if prev bind hasn't cleaned up.
+            # try: bind may fail if prev bind hasn't cleaned up.
             try:
-                self.pipe.bind('tcp://'
-                               + self.config['input_host']
-                               + ':'
-                               + str(self.config['input_port']))
+                self.pipe.bind('tcp://' +
+                               self.config['input_host'] +
+                               ':' +
+                               str(self.config['input_port']))
                 connected = True
             except Exception, e:
                 pass
@@ -79,7 +81,7 @@ class Twitch(Base):
             return True
 
     def check_for_ping(self, data):
-        if data[:4] == "PING": 
+        if data[:4] == "PING":
             self.sock.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
 
     def check_login_status(self):
@@ -91,8 +93,9 @@ class Twitch(Base):
         else:
             return True
 
+
 def parse_twitch(data):
-    #try: data may be corrupt
+    # try: data may be corrupt
     try:
         data = json.loads(data)
         msg = {
