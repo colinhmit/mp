@@ -5,11 +5,10 @@ from _functions_general import *
 
 # Input Base Framework
 class Base:
-    def __init__(self, config, init_streams):
+    def __init__(self, config):
         pp(self.config['self'] + ': Initializing...')
         self.config = config
-        self.init_streams = init_streams
-        self.streams = init_streams
+        self.streams = []
         self.stream_conn = None
 
     def refresh_streams(self):
@@ -23,7 +22,7 @@ class Base:
 
     def reset_streams(self):
         pp(self.config['self'] + ': Resetting streams...')
-        self.streams = self.init_streams
+        self.streams = []
         if self.stream_conn.is_alive():
             self.stream_conn.terminate()
         self.stream_conn = multiprocessing.Process(

@@ -7,9 +7,13 @@ import multiprocessing
 
 # import utils
 from utils._functions_general import *
+from input_internal import parse_internal
+from input_twitch import parse_twitch
+from input_twitter import parse_twitter
+from input_reddit import parse_reddit
 
 
-class Worker:
+class InputWorker:
     def __init__(self, config, nlp):
         self.config = config
         self.nlp_parser = nlp
@@ -23,55 +27,66 @@ class Worker:
     def set_sock(self):
         self.sock = self.context.socket(zmq.PULL)
         for port in self.config['input_ports']:
-       		self.sock.connect('tcp://'+self.config['input_host']+':'+str(port))
-        
+            self.sock.connect('tcp://' +
+                              self.config['input_host'] +
+                              ':' +
+                              str(port))
+
     def set_pipe(self):
-        self.pipe = self.context.socket(zmq.PUB)
-       	for port in self.config['dist_ports']:
-       		self.pipe.connect('tcp://'+self.config['zmq_proc_host']+':'+str(self.config['zmq_proc_port']))
-	
+        self.pipe_internal = self.context.socket(zmq.PUB)
+        self.pipe_internal.connect('tcp://' +
+                                   self.config['dist_host'] +
+                                   ':' +
+                                   str(self.config['dist_port_internal']))
+        self.pipe_twitch = self.context.socket(zmq.PUB)
+        self.pipe_twitch.connect('tcp://' +
+                                 self.config['dist_host'] +
+                                 ':' +
+                                 str(self.config['dist_port_twitch']))
+        self.pipe_twitter = self.context.socket(zmq.PUB)
+        self.pipe_twitter.connect('tcp://' +
+                                  self.config['dist_host'] +
+                                  ':' +
+                                  str(self.config['dist_port_twitter']))
+        self.pipe_reddit = self.context.socket(zmq.PUB)
+        self.pipe_reddit.connect('tcp://' +
+                                 self.config['dist_host'] +
+                                 ':' +
+                                 str(self.config['dist_port_reddit']))
 
-    def process(self, nlp):
-        
-        recvr = 
-        recvr.connect('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
-        recvr.connect('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
-        recvr.connect('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
+    def process(self):
+        nlprefresh = random.randint(500, 1000)
+        nlpcounter = 0
 
+        for data in iter(self.sock.recv_string, 'STOP'):
+            if data[0:8] == 'internal':
+                data = parse_internal(data[8:])
+                pipe = self.pipe_internal
+            elif data[0:6] == 'twitch':
+                data = parse_twitch(data[6:])
+                pipe = self.pipe_twitch
+            elif data[0:7] == 'twitter':
+                data = parse_twitter(data[7:])
+                pipe = self.pipe_twitter
+            elif data[0:6] == 'reddit':
+                data = parse_reddit(data[6:])
+                pipe = self.pipe_reddit
+            else:
+                data = {}
 
-        sendr = context.socket(zmq.PUB)
-        sendr.connect('tcp://'+self.config['zmq_proc_host']+':'+str(self.config['zmq_proc_port']))
+            if len(data) > 0:
+                clean_text = re.sub(r"http\S+", "", data['message'])
+                clean_text = re.sub(r"[#@]", "", clean_text)
+                clean_text = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_text)
+                try:
+                    data['nlp'] = self.nlp_parser.parse_text(clean_text)
+                except Exception, e:
+                    data['nlp'] = {}
 
-        svomap = {}
-        svorefresh = random.randint(500, 1000)
-
-        for data in iter(recvr.recv_string, 'STOP'):
-            msg = self.parse(data)
-            if len(msg) > 0:
-                hashid = hash(msg['message'])
-                if hashid in svomap:
-                    svos, subjs = svomap[hashid]
-                else:
-                    clean_msg = re.sub(r"http\S+", "", msg['message'])
-                    clean_msg = re.sub(r"[#@]", "", clean_msg)
-                    clean_msg = re.sub(r"[^\w\s\'\"!.,&?:;_%-]+", "", clean_msg)
-                    try:
-                        svos, subjs = nlp.parse_text(clean_msg)
-                    except Exception, e:
-                        svos = []
-                        subjs = []
-                    svomap[hashid] = svos, subjs
-
-                msg['svos'] = svos
-                msg['subjs'] = subjs
-
-                if len(svomap)>svorefresh:
-                    svomap = {}
-                    nlp.flush()
+                if nlpcounter > svorefresh:
+                    self.nlp_parser.flush()
                     gc.collect()
 
-                # constrained off
-                # msg['svos'] = []
-                # msg['subjs'] = []
-                pickled_data = pickle.dumps(msg)
-                sendr.send(pickled_data)
+                pickled_data = pickle.dumps(data)
+                pipe.send(pickled_data)
+                nlpcounter += 1

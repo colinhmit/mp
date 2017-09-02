@@ -18,7 +18,7 @@ class NLPParser:
         parsed_text = self.parser(unicode(text))
         svos = self.parse_SVOs(parsed_text)
         subjs = self.parse_subjs(parsed_text)
-        return svos, subjs, parsed_text
+        return {'svos': svos, 'subjects': subjs}
 
     def flush(self):
         self.parser.vocab.strings.flush_oov()

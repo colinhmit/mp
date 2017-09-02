@@ -13,9 +13,9 @@ from utils.input_base import Base
 # 2. Reddit Parser
 
 
-class Reddit(Base):
-    def __init__(self, config, init_streams):
-        Base.__init__(self, config, init_streams)
+class RedditInput(Base):
+    def __init__(self, config):
+        Base.__init__(self, config)
         self.stream_conn = multiprocessing.Process(
                                                 target=self.stream_connection)
         if len(self.streams) > 0:

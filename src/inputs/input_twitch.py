@@ -10,9 +10,9 @@ from utils.input_base import Base
 # 2. Twitch Parser
 
 
-class Twitch(Base):
-    def __init__(self, config, init_streams):
-        Base.__init__(self, config, init_streams)
+class TwitchInput(Base):
+    def __init__(self, config):
+        Base.__init__(self, config)
         self.stream_conn = multiprocessing.Process(
                                                 target=self.stream_connection)
         if len(self.streams) > 0:

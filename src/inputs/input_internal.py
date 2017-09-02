@@ -11,7 +11,7 @@ from utils.input_base import Base
 # 2. Internal Parser
 
 
-class Internal(Base):
+class InternalInput(Base):
     def __init__(self, config):
         Base.__init__(self, config, [])
         self.config = config

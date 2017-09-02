@@ -1,3 +1,10 @@
+INTERNAL_ON = True
+TWITCH_ON = True
+TWITTER_ON = True
+REDDIT_ON = True
+
+
+
 #HOSTS & PORTS
 #PROD SETTING
 local_host = '0.0.0.0'
@@ -21,6 +28,7 @@ LOCAL_HOST = '0.0.0.0' / '0.0.0.0'
 INTERNAL_HOST = '0.0.0.0' / '172.31.13.182'
 INPUT_HOST = '0.0.0.0' / '172.31.13.182'
 DIST_HOST = '0.0.0.0' / '172.31.13.182'
+STREAM_HOST = '0.0.0.0' / '172.31.13.182'
 
 INTERNAL_PORT = 8000
 
@@ -29,16 +37,15 @@ INPUT_PORT_TWITCH = 8011
 INPUT_PORT_TWITTER = 8012
 INPUT_PORT_REDDIT = 8013
 
-INPUT_PORTS = [INPUT_PORT_INTERNAL, INPUT_PORT_TWITCH,
-               INPUT_PORT_TWITTER, INPUT_PORT_REDDIT]
-
 DIST_PORT_INTERNAL = 8020
 DIST_PORT_TWITCH = 8021
 DIST_PORT_TWITTER = 8022
 DIST_PORT_REDDIT = 8023
 
-DIST_PORTS = [DIST_PORT_INTERNAL, DIST_PORT_TWITCH,
-               DIST_PORT_TWITTER, DIST_PORT_REDDIT]
+STREAM_PORT_INTERNAL = 8030
+STREAM_PORT_TWITCH = 8031
+STREAM_PORT_TWITTER = 8032
+STREAM_PORT_REDDIT = 8033
 
 # internal_port = 8000
 # http_port = 8001
@@ -84,6 +91,25 @@ DIST_PORTS = [DIST_PORT_INTERNAL, DIST_PORT_TWITCH,
 #     # dev log path
 #     'log_path': '/Users/colinh/Repositories/mp/src/logs/'
 # }
+##############################################################################
+# Input
+##############################################################################
+input_config = {
+    'internal_on': INTERNAL_ON,
+    'twitch_on': TWITCH_ON,
+    'twitter_on': TWITTER_ON,
+    'reddit_on': REDDIT_ON,
+
+
+    'num_workers': 30,
+    'worker_config': worker_config,
+
+    'internal_config': internal_config,
+    'twitch_config': twitch_config,
+    'twitter_config': twitter_config,
+    'reddit_config': reddit_config
+
+}
 
 
 internal_config = {
@@ -93,6 +119,10 @@ internal_config = {
     # messaging
     'input_host': INPUT_HOST,
     'input_port': INPUT_PORT_INTERNAL,
+    'dist_host': DIST_HOST,
+    'dist_port': DIST_PORT_INTERNAL,
+    'stream_host': STREAM_HOST,
+    'stream_port': STREAM_PORT_INTERNAL,
 
     # prod creds
     'host': INTERNAL_HOST,
@@ -107,6 +137,10 @@ twitch_config = {
     # messaging
     'input_host': INPUT_HOST,
     'input_port': INPUT_PORT_TWITCH,
+    'dist_host': DIST_HOST,
+    'dist_port': DIST_PORT_TWITCH,
+    'stream_host': STREAM_HOST,
+    'stream_port': STREAM_PORT_TWITCH,
 
     # prod creds   
     'server': 'irc.twitch.tv',
@@ -123,6 +157,10 @@ twitter_config = {
     # messaging
     'input_host': INPUT_HOST,
     'input_port': INPUT_PORT_TWITTER,
+    'dist_host': DIST_HOST,
+    'dist_port': DIST_PORT_TWITTER,
+    'stream_host': STREAM_HOST,
+    'stream_port': STREAM_PORT_TWITTER,
 
     # prod creds
     'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
@@ -156,6 +194,10 @@ reddit_config = {
     # messaging
     'input_host': INPUT_HOST,
     'input_port': INPUT_PORT_REDDIT,
+    'dist_host': DIST_HOST,
+    'dist_port': DIST_PORT_REDDIT,
+    'stream_host': STREAM_HOST,
+    'stream_port': STREAM_PORT_REDDIT,
 
     # prod creds
     'client_token': 'bx_HkZiUhuYJCw',
@@ -163,26 +205,20 @@ reddit_config = {
     'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)'
 }
 
-
-
-input_config = {    
-    'num_procs': 5,
-
-,
-
 worker_config = {
     # messaging
     'input_host': INPUT_HOST,
-    'input_ports': INPUT_PORTS,
+    'input_ports': [INPUT_PORT_INTERNAL, INPUT_PORT_TWITCH,
+                    INPUT_PORT_TWITTER, INPUT_PORT_REDDIT]
 
     'dist_host': DIST_HOST,
-    'dist_ports': DIST_PORTS,
-
+    'dist_port_internal' = DIST_PORT_INTERNAL,
+    'dist_port_twitch' = DIST_PORT_TWITCH,
+    'dist_port_twitter' = DIST_PORT_TWITTER,
+    'dist_port_reddit' = DIST_PORT_REDDIT,
 }
     
 
-   
-}
 
 stream_config = {
     # DEV ZMQ hosts/port

@@ -15,9 +15,9 @@ from utils.input_base import Base
 # 3. Twitter Parser
 
 
-class Twitter(Base):
-    def __init__(self, config, init_streams):
-        Base.__init__(self, config, init_streams)
+class TwitterInput(Base):
+    def __init__(self, config):
+        Base.__init__(self, config)
         self.set_sock()
         self.stream_conn = multiprocessing.Process(
                                                 target=self.stream_connection)
