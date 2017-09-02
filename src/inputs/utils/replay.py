@@ -3,7 +3,8 @@ import threading
 import time
 import Queue
 
-from functions_general import *
+from _functions_general import *
+
 
 class rply:
     def __init__(self, queue, logpath, logfile, stream, timestart):

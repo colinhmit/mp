@@ -24,19 +24,19 @@ class InputServer:
                                     ).start()
 
         if self.config['twitch_on']:
-            self.internal = TwitchInput(self.config['twitch_config'])
+            self.twitch = TwitchInput(self.config['twitch_config'])
             multiprocessing.Process(target=InputDistributor,
                                     args=(self.config['twitch_config'],)
                                     ).start()
 
         if self.config['twitter_on']:
-            self.internal = TwitterInput(self.config['twitter_config'])
+            self.twitter = TwitterInput(self.config['twitter_config'])
             multiprocessing.Process(target=InputDistributor,
                                     args=(self.config['twitter_config'],)
                                     ).start()
 
         if self.config['reddit_on']:
-            self.internal = RedditInput(self.config['reddit_config'])
+            self.reddit = RedditInput(self.config['reddit_config'])
             multiprocessing.Process(target=InputDistributor,
                                     args=(self.config['reddit_config'],)
                                     ).start()

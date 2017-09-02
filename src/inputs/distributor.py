@@ -14,12 +14,12 @@ class InputDistributor:
         self.distribute()
 
     def set_sock(self):
-        self.sock = context.socket(zmq.SUB)
+        self.sock = self.context.socket(zmq.SUB)
         self.sock.bind("tcp://*:"+str(self.config['dist_port']))
         self.sock.setsockopt(zmq.SUBSCRIBE, "")
 
-    def set_pipe(self, output_port):
-        self.pipe = context.socket(zmq.PUB)
+    def set_pipe(self):
+        self.pipe = self.context.socket(zmq.PUB)
         self.pipe.bind("tcp://*:"+str(self.config['stream_port']))
 
     def distribute(self):

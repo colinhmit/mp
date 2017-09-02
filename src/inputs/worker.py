@@ -22,7 +22,7 @@ class InputWorker:
         self.set_sock()
         self.set_pipe()
 
-        self.process(nlp)
+        self.process()
 
     def set_sock(self):
         self.sock = self.context.socket(zmq.PULL)
@@ -83,7 +83,7 @@ class InputWorker:
                 except Exception, e:
                     data['nlp'] = {}
 
-                if nlpcounter > svorefresh:
+                if nlpcounter > nlprefresh:
                     self.nlp_parser.flush()
                     gc.collect()
 

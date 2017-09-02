@@ -2,6 +2,7 @@ import multiprocessing
 import socket
 import re
 import zmq
+import uuid
 
 from utils._functions_general import *
 from utils.input_base import Base
@@ -97,7 +98,6 @@ class TwitchInput(Base):
 def parse_twitch(data):
     # try: data may be corrupt
     try:
-        data = json.loads(data)
         msg = {
                'src':           'twitch',
                'stream':        re.findall(r'^:.+\![a-zA-Z0-9_]'

@@ -1,6 +1,8 @@
 import multiprocessing
 import zmq
 import gc
+import json
+import uuid
 
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
@@ -36,7 +38,7 @@ class TwitterInput(Base):
             pp(e, 'error')
 
     def set_sock(self):
-        self.l = Listener(self.config['input_port'])
+        self.l = Listener(self.config)
         self.auth = OAuthHandler(self.config['consumer_token'],
                                  self.config['consumer_secret'])
         self.auth.set_access_token(self.config['access_token'],

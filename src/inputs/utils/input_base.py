@@ -6,10 +6,11 @@ from _functions_general import *
 # Input Base Framework
 class Base:
     def __init__(self, config):
-        pp(self.config['self'] + ': Initializing...')
         self.config = config
         self.streams = []
         self.stream_conn = None
+
+        pp(self.config['self'] + ': Initialized.')
 
     def refresh_streams(self):
         pp(self.config['self'] + ': Refreshing streams...')

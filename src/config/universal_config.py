@@ -1,6 +1,6 @@
-INTERNAL_ON = True
-TWITCH_ON = True
-TWITTER_ON = True
+INTERNAL_ON = False
+TWITCH_ON = False
+TWITTER_ON = False
 REDDIT_ON = True
 
 
@@ -24,11 +24,11 @@ main_port = 80
 
 
 
-LOCAL_HOST = '0.0.0.0' / '0.0.0.0'
-INTERNAL_HOST = '0.0.0.0' / '172.31.13.182'
-INPUT_HOST = '0.0.0.0' / '172.31.13.182'
-DIST_HOST = '0.0.0.0' / '172.31.13.182'
-STREAM_HOST = '0.0.0.0' / '172.31.13.182'
+LOCAL_HOST = '0.0.0.0' #/ '0.0.0.0'
+INTERNAL_HOST = '0.0.0.0' #/ '172.31.13.182'
+INPUT_HOST = '0.0.0.0' #/ '172.31.13.182'
+DIST_HOST = '0.0.0.0' #/ '172.31.13.182'
+STREAM_HOST = '0.0.0.0' #/ '172.31.13.182'
 
 INTERNAL_PORT = 8000
 
@@ -91,26 +91,10 @@ STREAM_PORT_REDDIT = 8033
 #     # dev log path
 #     'log_path': '/Users/colinh/Repositories/mp/src/logs/'
 # }
+
 ##############################################################################
 # Input
 ##############################################################################
-input_config = {
-    'internal_on': INTERNAL_ON,
-    'twitch_on': TWITCH_ON,
-    'twitter_on': TWITTER_ON,
-    'reddit_on': REDDIT_ON,
-
-
-    'num_workers': 30,
-    'worker_config': worker_config,
-
-    'internal_config': internal_config,
-    'twitch_config': twitch_config,
-    'twitter_config': twitter_config,
-    'reddit_config': reddit_config
-
-}
-
 
 internal_config = {
     # attributes
@@ -163,10 +147,10 @@ twitter_config = {
     'stream_port': STREAM_PORT_TWITTER,
 
     # prod creds
-    'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
-    'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
-    'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
-    'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd'
+    # 'consumer_token': 'b4pRX7KQPnNQpdyOrC4FTT9Wn',
+    # 'consumer_secret': 'GYgrnWSQYzRhD2rCHCXkLLba2bTa0qQ7OCqOGCRB3XShEc4f2d',
+    # 'access_token': '784870359241809920-pSQiIXkQXn8miVsqnL6LQrOfzTY7Tix',
+    # 'access_secret': 'Olqq3CSWZ5ozLSqRubTIl3AgsCg27tkbfTGLhYAr4lXpd'
                     
     # dev creds #1
     # 'consumer_token': 'lTImlMFo1GZzqJ5dynMHoOkEK',
@@ -181,10 +165,10 @@ twitter_config = {
     # 'access_secret': 'eik2jjyu0kLhkr2xNz53182Xa7ayktE646R7XrwQSGuCt'
 
     # dev creds #3
-    # 'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
-    # 'consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
-    # 'access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
-    # 'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq'
+    'consumer_token': 'cPOClxrPAOdQhgfQfLdcXZL4D',
+    'consumer_secret': 'uGByGCcB91FlNizE5edHPuVVmXInXcPIcHKE68n6drh6Achlaq',
+    'access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
+    'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq'
 }
 
 reddit_config = {
@@ -209,337 +193,363 @@ worker_config = {
     # messaging
     'input_host': INPUT_HOST,
     'input_ports': [INPUT_PORT_INTERNAL, INPUT_PORT_TWITCH,
-                    INPUT_PORT_TWITTER, INPUT_PORT_REDDIT]
+                    INPUT_PORT_TWITTER, INPUT_PORT_REDDIT],
 
     'dist_host': DIST_HOST,
-    'dist_port_internal' = DIST_PORT_INTERNAL,
-    'dist_port_twitch' = DIST_PORT_TWITCH,
-    'dist_port_twitter' = DIST_PORT_TWITTER,
-    'dist_port_reddit' = DIST_PORT_REDDIT,
+    'dist_port_internal': DIST_PORT_INTERNAL,
+    'dist_port_twitch': DIST_PORT_TWITCH,
+    'dist_port_twitter': DIST_PORT_TWITTER,
+    'dist_port_reddit': DIST_PORT_REDDIT,
 }
+
+input_config = {
+    'internal_on': INTERNAL_ON,
+    'twitch_on': TWITCH_ON,
+    'twitter_on': TWITTER_ON,
+    'reddit_on': REDDIT_ON,
+
+
+    'num_workers': 30,
+    'worker_config': worker_config,
+
+    'internal_config': internal_config,
+    'twitch_config': twitch_config,
+    'twitter_config': twitter_config,
+    'reddit_config': reddit_config
+}
+
+##############################################################################
+
+##############################################################################
+# Stream
+##############################################################################
+
+
+
+
+
+
+
+# stream_config = {
+#     # DEV ZMQ hosts/port
+#     'zmq_http_host': http_host,
+#     'zmq_http_port': http_port,
+
+#     'twitch_featured':{
+#         'self': 'twitch',
+#         'twitch_client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
+#         'num_featured': 12,
+#         'refresh_featured_timeout': 1200
+#     },
     
+#     'twitter_featured':{
+#         'self': 'twitter',
+#         'num_featured': 12,
+#         'featured_buffer_maxlen': 100,
+#         'refresh_featured_timeout': 1200
+#     },
 
+#     'reddit_featured':{
+#         'self': 'reddit',
+#         'refresh_featured_timeout': 1200
+#     },
 
-stream_config = {
-    # DEV ZMQ hosts/port
-    'zmq_http_host': http_host,
-    'zmq_http_port': http_port,
+#     'native_featured':{
+#         'self': 'native',
+#         'refresh_featured_timeout': 1200
+#     },
 
-    'twitch_featured':{
-        'self': 'twitch',
-        'twitch_client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
-        'num_featured': 12,
-        'refresh_featured_timeout': 1200
-    },
-    
-    'twitter_featured':{
-        'self': 'twitter',
-        'num_featured': 12,
-        'featured_buffer_maxlen': 100,
-        'refresh_featured_timeout': 1200
-    },
+#     'google_sheets':{
+#         #AWS Google API Key
+#         'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
+#         #DEV Google API Key
+#         #'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
+#         'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+#         'spreadsheetID': '1lz4g3-WvT8EjVc2hogalhnGQmkMb1d1fIvatpLUsano',
+#         #PROD Ranges
+#         #'featured_data_range': 'Twitter Featured!A2:E',
+#         #'featured_live_range': 'Twitter Featured!G2',
+#         #Dev Ranges
+#         'featured_data_range': 'Dev Twitter Featured!A2:H',
+#         'featured_live_range': 'Dev Twitter Featured!J2',
+#         'ad_data_range': 'Demo Ad Interface!A2:E',
+#         'ad_live_range': 'Demo Ad Interface!J2'
+#     },
 
-    'reddit_featured':{
-        'self': 'reddit',
-        'refresh_featured_timeout': 1200
-    },
+#     # Twitch Stream Config
+#     'twitch_config': {
+#         # Attributes
+#         'self': 'twitch',
+#         'debug': False,
 
-    'native_featured':{
-        'self': 'native',
-        'refresh_featured_timeout': 1200
-    },
+#         # DEV ZMQ hosts
+#         'zmq_input_host': local_host,
+#         'zmq_http_host': http_host,
+#         'zmq_data_host': local_host,
+#         # ZMQ messaging ports
+#         'zmq_input_port': irc_stream_port,
+#         'zmq_http_port': http_port,
+#         'zmq_data_port': data_port,
 
-    'google_sheets':{
-        #AWS Google API Key
-        'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
-        #DEV Google API Key
-        #'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
-        'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-        'spreadsheetID': '1lz4g3-WvT8EjVc2hogalhnGQmkMb1d1fIvatpLUsano',
-        #PROD Ranges
-        #'featured_data_range': 'Twitter Featured!A2:E',
-        #'featured_live_range': 'Twitter Featured!G2',
-        #Dev Ranges
-        'featured_data_range': 'Dev Twitter Featured!A2:H',
-        'featured_live_range': 'Dev Twitter Featured!J2',
-        'ad_data_range': 'Demo Ad Interface!A2:E',
-        'ad_live_range': 'Demo Ad Interface!J2'
-    },
+#         # Timeouts
+#         'send_stream_timeout': 0.3,
+#         'send_analytics_timeout': 60,
+#         'reset_subjs_timeout': 600,
+#         'filter_trending_timeout': 0.7,
+#         'render_trending_timeout': 0.3,
+#         'enrich_trending_timeout': 1.0,
+#         'enrich_timer': False,
 
-    # Twitch Stream Config
-    'twitch_config': {
-        # Attributes
-        'self': 'twitch',
-        'debug': False,
+#         # fw_eo output from funcions_matching threshold 
+#         'fo_compare_threshold': 65,
+#         'so_compare_threshold': 80,
+#         #svo thresholds
+#         'subj_compare_threshold': 85,
+#         'verb_compare_threshold': 0.5,
+#         'obj_compare_threshold': 0.5,
+#         #enrich params
+#         'enrich_base': 50,
+#         'enrich_min_len': 5,
+#         'last_rcv_enrich_timeout': 5,
+#         'last_enrch_enrich_timeout': 45,
+#         # twitch_stream trending params
+#         'matched_init_base': 50,
+#         'matched_add_base': 15,
+#         'matched_add_user_base':500,
+#         'buffer_mult': 4,
+#         'decay_msg_base': 1,
+#         'decay_msg_min_limit': 0.4,
+#         'decay_time_mtch_base': 4,
+#         'decay_time_base': 0.2
+#     },
 
-        # DEV ZMQ hosts
-        'zmq_input_host': local_host,
-        'zmq_http_host': http_host,
-        'zmq_data_host': local_host,
-        # ZMQ messaging ports
-        'zmq_input_port': irc_stream_port,
-        'zmq_http_port': http_port,
-        'zmq_data_port': data_port,
+#     # Twitter Stream Config
+#     'twitter_config': {
+#         # Attributes
+#         'self': 'twitter',
+#         'debug': False,
 
-        # Timeouts
-        'send_stream_timeout': 0.3,
-        'send_analytics_timeout': 60,
-        'reset_subjs_timeout': 600,
-        'filter_trending_timeout': 0.7,
-        'render_trending_timeout': 0.3,
-        'enrich_trending_timeout': 1.0,
-        'enrich_timer': False,
+#         # DEV ZMQ hosts
+#         'zmq_input_host': local_host,
+#         'zmq_http_host': http_host,
+#         'zmq_data_host': local_host,
+#         # ZMQ messaging ports
+#         'zmq_input_port': twtr_stream_port,
+#         'zmq_http_port': http_port,
+#         'zmq_data_port': data_port,
 
-        # fw_eo output from funcions_matching threshold 
-        'fo_compare_threshold': 65,
-        'so_compare_threshold': 80,
-        #svo thresholds
-        'subj_compare_threshold': 85,
-        'verb_compare_threshold': 0.5,
-        'obj_compare_threshold': 0.5,
-        #enrich params
-        'enrich_base': 50,
-        'enrich_min_len': 5,
-        'last_rcv_enrich_timeout': 5,
-        'last_enrch_enrich_timeout': 45,
-        # twitch_stream trending params
-        'matched_init_base': 50,
-        'matched_add_base': 15,
-        'matched_add_user_base':500,
-        'buffer_mult': 4,
-        'decay_msg_base': 1,
-        'decay_msg_min_limit': 0.4,
-        'decay_time_mtch_base': 4,
-        'decay_time_base': 0.2
-    },
+#         # Timeouts
+#         'send_stream_timeout': 0.7,
+#         'send_analytics_timeout': 60,
+#         'reset_subjs_timeout': 600,
+#         'filter_trending_timeout': 0.7,
+#         'filter_content_timeout': 5,
+#         'render_trending_timeout': 0.7,
+#         'enrich_trending_timeout': 1.0,
+#         'enrich_timer': False,
 
-    # Twitter Stream Config
-    'twitter_config': {
-        # Attributes
-        'self': 'twitter',
-        'debug': False,
+#         #fw_eo output from funcions_matching threshold 
+#         'fo_compare_threshold': 65,
+#         'so_compare_threshold': 80,
+#         #svo thresholds
+#         'subj_compare_threshold': 85,
+#         'verb_compare_threshold': 0.3,
+#         'obj_compare_threshold': 0.5,
+#         #enrich params
+#         'enrich_base': 50,
+#         'enrich_min_len': 5,
+#         'last_rcv_enrich_timeout': 5,
+#         'last_enrch_enrich_timeout': 45,
+#         #twitter trending params
+#         'matched_init_base': 50,
+#         'matched_add_base': 15,
+#         'matched_add_user_base': 500,     
+#         'buffer_mult': 4,
+#         'decay_msg_base': 1,
+#         'decay_msg_min_limit': 0.4,
+#         'decay_time_mtch_base': 4,
+#         'decay_time_base': 0.2,
 
-        # DEV ZMQ hosts
-        'zmq_input_host': local_host,
-        'zmq_http_host': http_host,
-        'zmq_data_host': local_host,
-        # ZMQ messaging ports
-        'zmq_input_port': twtr_stream_port,
-        'zmq_http_port': http_port,
-        'zmq_data_port': data_port,
+#         #twitter content cutoff
+#         'content_max_time': 7200,
+#         'content_max_size': 20
+#     },
 
-        # Timeouts
-        'send_stream_timeout': 0.7,
-        'send_analytics_timeout': 60,
-        'reset_subjs_timeout': 600,
-        'filter_trending_timeout': 0.7,
-        'filter_content_timeout': 5,
-        'render_trending_timeout': 0.7,
-        'enrich_trending_timeout': 1.0,
-        'enrich_timer': False,
+#     # Twitter Stream Config
+#     'reddit_config': {
+#         # Attributes
+#         'self': 'reddit',
+#         'debug': False,
 
-        #fw_eo output from funcions_matching threshold 
-        'fo_compare_threshold': 65,
-        'so_compare_threshold': 80,
-        #svo thresholds
-        'subj_compare_threshold': 85,
-        'verb_compare_threshold': 0.3,
-        'obj_compare_threshold': 0.5,
-        #enrich params
-        'enrich_base': 50,
-        'enrich_min_len': 5,
-        'last_rcv_enrich_timeout': 5,
-        'last_enrch_enrich_timeout': 45,
-        #twitter trending params
-        'matched_init_base': 50,
-        'matched_add_base': 15,
-        'matched_add_user_base': 500,     
-        'buffer_mult': 4,
-        'decay_msg_base': 1,
-        'decay_msg_min_limit': 0.4,
-        'decay_time_mtch_base': 4,
-        'decay_time_base': 0.2,
+#         # DEV ZMQ hosts
+#         'zmq_input_host': local_host,
+#         'zmq_http_host': http_host,
+#         'zmq_data_host': local_host,
+#         # ZMQ messaging ports
+#         'zmq_input_port': rddt_stream_port,
+#         'zmq_http_port': http_port,
+#         'zmq_data_port': data_port,
 
-        #twitter content cutoff
-        'content_max_time': 7200,
-        'content_max_size': 20
-    },
+#         'send_stream_timeout': 0.7,
+#         'send_analytics_timeout': 60,
+#         'reset_subjs_timeout': 600,
+#         'filter_trending_timeout': 0.7,
+#         'filter_content_timeout': 5,
+#         'render_trending_timeout': 0.7,
+#         'enrich_trending_timeout': 1.0,
+#         'enrich_timer': False,
 
-    # Twitter Stream Config
-    'reddit_config': {
-        # Attributes
-        'self': 'reddit',
-        'debug': False,
+#         #fw_eo output from funcions_matching threshold 
+#         'fo_compare_threshold': 65,
+#         'so_compare_threshold': 80,
+#         #svo thresholds
+#         'subj_compare_threshold': 85,
+#         'verb_compare_threshold': 0.3,
+#         'obj_compare_threshold': 0.5,
+#         #enrich params
+#         'enrich_base': 50,
+#         'enrich_min_len': 5,
+#         'last_rcv_enrich_timeout': 5,
+#         'last_enrch_enrich_timeout': 45,
+#         #twitter trending params
+#         'matched_init_base': 50,
+#         'matched_add_base': 15,
+#         'matched_add_user_base': 500,     
+#         'buffer_mult': 4,
+#         'decay_msg_base': 1,
+#         'decay_msg_min_limit': 0.4,
+#         'decay_time_mtch_base': 4,
+#         'decay_time_base': 0.2,
 
-        # DEV ZMQ hosts
-        'zmq_input_host': local_host,
-        'zmq_http_host': http_host,
-        'zmq_data_host': local_host,
-        # ZMQ messaging ports
-        'zmq_input_port': rddt_stream_port,
-        'zmq_http_port': http_port,
-        'zmq_data_port': data_port,
+#         #twitter content cutoff
+#         'content_max_time': 7200,
+#         'content_max_size': 20
+#     },
 
-        'send_stream_timeout': 0.7,
-        'send_analytics_timeout': 60,
-        'reset_subjs_timeout': 600,
-        'filter_trending_timeout': 0.7,
-        'filter_content_timeout': 5,
-        'render_trending_timeout': 0.7,
-        'enrich_trending_timeout': 1.0,
-        'enrich_timer': False,
+#     # Native Stream Config
+#     'native_config': {
+#         # Attributes
+#         'self': 'native',
+#         'debug': False,
 
-        #fw_eo output from funcions_matching threshold 
-        'fo_compare_threshold': 65,
-        'so_compare_threshold': 80,
-        #svo thresholds
-        'subj_compare_threshold': 85,
-        'verb_compare_threshold': 0.3,
-        'obj_compare_threshold': 0.5,
-        #enrich params
-        'enrich_base': 50,
-        'enrich_min_len': 5,
-        'last_rcv_enrich_timeout': 5,
-        'last_enrch_enrich_timeout': 45,
-        #twitter trending params
-        'matched_init_base': 50,
-        'matched_add_base': 15,
-        'matched_add_user_base': 500,     
-        'buffer_mult': 4,
-        'decay_msg_base': 1,
-        'decay_msg_min_limit': 0.4,
-        'decay_time_mtch_base': 4,
-        'decay_time_base': 0.2,
+#         # DEV ZMQ hosts
+#         'zmq_input_host': local_host,
+#         'zmq_http_host': http_host,
+#         'zmq_data_host': local_host,
+#         # ZMQ messaging ports
+#         'zmq_input_port': ntv_stream_port,
+#         'zmq_http_port': http_port,
+#         'zmq_data_port': data_port,
 
-        #twitter content cutoff
-        'content_max_time': 7200,
-        'content_max_size': 20
-    },
+#         'send_stream_timeout': 0.05,
+#         'send_analytics_timeout': 60,
+#         'reset_subjs_timeout': 600,
+#         'filter_trending_timeout': 0.7,
+#         'filter_content_timeout': 5,
+#         'render_trending_timeout': 0.05,
+#         'enrich_trending_timeout': 1.0,
+#         'enrich_timer': False,
 
-    # Native Stream Config
-    'native_config': {
-        # Attributes
-        'self': 'native',
-        'debug': False,
+#         'set_nlp_match_timeout': 5,
+#         'nlp_match_threshold': 3,
 
-        # DEV ZMQ hosts
-        'zmq_input_host': local_host,
-        'zmq_http_host': http_host,
-        'zmq_data_host': local_host,
-        # ZMQ messaging ports
-        'zmq_input_port': ntv_stream_port,
-        'zmq_http_port': http_port,
-        'zmq_data_port': data_port,
+#         #fw_eo output from funcions_matching threshold 
+#         'fo_compare_threshold': 65,
+#         'so_compare_threshold': 80,
+#         #svo thresholds
+#         'subj_compare_threshold': 85,
+#         'verb_compare_threshold': 0.3,
+#         'obj_compare_threshold': 0.5,
+#         #enrich params
+#         'enrich_base': 50,
+#         'enrich_min_len': 5,
+#         'last_rcv_enrich_timeout': 5,
+#         'last_enrch_enrich_timeout': 45,
+#         #ad params
+#         'ad_timeout_base': 180,
+#         'ad_loop_timeout': 5,
+#         #twitter trending params
+#         'matched_init_base': 50,
+#         'matched_add_base': 15,
+#         'matched_add_user_base': 500,     
+#         'buffer_mult': 4,
+#         'decay_msg_base': 1,
+#         'decay_msg_min_limit': 0.4,
+#         'decay_time_mtch_base': 4,
+#         'decay_time_base': 0.2
+#     }
+# }
 
-        'send_stream_timeout': 0.05,
-        'send_analytics_timeout': 60,
-        'reset_subjs_timeout': 600,
-        'filter_trending_timeout': 0.7,
-        'filter_content_timeout': 5,
-        'render_trending_timeout': 0.05,
-        'enrich_trending_timeout': 1.0,
-        'enrich_timer': False,
+# data_config = {
+#     # DEV ZMQ hosts
+#     'zmq_http_data_host': http_host,
+#     'zmq_data_host': local_host,
+#     'zmq_proc_host': local_host,
 
-        'set_nlp_match_timeout': 5,
-        'nlp_match_threshold': 3,
+#     #Data Server Ports
+#     'zmq_data_port': data_port,
+#     'zmq_http_data_port': http_data_port,
+#     'zmq_proc_port': data_proc_port,
 
-        #fw_eo output from funcions_matching threshold 
-        'fo_compare_threshold': 65,
-        'so_compare_threshold': 80,
-        #svo thresholds
-        'subj_compare_threshold': 85,
-        'verb_compare_threshold': 0.3,
-        'obj_compare_threshold': 0.5,
-        #enrich params
-        'enrich_base': 50,
-        'enrich_min_len': 5,
-        'last_rcv_enrich_timeout': 5,
-        'last_enrch_enrich_timeout': 45,
-        #ad params
-        'ad_timeout_base': 180,
-        'ad_loop_timeout': 5,
-        #twitter trending params
-        'matched_init_base': 50,
-        'matched_add_base': 15,
-        'matched_add_user_base': 500,     
-        'buffer_mult': 4,
-        'decay_msg_base': 1,
-        'decay_msg_min_limit': 0.4,
-        'decay_time_mtch_base': 4,
-        'decay_time_base': 0.2
-    }
-}
+#     #ML clustering
+#     'num_cluster_procs': 5,
+#     'hdb_min_cluster_size': 3,
+#     'subj_pctile': 35
+# }
 
-data_config = {
-    # DEV ZMQ hosts
-    'zmq_http_data_host': http_host,
-    'zmq_data_host': local_host,
-    'zmq_proc_host': local_host,
+# server_config = {
+#     'zmq_server_host': local_host,
+#     'zmq_server_port': server_port,
 
-    #Data Server Ports
-    'zmq_data_port': data_port,
-    'zmq_http_data_port': http_data_port,
-    'zmq_proc_port': data_proc_port,
+#     # Twitter initialized target streams
+#     'init_streams': {
+#         'twitch': ['nalcs1'],
+#         'twitter': ['trump'],
+#         'reddit': ['soccer']
+#     }
+# }
 
-    #ML clustering
-    'num_cluster_procs': 5,
-    'hdb_min_cluster_size': 3,
-    'subj_pctile': 35
-}
+# ad_config = {
+#     'self': 'advertisement',
+#     'debug': False,
 
-server_config = {
-    'zmq_server_host': local_host,
-    'zmq_server_port': server_port,
+#     'zmq_http_host': http_host,
+#     'zmq_http_port': http_port,
+#     'timeout': 120,
 
-    # Twitter initialized target streams
-    'init_streams': {
-        'twitch': ['nalcs1'],
-        'twitter': ['trump'],
-        'reddit': ['soccer']
-    }
-}
+#      'google_sheets':{
+#         #AWS Google API Key
+#         'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
+#         #DEV Google API Key
+#         #'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
+#         'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+#         'spreadsheetID': '1lz4g3-WvT8EjVc2hogalhnGQmkMb1d1fIvatpLUsano',
+#         #PROD Ranges
+#         #'featured_data_range': 'Twitter Featured!A2:E',
+#         #'featured_live_range': 'Twitter Featured!G2',
+#         #Dev Ranges
+#         'featured_data_range': 'Dev Twitter Featured!A2:H',
+#         'featured_live_range': 'Dev Twitter Featured!J2',
+#         'ad_data_range': 'Demo Ad Interface!A2:E',
+#         'ad_live_range': 'Demo Ad Interface!J2'
+#     }
+# }
 
-ad_config = {
-    'self': 'advertisement',
-    'debug': False,
+# http_config = {
+#     'host': local_host,
+#     'port': main_port,
 
-    'zmq_http_host': http_host,
-    'zmq_http_port': http_port,
-    'timeout': 120,
+#     # DEV ZMQ hosts
+#     'zmq_http_host': local_host,
+#     'zmq_http_data_host': local_host,
+#     'zmq_server_host': server_host,
+#     'zmq_http_port': http_port,
+#     'zmq_http_data_port': http_data_port,
+#     'zmq_server_port': server_port,
 
-     'google_sheets':{
-        #AWS Google API Key
-        'sheets_key': '/home/ec2-user/mp/src/config/chrendin_sheets_key.json',
-        #DEV Google API Key
-        #'sheets_key': '/Users/colinh/Repositories/mp/src/config/chrendin_sheets_key.json',
-        'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-        'spreadsheetID': '1lz4g3-WvT8EjVc2hogalhnGQmkMb1d1fIvatpLUsano',
-        #PROD Ranges
-        #'featured_data_range': 'Twitter Featured!A2:E',
-        #'featured_live_range': 'Twitter Featured!G2',
-        #Dev Ranges
-        'featured_data_range': 'Dev Twitter Featured!A2:H',
-        'featured_live_range': 'Dev Twitter Featured!J2',
-        'ad_data_range': 'Demo Ad Interface!A2:E',
-        'ad_live_range': 'Demo Ad Interface!J2'
-    }
-}
+#     'twitch_monitor_timeout': 15,
+#     'twitter_monitor_timeout': 15,
+#     'reddit_monitor_timeout': 15,
 
-http_config = {
-    'host': local_host,
-    'port': main_port,
-
-    # DEV ZMQ hosts
-    'zmq_http_host': local_host,
-    'zmq_http_data_host': local_host,
-    'zmq_server_host': server_host,
-    'zmq_http_port': http_port,
-    'zmq_http_data_port': http_data_port,
-    'zmq_server_port': server_port,
-
-    'twitch_monitor_timeout': 15,
-    'twitter_monitor_timeout': 15,
-    'reddit_monitor_timeout': 15,
-
-    'enrich_base': 7
-}
+#     'enrich_base': 7
+# }

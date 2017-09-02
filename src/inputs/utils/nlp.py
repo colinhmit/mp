@@ -5,14 +5,13 @@ from _functions_general import *
 
 class NLPParser:
     def __init__(self):
-        pp('Initializing nlpParser...')
         self.SUBJECTS = ["nsubj", "nsubjpass", "csubj",
                          "csubjpass", "agent", "expl"]
         self.OBJECTS = ["dobj", "dative", "attr", "oprd"]
         self.ADJECTIVES = ["amod", "acomp"]
         self.parser = spacy.load('en')
         self.parser.vocab.strings.set_frozen(True)
-        pp('Initialized nlpParser.')
+        pp('nlp: Initialized.')
 
     def parse_text(self, text):
         parsed_text = self.parser(unicode(text))
@@ -65,8 +64,9 @@ class NLPParser:
 
     def find_subs(self, tok):
         head = tok.head
-        while head.pos_ != "VERB" and
-        head.pos_ != "NOUN" and head.head != head:
+        while (head.pos_ != "VERB" and
+               head.pos_ != "NOUN" and
+               head.head != head):
             head = head.head
         if head.pos_ == "VERB":
             subs = [tok for tok in head.lefts if tok.dep_ == "SUB"]
@@ -155,13 +155,13 @@ class NLPParser:
         #    objs.extend(potentialNewObjs)
         #    v = potentialNewVerb
 
-        potential_new_verb, potential_new_objs =
-        self.get_objs_from_xcomp(rights)
+        new_verb, new_objs = self.get_objs_from_xcomp(rights)
 
-        if potential_new_verb is not None and
-        potential_new_objs is not None and len(potential_new_objs) > 0:
-            objs.extend(potential_new_objs)
-            v = potential_new_verb
+        if (new_verb is not None and
+                new_objs is not None and
+                len(new_objs) > 0):
+            objs.extend(new_objs)
+            v = new_verb
         if len(objs) > 0:
             objs.extend(self.get_objs_from_conjs(objs))
         return v, objs

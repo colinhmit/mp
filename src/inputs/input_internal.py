@@ -1,7 +1,6 @@
 import json
 import zmq
 import multiprocessing
-import Queue
 import uuid
 
 from utils._functions_general import *
