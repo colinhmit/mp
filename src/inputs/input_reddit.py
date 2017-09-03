@@ -13,7 +13,7 @@ from utils.input_base import Base
 # 2. Reddit Parser
 
 
-class RedditInput(Base):
+class InputReddit(Base):
     def __init__(self, config):
         Base.__init__(self, config)
         self.stream_conn = multiprocessing.Process(

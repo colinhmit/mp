@@ -1,160 +1,55 @@
 import datetime
-import re
-import zmq
-import pickle
-import uuid
 
-from functions_general import *
-from functions_matching import *
+from _functions_general import *
+from _functions_matching import *
 
-class strm:
+
+class StreamConsolidator:
     def __init__(self, config, stream):
         self.config = config
         self.stream = stream
         self.last_rcv_time = datetime.datetime.now()
-        self.last_enrch_time = datetime.datetime.now()
         self.last_decay_time = datetime.datetime.now()
 
         self.trending = {}
-        self.clean_trending = {}
-        self.subjs = {}
-        self.enrich = []
-        self.enrichdecay = []
+        self.visible_trending = {}
 
         self.nlp_match = True
-        self.ad_trigger = False
-        self.enrich_trigger = False
 
-        self.init_sockets()
-
-    def init_sockets(self):
-        context = zmq.Context()
-        self.input_socket = context.socket(zmq.SUB)
-        self.input_socket.connect('tcp://'+self.config['zmq_input_host']+':'+str(self.config['zmq_input_port']))
-        self.input_socket.setsockopt(zmq.SUBSCRIBE, "")
-
-        self.http_socket = context.socket(zmq.PUSH)
-        self.http_socket.connect('tcp://'+self.config['zmq_http_host']+':'+str(self.config['zmq_http_port']))
-
-        self.data_socket = context.socket(zmq.PUB)
-        self.data_socket.connect('tcp://'+self.config['zmq_data_host']+':'+str(self.config['zmq_data_port']))
-
-    # ZMQ Processes
-    def send_stream(self):
-        self.send_stream_loop = True
-        while self.send_stream_loop:
-            #try: send stream could break?
-            try:
-                data = {
-                    'type': 'stream',
-                    'src': self.config['self'],
-                    'stream': self.stream,
-                    'enrichdecay': list(self.enrichdecay),
-                    'ad_trigger': self.ad_trigger,
-                    'data': {
-                        'trending': dict(self.clean_trending),
-                        'enrich': list(self.enrich)
-                    }
-                }
-                pickled_data = pickle.dumps(data)
-                self.http_socket.send(pickled_data)
-                self.enrichdecay = []
-                self.ad_trigger = False
-            except Exception, e:
-                pp('failed send_stream')
-                pp(e)
-            time.sleep(self.config['send_stream_timeout'])
-
-    def send_analytics(self):
-        self.send_analytics_loop = True
-        while self.send_analytics_loop:
-            #try: send analytics could break?
-            try:
-                data = {
-                    'type': 'subjects',
-                    'src': self.config['self'],
-                    'stream': self.stream,
-                    'data': dict(self.subjs)
-                }
-                pickled_data = pickle.dumps(data)
-                self.data_socket.send(pickled_data)
-            except Exception, e:
-                pp('failed send_analytics')
-                pp(e)
-            time.sleep(self.config['send_analytics_timeout'])
-
-    # Manager Processes
-    def reset_subjs_thread(self):
-        self.reset_subjs_loop = True
-        while self.reset_subjs_loop:
-            #try: reset subjs could break?
-            try:
-                self.subjs = {}
-            except Exception, e:
-                pp('failed reset_subjs_thread')
-                pp(e)
-            time.sleep(self.config['reset_subjs_timeout'])
-
-    def filter_trending_thread(self):
+    def filter_trending(self):
         self.filter_trending_loop = True
         while self.filter_trending_loop:
-            #try: filter trending could break?
+            # try: filter trending could break
             try:
-                self.filter_trending()
+                if len(self.trending)>0:
+                    temp_trending = dict(self.trending)
+                    max_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if temp_trending[x]['visible']==0 else 0)
+                    if self.trending.get(max_key,{'visible':1})['visible'] == 0:
+                        # try: race condition if key is decayed out
+                        try:
+                            self.trending[max_key]['visible'] = 1
+                            self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
+                        except Exception, e:
+                            pp(self.config['self']+' filter trending failed on race condition.')
+                            pp(e)
             except Exception, e:
-                pp('failed filter_trending_thread')
-                pp(e)
+                pp(self.stream+': failed filter_trending', 'error')
+                pp(e, 'error')
             time.sleep(self.config['filter_trending_timeout'])
 
-    def render_trending_thread(self):
+    def render_trending(self):
         self.render_trending_loop = True
         while self.render_trending_loop:
             #try: render trending could break?
             try:
-                self.render_trending()
+                if len(self.trending)>0:
+                    temp_trending = dict(self.trending)
+                    self.clean_trending = {msg_k: {'src':msg_v['src'], 'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id'], 'src_id':msg_v['src_id'], 'username':msg_v['username']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
+
             except Exception, e:
                 pp('failed render_trending_thread')
                 pp(e)
             time.sleep(self.config['render_trending_timeout'])
-
-    def enrich_trending_thread(self):
-        self.enrich_trending_loop = True
-        while self.enrich_trending_loop:
-            curr_time = datetime.datetime.now()
-            if ((((curr_time - max(self.last_rcv_time,self.last_enrch_time)).total_seconds()>self.config['last_rcv_enrich_timeout']) or ((curr_time - self.last_enrch_time).total_seconds()>self.config['last_enrch_enrich_timeout'])) and self.config['enrich_timer']) or self.enrich_trigger:
-                idstr = str(uuid.uuid1())
-                enrich_item = {
-                    'id': idstr,
-                    'time': curr_time
-                }
-                self.enrich.append(enrich_item)
-                self.decay_enrich()
-                self.last_enrch_time = curr_time
-                self.last_decay_time = curr_time
-                self.enrich_trigger = False
-            elif (curr_time - self.last_decay_time).total_seconds()>self.config['last_rcv_enrich_timeout']:
-                self.decay_enrich()
-                self.last_decay_time = curr_time
-            time.sleep(self.config['enrich_trending_timeout'])
-
-    #Manager Processes
-    def render_trending(self):
-        if len(self.trending)>0:
-            temp_trending = dict(self.trending)
-            self.clean_trending = {msg_k: {'src':msg_v['src'], 'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id'], 'src_id':msg_v['src_id'], 'username':msg_v['username']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
-
-    def filter_trending(self):
-        if len(self.trending)>0:
-            temp_trending = dict(self.trending)
-            max_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if temp_trending[x]['visible']==0 else 0)
-            if self.trending.get(max_key,{'visible':1})['visible'] == 0:
-                #try: race condition if key is decayed out
-                try:
-                    self.trending[max_key]['visible'] = 1
-                    self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
-                except Exception, e:
-                    pp(self.config['self']+' filter trending failed on race condition.')
-                    pp(e)
 
     #Matching Logic
     def handle_match(self, matched_msg, msgdata, msgtime):

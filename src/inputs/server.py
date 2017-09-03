@@ -3,10 +3,10 @@ import multiprocessing
 # import utils
 from utils._functions_general import *
 from utils.nlp import NLPParser
-from input_internal import InternalInput
-from input_twitch import TwitchInput
-from input_twitter import TwitterInput
-from input_reddit import RedditInput
+from input_internal import InputInternal
+from input_twitch import InputTwitch
+from input_twitter import InputTwitter
+from input_reddit import InputReddit
 from worker import InputWorker
 from distributor import InputDistributor
 
@@ -18,25 +18,25 @@ class InputServer:
         self.nlp_parser = NLPParser()
 
         if self.config['internal_on']:
-            self.internal = InternalInput(self.config['internal_config'])
+            self.internal = InputInternal(self.config['internal_config'])
             multiprocessing.Process(target=InputDistributor,
                                     args=(self.config['internal_config'],)
                                     ).start()
 
         if self.config['twitch_on']:
-            self.twitch = TwitchInput(self.config['twitch_config'])
+            self.twitch = InputTwitch(self.config['twitch_config'])
             multiprocessing.Process(target=InputDistributor,
                                     args=(self.config['twitch_config'],)
                                     ).start()
 
         if self.config['twitter_on']:
-            self.twitter = TwitterInput(self.config['twitter_config'])
+            self.twitter = InputTwitter(self.config['twitter_config'])
             multiprocessing.Process(target=InputDistributor,
                                     args=(self.config['twitter_config'],)
                                     ).start()
 
         if self.config['reddit_on']:
-            self.reddit = RedditInput(self.config['reddit_config'])
+            self.reddit = InputReddit(self.config['reddit_config'])
             multiprocessing.Process(target=InputDistributor,
                                     args=(self.config['reddit_config'],)
                                     ).start()

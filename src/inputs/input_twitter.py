@@ -17,7 +17,7 @@ from utils.input_base import Base
 # 3. Twitter Parser
 
 
-class TwitterInput(Base):
+class InputTwitter(Base):
     def __init__(self, config):
         Base.__init__(self, config)
         self.set_sock()
