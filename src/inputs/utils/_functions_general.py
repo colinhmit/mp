@@ -7,7 +7,6 @@ def pp(message, mtype='INFO'):
     mtype = mtype.upper()
     if mtype == "ERROR":
         mtype = red.format(mtype)
-    print '[%s] [%s] %s' % (time.strftime('%H:%M:%S',
-                            time.gmtime()),
+    print '[%s] [%s] %s' % (time.strftime('%H:%M:%S', time.gmtime()),
                             mtype,
                             message)

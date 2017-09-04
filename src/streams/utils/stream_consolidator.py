@@ -9,29 +9,24 @@ class StreamConsolidator:
         self.config = config
         self.stream = stream
         self.last_rcv_time = datetime.datetime.now()
-        self.last_decay_time = datetime.datetime.now()
 
         self.trending = {}
         self.visible_trending = {}
 
-        self.nlp_match = True
-
     def filter_trending(self):
         self.filter_trending_loop = True
         while self.filter_trending_loop:
-            # try: filter trending could break
+            # try: max_key could have decayed out
             try:
-                if len(self.trending)>0:
+                if len(self.trending) > 0:
                     temp_trending = dict(self.trending)
-                    max_key = max(temp_trending, key=lambda x: temp_trending[x]['score'] if temp_trending[x]['visible']==0 else 0)
-                    if self.trending.get(max_key,{'visible':1})['visible'] == 0:
-                        # try: race condition if key is decayed out
-                        try:
-                            self.trending[max_key]['visible'] = 1
-                            self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
-                        except Exception, e:
-                            pp(self.config['self']+' filter trending failed on race condition.')
-                            pp(e)
+                    max_key = max(temp_trending,
+                                  key=lambda x: temp_trending[x]['score']
+                                  if temp_trending[x]['visible'] == 0
+                                  else 0)
+                    if self.trending.get(max_key, {'visible': 1})['visible'] == 0:
+                        self.trending[max_key]['visible'] = 1
+                        self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
             except Exception, e:
                 pp(self.stream+': failed filter_trending', 'error')
                 pp(e, 'error')
@@ -44,11 +39,22 @@ class StreamConsolidator:
             try:
                 if len(self.trending)>0:
                     temp_trending = dict(self.trending)
-                    self.clean_trending = {msg_k: {'src':msg_v['src'], 'score':msg_v['score'], 'first_rcv_time': msg_v['first_rcv_time'].isoformat(), 'media_url':msg_v['media_url'], 'mp4_url':msg_v['mp4_url'], 'id':msg_v['id'], 'src_id':msg_v['src_id'], 'username':msg_v['username']} for msg_k, msg_v in temp_trending.items() if msg_v['visible']==1}
-
+                    self.clean_trending = {
+                        msg_k: {
+                                'src':              msg_v['src'],
+                                'username':         msg_v['username'],
+                                'score':            msg_v['score'],
+                                'first_rcv_time':   msg_v['first_rcv_time'].isoformat(),
+                                'media_url':        msg_v['media_url'],
+                                'mp4_url':          msg_v['mp4_url'],
+                                'id':               msg_v['id'],
+                                'src_id':           msg_v['src_id']
+                               }
+                        for msg_k, msg_v in temp_trending.items() if msg_v['visible'] == 1
+                    }
             except Exception, e:
-                pp('failed render_trending_thread')
-                pp(e)
+                pp(self.stream+': failed render_trending', 'error')
+                pp(e, 'error')
             time.sleep(self.config['render_trending_timeout'])
 
     #Matching Logic

@@ -15,8 +15,7 @@ class InputInternal(Base):
         Base.__init__(self, config, [])
         self.config = config
 
-        self.stream_conn = multiprocessing.Process(
-                                                target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         self.stream_conn.start()
 
     def stream_connection(self):

@@ -44,4 +44,5 @@ class InputServer:
         for _ in xrange(self.config['num_workers']):
             multiprocessing.Process(target=InputWorker,
                                     args=(self.config['worker_config'],
-                                          self.nlp_parser,)).start()
+                                          self.nlp_parser,)
+                                    ).start()

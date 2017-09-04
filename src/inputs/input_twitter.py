@@ -21,8 +21,7 @@ class InputTwitter(Base):
     def __init__(self, config):
         Base.__init__(self, config)
         self.set_sock()
-        self.stream_conn = multiprocessing.Process(
-                                                target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
 
@@ -99,11 +98,11 @@ def parse_twitter(data):
         if data.get('retweeted_status', {}).get('text', False):
             msg['message'] = data['retweeted_status']['text']
             if data['retweeted_status']['entities'].get('media', False):
-                msg['media_urls'] = [data['retweeted_status']
-                                         ['entities']['media'][0]
-                                         ['media_url']]
-                if data.get('extended_entities', {}).get('media', [{}])[0].get(
-                            'video_info', {}).get('variants', False):
+                msg['media_urls'] = [data['retweeted_status']['entities']['media'][0]['media_url']]
+                if (data.get('extended_entities', {})
+                        .get('media', [{}])[0]
+                        .get('video_info', {})
+                        .get('variants', False)):
                     msg['mp4_url'] = max(data['extended_entities']
                                              ['media'][0]['video_info']
                                              ['variants'],
@@ -113,10 +112,11 @@ def parse_twitter(data):
         elif data.get('text', False):
             msg['message'] = data['text']
             if data['entities'].get('media', False):
-                msg['media_urls'] = [data['entities']['media'][0]
-                                         ['media_url']]
-                if data.get('extended_entities', {}).get('media', [{}])[0].get(
-                        'video_info', {}).get('variants', False):
+                msg['media_urls'] = [data['entities']['media'][0]['media_url']]
+                if (data.get('extended_entities', {})
+                        .get('media', [{}])[0]
+                        .get('video_info', {})
+                        .get('variants', False)):
                     msg['mp4_url'] = max(data['extended_entities']
                                              ['media'][0]['video_info']
                                              ['variants'],

@@ -16,8 +16,7 @@ from utils.input_base import Base
 class InputReddit(Base):
     def __init__(self, config):
         Base.__init__(self, config)
-        self.stream_conn = multiprocessing.Process(
-                                                target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
 
@@ -79,19 +78,19 @@ class InputReddit(Base):
                 if max_post:
                     if not max_post.author:
                         data = {
-                                'stream': stream,
-                                'username': 'deleted',
-                                'message': max_post.title,
-                                'media_urls': max_post.url,
-                                'src_id': max_post.id
+                                'stream':       stream,
+                                'username':     'deleted',
+                                'message':      max_post.title,
+                                'media_urls':   max_post.url,
+                                'src_id':       max_post.id
                                 }
                     else:
                         data = {
-                                'stream': stream,
-                                'username': max_post.author.name,
-                                'message': max_post.title,
-                                'media_urls': max_post.url,
-                                'src_id': max_post.id
+                                'stream':       stream,
+                                'username':     max_post.author.name,
+                                'message':      max_post.title,
+                                'media_urls':   max_post.url,
+                                'src_id':       max_post.id
                                 }
                     self.sock.put(json.dumps(data))
             except Exception, e:

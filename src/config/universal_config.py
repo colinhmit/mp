@@ -96,7 +96,7 @@ STREAM_PORT_REDDIT = 8033
 # Input
 ##############################################################################
 
-internal_config = {
+internal_input_config = {
     # attributes
     'self': 'internal',
 
@@ -113,7 +113,7 @@ internal_config = {
     'port': INTERNAL_PORT
 }
 
-twitch_config = {
+twitch_input_config = {
     # attributes
     'self': 'twitch',
     'socket_buffer_size': 4096,
@@ -134,7 +134,7 @@ twitch_config = {
     'oauth_password': 'oauth:1a6qgh8wz0b0lb2ue5zenht2lrkcdx'
 }
 
-twitter_config = {
+twitter_input_config = {
     # attributes
     'self': 'twitter',
 
@@ -171,7 +171,7 @@ twitter_config = {
     'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq'
 }
 
-reddit_config = {
+reddit_input_config = {
     # attributes
     'self': 'reddit',
 
@@ -212,10 +212,10 @@ input_config = {
     'num_workers': 30,
     'worker_config': worker_config,
 
-    'internal_config': internal_config,
-    'twitch_config': twitch_config,
-    'twitter_config': twitter_config,
-    'reddit_config': reddit_config
+    'internal_config': internal_input_config,
+    'twitch_config': twitch_input_config,
+    'twitter_config': twitter_input_config,
+    'reddit_config': reddit_input_config
 }
 
 ##############################################################################
@@ -224,7 +224,58 @@ input_config = {
 # Stream
 ##############################################################################
 
+consolidator_config = {
+    # fw_eo output from functions_matching threshold 
+    'fo_compare_threshold': 65,
+    'so_compare_threshold': 80,
+    # svo matching thresholds
+    'subj_compare_threshold': 85,
+    'verb_compare_threshold': 0.5,
+    'obj_compare_threshold': 0.5,    
 
+    # algo params
+    'matched_init_base': 50,
+    'matched_add_base': 15,
+    'matched_add_user_base':500,
+    'buffer_mult': 4,
+    'decay_msg_base': 1,
+    'decay_msg_min_limit': 0.4,
+    'decay_time_mtch_base': 4,
+    'decay_time_base': 0.2
+}
+
+
+
+twitch_stream_config = {
+    # attributes
+    'self': 'twitch',
+    'debug': False,
+
+    # Timeouts
+    'send_stream_timeout': 0.3,
+    'send_analytics_timeout': 60,
+    'reset_subjs_timeout': 600,
+    'filter_trending_timeout': 0.7,
+    'render_trending_timeout': 0.3,
+    'enrich_trending_timeout': 1.0,
+    'enrich_timer': False,
+
+    
+    #enrich params
+    'enrich_base': 50,
+    'enrich_min_len': 5,
+    'last_rcv_enrich_timeout': 5,
+    'last_enrch_enrich_timeout': 45,
+    # twitch_stream trending params
+    'matched_init_base': 50,
+    'matched_add_base': 15,
+    'matched_add_user_base':500,
+    'buffer_mult': 4,
+    'decay_msg_base': 1,
+    'decay_msg_min_limit': 0.4,
+    'decay_time_mtch_base': 4,
+    'decay_time_base': 0.2
+},
 
 
 

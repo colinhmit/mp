@@ -31,8 +31,7 @@ class NLPParser:
             right_deps = {tok.lower_ for tok in rights}
             if "and" in right_deps:
                 more_subs.extend([tok for tok in rights
-                                  if tok.dep_ in self.SUBJECTS or
-                                  tok.pos_ == "NOUN"])
+                                  if tok.dep_ in self.SUBJECTS or tok.pos_ == "NOUN"])
                 if len(more_subs) > 0:
                     more_subs.extend(self.get_subs_from_conjs(more_subs))
         return more_subs
@@ -45,8 +44,7 @@ class NLPParser:
             right_deps = {tok.lower_ for tok in rights}
             if "and" in right_deps:
                 more_objs.extend([tok for tok in rights
-                                  if tok.dep_ in self.OBJECTS or
-                                  tok.pos_ == "NOUN"])
+                                  if tok.dep_ in self.OBJECTS or tok.pos_ == "NOUN"])
                 if len(more_objs) > 0:
                     more_objs.extend(self.get_objs_from_conjs(more_objs))
         return more_objs
@@ -56,17 +54,14 @@ class NLPParser:
         for verb in verbs:
             right_deps = {tok.lower_ for tok in verb.rights}
             if "and" in right_deps:
-                more_verbs.extend([tok for tok in verb.rights
-                                   if tok.pos_ == "VERB"])
+                more_verbs.extend([tok for tok in verb.rights if tok.pos_ == "VERB"])
                 if len(more_verbs) > 0:
                     more_verbs.extend(self.get_verbs_from_conjs(more_verbs))
         return more_verbs
 
     def find_subs(self, tok):
         head = tok.head
-        while (head.pos_ != "VERB" and
-               head.pos_ != "NOUN" and
-               head.head != head):
+        while (head.pos_ != "VERB" and head.pos_ != "NOUN" and head.head != head):
             head = head.head
         if head.pos_ == "VERB":
             subs = [tok for tok in head.lefts if tok.dep_ == "SUB"]
@@ -94,8 +89,7 @@ class NLPParser:
             subs, verb_negated = get_all_subs(v)
             if len(subs) > 0:
                 for sub in subs:
-                    svs.append((sub.orth_, "!" + v.orth_
-                                if verb_negated else v.orth_))
+                    svs.append((sub.orth_, "!" + v.orth_ if verb_negated else v.orth_))
         return svs
 
     def get_objs_from_prepos(self, deps):
@@ -114,8 +108,7 @@ class NLPParser:
                 if len(verbs) > 0:
                     for v in verbs:
                         rights = list(v.rights)
-                        objs = [tok for tok in rights
-                                if tok.dep_ in self.OBJECTS]
+                        objs = [tok for tok in rights if tok.dep_ in self.OBJECTS]
                         objs.extend(self.get_objs_from_prepos(rights))
                         if len(objs) > 0:
                             return v, objs
@@ -134,8 +127,7 @@ class NLPParser:
 
     def get_all_subs(self, v):
         verb_negated = self.is_negated(v)
-        subs = [tok for tok in v.lefts
-                if tok.dep_ in self.SUBJECTS and tok.pos_ != "DET"]
+        subs = [tok for tok in v.lefts if tok.dep_ in self.SUBJECTS and tok.pos_ != "DET"]
         if len(subs) > 0:
             subs.extend(self.get_subs_from_conjs(subs))
         else:
@@ -157,9 +149,7 @@ class NLPParser:
 
         new_verb, new_objs = self.get_objs_from_xcomp(rights)
 
-        if (new_verb is not None and
-                new_objs is not None and
-                len(new_objs) > 0):
+        if (new_verb is not None and new_objs is not None and len(new_objs) > 0):
             objs.extend(new_objs)
             v = new_verb
         if len(objs) > 0:
@@ -168,8 +158,7 @@ class NLPParser:
 
     def parse_SVOs(self, tokens):
         svos = []
-        verbs = [tok for tok in tokens
-                 if tok.pos_ == "VERB" and tok.dep_ != "aux"]
+        verbs = [tok for tok in tokens if tok.pos_ == "VERB" and tok.dep_ != "aux"]
         for v in verbs:
             subs, verb_negated = self.get_all_subs(v)
             # hopefully there are subs, if not, don't examine this verb

@@ -14,8 +14,7 @@ from utils.input_base import Base
 class InputTwitch(Base):
     def __init__(self, config):
         Base.__init__(self, config)
-        self.stream_conn = multiprocessing.Process(
-                                                target=self.stream_connection)
+        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
 
@@ -43,7 +42,7 @@ class InputTwitch(Base):
         except:
             pp('Cannot connect to server (%s:%s).' % (self.config['server'],
                                                       self.config['port']),
-               'error')
+                                                      'error')
         self.sock.settimeout(None)
 
         self.sock.send('USER %s\r\n' % self.config['username'])
