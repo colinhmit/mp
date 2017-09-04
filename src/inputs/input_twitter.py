@@ -123,6 +123,10 @@ def parse_twitter(data):
                                          key=lambda x: x['bitrate']
                                          if x['content_type'] == "video/mp4"
                                          else 0)['url']
+
+        if msg['message'][:4] == 'RT @':
+            msg['message'] = msg['message'][msg['message'].find(':')+1:]
+
         return msg
     except Exception, e:
         pp('parse_twitter failed', 'error')

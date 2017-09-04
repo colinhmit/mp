@@ -225,13 +225,22 @@ input_config = {
 ##############################################################################
 
 consolidator_config = {
+    # matching logic
+    'svo_match': True,
+    'string_match': True,
+
     # fw_eo output from functions_matching threshold 
     'fo_compare_threshold': 65,
     'so_compare_threshold': 80,
+
     # svo matching thresholds
     'subj_compare_threshold': 85,
     'verb_compare_threshold': 0.5,
-    'obj_compare_threshold': 0.5,    
+    'obj_compare_threshold': 0.5,
+
+    # thread timings
+    'filter_trending_refresh': 0.7,
+    'render_trending_refresh': 0.3,
 
     # algo params
     'matched_init_base': 50,
@@ -255,8 +264,7 @@ twitch_stream_config = {
     'send_stream_timeout': 0.3,
     'send_analytics_timeout': 60,
     'reset_subjs_timeout': 600,
-    'filter_trending_timeout': 0.7,
-    'render_trending_timeout': 0.3,
+    
     'enrich_trending_timeout': 1.0,
     'enrich_timer': False,
 
