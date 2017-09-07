@@ -228,6 +228,7 @@ consolidator_config = {
     # matching logic
     'svo_match': True,
     'string_match': True,
+    'ignore_user': False,
 
     # fw_eo output from functions_matching threshold 
     'fo_compare_threshold': 65,
@@ -251,6 +252,10 @@ consolidator_config = {
     'decay_msg_min_limit': 0.4,
     'decay_time_mtch_base': 4,
     'decay_time_base': 0.2
+}
+
+enricher_config = {
+    
 }
 
 
