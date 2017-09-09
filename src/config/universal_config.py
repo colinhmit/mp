@@ -255,9 +255,37 @@ consolidator_config = {
 }
 
 enricher_config = {
-    
+    # advertising
+    'ad_trigger': False,
+    'ad_timer': 180,
+    'ad_refresh': 5,
+
+    # timing
+    'enrich_trending_refresh': 1.0,
+    'enrich_timer': False,
+    'last_rcv_enrich_timer': 5,
+    'last_enrch_enrich_timer': 45,
+
+    #length
+    'enrich_min_len': 5
 }
 
+analyzer_config = {
+    # timing
+    'reset_subjs_refresh': 600
+}
+
+aggregator_config = {
+    # matching
+    'fo_compare_threshold': 65,
+
+    # timing
+    'filter_content_refresh': 5,
+
+    # length
+    'content_max_time': 7200,
+    'content_max_size': 20
+}
 
 
 twitch_stream_config = {
