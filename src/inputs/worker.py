@@ -1,79 +1,67 @@
 import random
 import zmq
 import pickle
+import json
 import gc
 import re
+import importlib
 import multiprocessing
 
 # import utils
 from utils._functions_general import *
-from input_internal import parse_internal
-from input_twitch import parse_twitch
-from input_twitter import parse_twitter
-from input_reddit import parse_reddit
 
 
 class InputWorker:
-    def __init__(self, config, nlp):
+    def __init__(self, config, inputs, nlp):
         self.config = config
+        self.inputs = inputs
         self.nlp_parser = nlp
 
         self.context = zmq.Context()
         self.set_sock()
-        self.set_pipe()
+        self.set_pipes()
+        self.set_parsers()
 
         self.process()
 
     def set_sock(self):
         self.sock = self.context.socket(zmq.PULL)
-        for port in self.config['input_ports']:
+        for input_ in self.inputs:
             self.sock.connect('tcp://' +
                               self.config['input_host'] +
                               ':' +
-                              str(port))
+                              str(self.config['input_ports'][input_]))
 
-    def set_pipe(self):
-        self.pipe_internal = self.context.socket(zmq.PUB)
-        self.pipe_internal.connect('tcp://' +
-                                   self.config['dist_host'] +
-                                   ':' +
-                                   str(self.config['dist_port_internal']))
-        self.pipe_twitch = self.context.socket(zmq.PUB)
-        self.pipe_twitch.connect('tcp://' +
-                                 self.config['dist_host'] +
-                                 ':' +
-                                 str(self.config['dist_port_twitch']))
-        self.pipe_twitter = self.context.socket(zmq.PUB)
-        self.pipe_twitter.connect('tcp://' +
-                                  self.config['dist_host'] +
-                                  ':' +
-                                  str(self.config['dist_port_twitter']))
-        self.pipe_reddit = self.context.socket(zmq.PUB)
-        self.pipe_reddit.connect('tcp://' +
-                                 self.config['dist_host'] +
-                                 ':' +
-                                 str(self.config['dist_port_reddit']))
+    def set_pipes(self):
+        self.pipe = {}
+        for input_ in self.inputs:
+            self.pipe[input_] = self.context.socket(zmq.PUB)
+            self.pipe[input_].connect('tcp://' +
+                                      self.config['dist_host'] +
+                                      ':' +
+                                      str(self.config['dist_ports'][input_]))
+
+    def set_parsers(self):
+        self.parsers = {}
+        for input_ in self.inputs:
+            module = importlib.import_module(self.config['modules'][input_])
+            self.parsers[input_] = getattr(module, 'parse')
 
     def process(self):
         nlprefresh = random.randint(500, 1000)
         nlpcounter = 0
 
         for data in iter(self.sock.recv_string, 'STOP'):
-            if data[0:8] == 'internal':
-                data = parse_internal(data[8:])
-                pipe = self.pipe_internal
-            elif data[0:6] == 'twitch':
-                data = parse_twitch(data[6:])
-                pipe = self.pipe_twitch
-            elif data[0:7] == 'twitter':
-                data = parse_twitter(data[7:])
-                pipe = self.pipe_twitter
-            elif data[0:6] == 'reddit':
-                data = parse_reddit(data[6:])
-                pipe = self.pipe_reddit
-            else:
+            data = json.loads(data)
+            # data could be corrupt or src could not be present?
+            try:
+                pipe = self.pipe[data['src']]
+                data = self.parsers[data['src']](data['data'])
+            except Exception, e:
+                pp('process data failed', 'error')
+                pp(e, 'error')
                 data = {}
-
+        
             if len(data) > 0:
                 clean_text = re.sub(r"http\S+", "", data['message'])
                 clean_text = re.sub(r"[#@]", "", clean_text)

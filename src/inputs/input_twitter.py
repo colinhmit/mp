@@ -10,16 +10,16 @@ from tweepy import Stream
 from tweepy import API
 
 from utils._functions_general import *
-from utils.input_base import Base
+from utils.input_base import InputBase
 
 # 1. Twitter Input Handler
 # 2. STDListener
 # 3. Twitter Parser
 
 
-class InputTwitter(Base):
+class Input(InputBase):
     def __init__(self, config):
-        Base.__init__(self, config)
+        InputBase.__init__(self, config)
         self.set_sock()
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         if len(self.streams) > 0:
@@ -66,8 +66,11 @@ class Listener(StreamListener):
         self.pipe = None
 
     def on_data(self, data):
-        self.pipe.send_string(self.config['self'] +
-                              data.decode('utf-8', errors='ignore'))
+        packet = {
+            'src':      self.config['src'],
+            'data':     data.decode('utf-8', errors='ignore')
+        }
+        self.pipe.send_string(json.dumps(packet))
         return True
 
     def on_error(self, status):
@@ -77,7 +80,7 @@ class Listener(StreamListener):
         pp('Timeout...')
 
 
-def parse_twitter(data):
+def parse(data):
     # try: data may be corrupt
     try:
         data = json.loads(data)

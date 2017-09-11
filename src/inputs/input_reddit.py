@@ -7,15 +7,15 @@ import praw
 import uuid
 
 from utils._functions_general import *
-from utils.input_base import Base
+from utils.input_base import InputBase
 
 # 1. Reddit Input Handler
 # 2. Reddit Parser
 
 
-class InputReddit(Base):
+class Input(InputBase):
     def __init__(self, config):
-        Base.__init__(self, config)
+        InputBase.__init__(self, config)
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
@@ -26,8 +26,11 @@ class InputReddit(Base):
         self.set_pipe()
 
         for data in iter(self.sock.get, '*STOP*'):
-            self.pipe.send_string(self.config['self'] +
-                                  data.decode('utf-8', errors='ignore'))
+            packet = {
+                'src':      self.config['src'],
+                'data':     data.decode('utf-8', errors='ignore')
+            }
+            self.pipe.send_string(json.dumps(packet))
 
     def set_sock(self):
         self.reddit = praw.Reddit(client_id=self.config['client_token'],
@@ -98,7 +101,7 @@ class InputReddit(Base):
                 pp(e, 'error')
 
 
-def parse_reddit(data):
+def parse(data):
     # try: data may be corrupt
     try:
         data = json.loads(data)

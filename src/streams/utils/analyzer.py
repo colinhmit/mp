@@ -4,15 +4,14 @@ from _functions_general import *
 
 
 class Analyzer:
-    def __init__(self, config, src, stream):
+    def __init__(self, config, stream):
         self.config = config
-        self.src = src
         self.stream = stream
         self.subjs = {}
 
-        self.start()
+        self.init_threads()
 
-    def start(self):
+    def init_threads(self):
         threading.Thread(target=self.reset_subjs).start()
 
     def reset_subjs(self):
@@ -22,7 +21,7 @@ class Analyzer:
             try:
                 self.subjs = {}
             except Exception, e:
-                pp(self.stream + ': failed reset_subjs', 'error')
+                pp(self.config['src'] + ":" + self.stream + ': failed reset_subjs', 'error')
                 pp(e, 'error')
             time.sleep(self.config['reset_subjs_refresh'])
 
@@ -37,7 +36,7 @@ class Analyzer:
                         'adjs':     inc_subj['adjs']
                     }
                 except Exception, e:
-                    pp(self.stream + ': failed process_subjs new', 'error')
+                    pp(self.config['src'] + ":" + self.stream + ': failed process_subjs new', 'error')
                     pp(e, 'error')
             else:
                 # try: race condition if subjs is wiped
@@ -45,8 +44,8 @@ class Analyzer:
                     self.subjs[inc_subj['lower']]['score'] += 1
                     self.subjs[inc_subj['lower']]['adjs'] += inc_subj['adjs']
                 except Exception, e:
-                    pp(self.stream + ': failed process_subjs matched', 'error')
+                    pp(self.config['src'] + ":" + self.stream + ': failed process_subjs matched', 'error')
                     pp(e, 'error')
 
-    def process_message(self, msgdata):
+    def process(self, msgdata):
         self.handle_subjs(msgdata)

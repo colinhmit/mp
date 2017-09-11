@@ -6,21 +6,24 @@ from _functions_matching import *
 
 
 class Consolidator:
-    def __init__(self, config, src, stream):
+    def __init__(self, config, stream):
         self.config = config
-        self.src = src
         self.stream = stream
         self.last_rcv_time = datetime.datetime.now()
 
         self.trending = {}
         self.clean_trending = {}
+        self.svo_match = self.config['base_svo_match']
 
-        self.start()
+        self.init_threads()
 
-    def start(self):
+    def init_threads(self):
         # stream helpers
         threading.Thread(target=self.filter_trending).start()
         threading.Thread(target=self.render_trending).start()
+
+        if self.config['dynamic_svo_match']:
+            threading.Thread(target=self.set_svo_match).start()
 
     # filter logic (brad's filter)
     def filter_trending(self):
@@ -38,7 +41,7 @@ class Consolidator:
                         self.trending[max_key]['visible'] = True
                         self.trending[max_key]['first_rcv_time'] = self.last_rcv_time
             except Exception, e:
-                pp(self.stream + ': failed filter_trending', 'error')
+                pp(self.config['src'] + ":" + self.stream + ': failed filter_trending', 'error')
                 pp(e, 'error')
             time.sleep(self.config['filter_trending_refresh'])
 
@@ -64,11 +67,32 @@ class Consolidator:
                         for msg_k, msg_v in temp_trending.items() if msg_v['visible']
                     }
             except Exception, e:
-                pp(self.stream + ': failed render_trending', 'error')
+                pp(self.config['src'] + ":" + self.stream + ': failed render_trending', 'error')
                 pp(e, 'error')
             time.sleep(self.config['render_trending_timeout'])
 
     # nlp comparison
+    def set_svo_match(self):
+        self.set_svo_match_loop = True
+        self.freq_mavgs = []
+        self.freq_count = 0
+        while self.set_svo_match_loop:
+            # try: reset subjs could break?
+            try:
+                self.freq_mavgs.append(self.freq_count)
+                if len(self.freq_mavgs) >= 5:
+                    self.freq_mavgs.pop(0)
+                    if (float(sum(self.freq_mavgs)) /
+                            max(len(self.freq_mavgs), 1)) < self.config['svo_match_threshold']:
+                        self.svo_match = False
+                    else:
+                        self.svo_match = True
+                self.freq_count = 0
+            except Exception, e:
+                pp(self.config['src'] + ":" + self.stream + ': failed set_nlp_match', 'error')
+                pp(e, 'error')
+            time.sleep(self.config['set_svo_match_refresh'])
+
     def nlp_svo_compare(self, msgdata):
         temp_trending = dict(self.trending)
         for svo in msgdata['nlp']['svos']:
@@ -97,12 +121,12 @@ class Consolidator:
                         self.trending.keys(),
                         self.config['fo_compare_threshold'])
             if len(matched) == 0:
-                if self.config['svo_match']:
+                if self.svo_match:
                     # try: nlp compare can fail if global is flushed
                     try:
                         matched_msg = self.nlp_svo_compare(msgdata)
                     except Exception, e:
-                        pp(self.stream+': SVO Matching Failed.', 'error')
+                        pp(self.src + ":" + self.stream+': SVO Matching Failed.', 'error')
                         pp(e, 'error')
             elif len(matched) == 1:
                 matched_msg = matched[0][0]
@@ -147,7 +171,7 @@ class Consolidator:
                                       self.trending[matched_msg]['msgs'][submatched_msg] /
                                       sum(self.trending[matched_msg]['msgs'].values()))
                     self.trending[submatched_msg] = {
-                        'src':              self.src,
+                        'src':              self.config['src'],
                         'score':            submatch_score + self.config['matched_add_base'],
                         'last_mtch_time':   msgtime,
                         'first_rcv_time':   msgtime,
@@ -177,7 +201,7 @@ class Consolidator:
             vis_bool = ((msgtime - self.last_rcv_time).total_seconds() >
                         self.config['filter_trending_timeout'])
             self.trending[msgdata['message']] = {
-                'src':              self.src,
+                'src':              self.config['src'],
                 'score':            self.config['matched_init_base'],
                 'last_mtch_time':   msgtime,
                 'first_rcv_time':   msgtime,
@@ -217,13 +241,13 @@ class Consolidator:
                 else:
                     self.trending[msg]['score'] = curr_score
 
-    def process_message(self, msgdata, msgtime):
+    def process(self, msgdata, msgtime):
         if len(self.trending) > 0:
             # get match could fail? remove if not
             try:
                 matched_msg = self.get_match(msgdata)
             except Exception, e:
-                pp(self.stream + ': matching failed.', 'error')
+                pp(self.config['src'] + ":" + self.stream + ': matching failed.', 'error')
                 pp(e, 'error')
                 matched_msg = None
             if matched_msg is None:

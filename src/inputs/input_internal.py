@@ -4,15 +4,15 @@ import multiprocessing
 import uuid
 
 from utils._functions_general import *
-from utils.input_base import Base
+from utils.input_base import InputBase
 
 # 1. Internal Input Handler
 # 2. Internal Parser
 
 
-class InputInternal(Base):
+class Input(InputBase):
     def __init__(self, config):
-        Base.__init__(self, config, [])
+        InputBase.__init__(self, config)
         self.config = config
 
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
@@ -24,8 +24,11 @@ class InputInternal(Base):
         self.set_pipe()
 
         for data in iter(self.sock.recv, '*STOP*'):
-            self.pipe.send_string(self.config['self'] +
-                                  data.decode('utf-8', errors='ignore'))
+            packet = {
+                'src':      self.config['src'],
+                'data':     data.decode('utf-8', errors='ignore')
+            }
+            self.pipe.send_string(json.dumps(packet))
 
     def set_sock(self):
         self.sock = self.context.socket(zmq.SUB)
@@ -57,12 +60,12 @@ class InputInternal(Base):
                 pass
 
 
-def parse_internal(data):
+def parse(data):
     # try: data may be corrupt
     try:
         data = json.loads(data)
         msg = {
-               'src':           'native',
+               'src':           'internal',
                'stream':        data.get('stream', ''),
                'username':      data.get('username', ''),
                'message':       data.get('message', ''),

@@ -1,19 +1,20 @@
 import multiprocessing
 import socket
 import re
+import json
 import zmq
 import uuid
 
 from utils._functions_general import *
-from utils.input_base import Base
+from utils.input_base import InputBase
 
 # 1. Twitch Input Handler
 # 2. Twitch Parser
 
 
-class InputTwitch(Base):
+class Input(InputBase):
     def __init__(self, config):
-        Base.__init__(self, config)
+        InputBase.__init__(self, config)
         self.stream_conn = multiprocessing.Process(target=self.stream_connection)
         if len(self.streams) > 0:
             self.stream_conn.start()
@@ -30,8 +31,11 @@ class InputTwitch(Base):
                 self.set_sock()
             self.check_for_ping(data)
             if self.check_for_message(data):
-                self.pipe.send_string(self.config['self'] +
-                                      data.decode('utf-8', errors='ignore'))
+                packet = {
+                    'src':      self.config['src'],
+                    'data':     data.decode('utf-8', errors='ignore')
+                }
+                self.pipe.send_string(json.dumps(packet))
 
     def set_sock(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -94,7 +98,7 @@ class InputTwitch(Base):
             return True
 
 
-def parse_twitch(data):
+def parse(data):
     # try: data may be corrupt
     try:
         msg = {
@@ -102,7 +106,7 @@ def parse_twitch(data):
                'stream':        re.findall(r'^:.+\![a-zA-Z0-9_]'
                                            r'+@[a-zA-Z0-9_]'
                                            r'+.+ PRIVMSG (.*?) :',
-                                           data)[0],
+                                           data)[0][1:].lower(),
                'username':      re.findall(r'^:([a-zA-Z0-9_]+)\!',
                                            data)[0],
                'message':       re.findall(r'PRIVMSG #[a-zA-Z0-9_]+ :(.+)',

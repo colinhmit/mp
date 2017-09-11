@@ -4,13 +4,13 @@ import pickle
 #import utils
 from inputs.utils._functions_general import *
 from inputs.server import InputServer
-from config.universal_config import input_config
+from config.input_config import input_config
 
 input_server = InputServer(input_config)
 
-#input_server.twitch.join_stream('nalcs1')
-#input_server.twitter.join_stream('trump')
-input_server.reddit.join_stream('soccer')
+input_server.inputs['twitch'].join_stream('shroud')
+#input_server.inputs['twitter'].join_stream('trump')
+#input_server.inputs['reddit'].join_stream('soccer')
 
 context = zmq.Context()
 input_socket = context.socket(zmq.SUB)
