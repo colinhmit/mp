@@ -8,7 +8,7 @@ import importlib
 import multiprocessing
 
 # import utils
-from utils._functions_general import *
+from src.utils._functions_general import *
 
 
 class InputWorker:

@@ -3,22 +3,22 @@ import zmq
 import multiprocessing
 import uuid
 
-from utils._functions_general import *
-from utils.input_base import InputBase
+from src.utils._functions_general import *
+from src.sources.template.chat_base import ChatBase
 
 # 1. Internal Input Handler
 # 2. Internal Parser
 
 
-class Input(InputBase):
+class Chat(ChatBase):
     def __init__(self, config):
-        InputBase.__init__(self, config)
+        ChatBase.__init__(self, config)
         self.config = config
 
-        self.stream_conn = multiprocessing.Process(target=self.stream_connection)
-        self.stream_conn.start()
+        self.chat_conn = multiprocessing.Process(target=self.chat_connection)
+        self.chat_conn.start()
 
-    def stream_connection(self):
+    def chat_connection(self):
         self.context = zmq.Context()
         self.set_sock()
         self.set_pipe()

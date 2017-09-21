@@ -1,6 +1,6 @@
 import spacy
 
-from _functions_general import *
+from src.utils._functions_general import *
 
 
 class NLPParser:

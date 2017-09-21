@@ -2,8 +2,8 @@ import multiprocessing
 import importlib
 
 # import utils
-from utils._functions_general import *
-from utils.nlp import NLPParser
+from src.utils._functions_general import *
+from nlp import NLPParser
 from worker import InputWorker
 from distributor import InputDistributor
 
