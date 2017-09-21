@@ -1,22 +1,20 @@
 import json
 import zmq
 import multiprocessing
-import uuid
 
 from src.utils._functions_general import *
 from src.sources.template.chat_base import ChatBase
 
 # 1. Internal Input Handler
-# 2. Internal Parser
 
 
-class Chat(ChatBase):
-    def __init__(self, config):
-        ChatBase.__init__(self, config)
+class InternalChat(ChatBase):
+    def __init__(self, config, streams):
+        ChatBase.__init__(self, config, streams)
         self.config = config
 
-        self.chat_conn = multiprocessing.Process(target=self.chat_connection)
-        self.chat_conn.start()
+        self.conn = multiprocessing.Process(target=self.chat_connection)
+        self.conn.start()
 
     def chat_connection(self):
         self.context = zmq.Context()
@@ -58,24 +56,3 @@ class Chat(ChatBase):
                 connected = True
             except Exception, e:
                 pass
-
-
-def parse(data):
-    # try: data may be corrupt
-    try:
-        data = json.loads(data)
-        msg = {
-               'src':           'internal',
-               'stream':        data.get('stream', ''),
-               'username':      data.get('username', ''),
-               'message':       data.get('message', ''),
-               'media_urls':    data.get('media_urls', []),
-               'mp4_url':       '',
-               'id':            str(uuid.uuid1()),
-               'src_id':        data.get('src_id', '')
-              }
-        return msg
-    except Exception, e:
-        pp('parse_internal failed', 'error')
-        pp(e, 'error')
-        return {}
