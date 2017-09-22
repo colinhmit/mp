@@ -6,4 +6,4 @@ class InternalMaster:
         self.config = config
         self.streams = []
         
-        self.chat = InternalChat(self.config['chat'], self.streams)
+        self.chat = InternalChat(self.config['chat_conn_config'], self.streams)

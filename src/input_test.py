@@ -2,15 +2,26 @@ import zmq
 import pickle
 
 #import utils
-from inputs.utils._functions_general import *
-from inputs.server import InputServer
-from config.input_config import input_config
+from src.utils._functions_general import *
+from src.chat.input.server import InputServer
+from src.config.chat.input_config import input_config
 
 input_server = InputServer(input_config)
 
-input_server.inputs['twitch'].join_stream('shroud')
-#input_server.inputs['twitter'].join_stream('trump')
-#input_server.inputs['reddit'].join_stream('soccer')
+# from src.sources.twitch.master import TwitchMaster
+# from src.config.sources.twitch_config import twitch_config
+# twitch_src = TwitchMaster(twitch_config)
+# twitch_src.chat.join_stream('shroud')
+
+# from src.sources.twitter.master import TwitterMaster
+# from src.config.sources.twitter_config import twitter_config
+# twitter_src = TwitterMaster(twitter_config)
+# twitter_src.chat.join_stream('trump')
+
+from src.sources.reddit.master import RedditMaster
+from src.config.sources.reddit_config import reddit_config
+reddit_src = RedditMaster(reddit_config)
+reddit_src.chat.join_stream('soccer')
 
 context = zmq.Context()
 input_socket = context.socket(zmq.SUB)

@@ -12,9 +12,8 @@ from src.utils._functions_general import *
 
 
 class InputWorker:
-    def __init__(self, config, inputs, nlp):
+    def __init__(self, config, nlp):
         self.config = config
-        self.inputs = inputs
         self.nlp_parser = nlp
 
         self.context = zmq.Context()
@@ -26,26 +25,26 @@ class InputWorker:
 
     def set_sock(self):
         self.sock = self.context.socket(zmq.PULL)
-        for input_ in self.inputs:
+        for src in self.config['input_ports'].keys():
             self.sock.connect('tcp://' +
                               self.config['input_host'] +
                               ':' +
-                              str(self.config['input_ports'][input_]))
+                              str(self.config['input_ports'][src]))
 
     def set_pipes(self):
         self.pipe = {}
-        for input_ in self.inputs:
-            self.pipe[input_] = self.context.socket(zmq.PUB)
-            self.pipe[input_].connect('tcp://' +
+        for src in self.config['dist_ports'].keys():
+            self.pipe[src] = self.context.socket(zmq.PUB)
+            self.pipe[src].connect('tcp://' +
                                       self.config['dist_host'] +
                                       ':' +
-                                      str(self.config['dist_ports'][input_]))
+                                      str(self.config['dist_ports'][src]))
 
     def set_parsers(self):
         self.parsers = {}
-        for input_ in self.inputs:
-            module = importlib.import_module(self.config['modules'][input_])
-            self.parsers[input_] = getattr(module, 'parse')
+        for src in self.config['modules'].keys():
+            module = importlib.import_module(self.config['modules'][src])
+            self.parsers[src] = getattr(module, 'parse')
 
     def process(self):
         nlprefresh = random.randint(500, 1000)

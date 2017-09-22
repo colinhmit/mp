@@ -5,8 +5,7 @@ from src.utils._functions_general import *
 
 class NLPParser:
     def __init__(self):
-        self.SUBJECTS = ["nsubj", "nsubjpass", "csubj",
-                         "csubjpass", "agent", "expl"]
+        self.SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
         self.OBJECTS = ["dobj", "dative", "attr", "oprd"]
         self.ADJECTIVES = ["amod", "acomp"]
         self.parser = spacy.load('en')

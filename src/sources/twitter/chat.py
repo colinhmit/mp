@@ -3,6 +3,7 @@ import zmq
 import multiprocessing
 
 from tweepy.streaming import StreamListener
+from tweepy import Stream
 
 from src.utils._functions_general import *
 from src.sources.template.chat_base import ChatBase
