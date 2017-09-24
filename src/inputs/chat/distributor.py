@@ -4,7 +4,7 @@ import zmq
 from src.utils._functions_general import *
 
 
-class InputDistributor:
+class Distributor:
     def __init__(self, config):
         self.config = config
         self.context = zmq.Context(1)

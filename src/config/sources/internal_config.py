@@ -4,7 +4,7 @@ from src.config.socket_config import *
 # Chat
 ##############################################################################
 
-internal_chat_conn_config = {
+chat_conn_config = {
     # attributes
     'src': 'internal',
 
@@ -17,7 +17,7 @@ internal_chat_conn_config = {
     'port': INTERNAL_PORT
 }
 
-internal_chat_dist_config = {
+chat_dist_config = {
     # attributes
     'src': 'internal',
 
@@ -39,6 +39,6 @@ internal_config = {
     # api
 
     # components
-    'chat_conn_config': internal_chat_conn_config,
-    'chat_dist_config': internal_chat_dist_config
+    'chat_conn_config': chat_conn_config,
+    'chat_dist_config': chat_dist_config
 }

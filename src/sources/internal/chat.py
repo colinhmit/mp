@@ -3,12 +3,10 @@ import zmq
 import multiprocessing
 
 from src.utils._functions_general import *
-from src.sources.template.chat_base import ChatBase
-
-# 1. Internal Input Handler
+from src.sources._template.chat_base import ChatBase
 
 
-class InternalChat(ChatBase):
+class Chat(ChatBase):
     def __init__(self, config, streams):
         ChatBase.__init__(self, config, streams)
         self.config = config
@@ -17,16 +15,18 @@ class InternalChat(ChatBase):
         self.conn.start()
 
     def chat_connection(self):
-        self.context = zmq.Context()
-        self.set_sock()
-        self.set_pipe()
+        chat_streams = [k for k, v in self.streams.items() if v['chat']]
+        if len(chat_streams) > 0:
+            self.context = zmq.Context()
+            self.set_sock()
+            self.set_pipe()
 
-        for data in iter(self.sock.recv, '*STOP*'):
-            packet = {
-                'src':      self.config['src'],
-                'data':     data.decode('utf-8', errors='ignore')
-            }
-            self.pipe.send_string(json.dumps(packet))
+            for data in iter(self.sock.recv, '*STOP*'):
+                packet = {
+                    'src':      self.config['src'],
+                    'data':     data.decode('utf-8', errors='ignore')
+                }
+                self.pipe.send_string(json.dumps(packet))
 
     def set_sock(self):
         self.sock = self.context.socket(zmq.SUB)

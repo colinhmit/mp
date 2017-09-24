@@ -4,7 +4,7 @@ from src.config.socket_config import *
 # Chat
 ##############################################################################
 
-twitter_chat_conn_config = {
+chat_conn_config = {
     # attributes
     'src': 'twitter',
 
@@ -13,7 +13,7 @@ twitter_chat_conn_config = {
     'input_port': INPUT_PORT_TWITTER
 }
 
-twitter_chat_dist_config = {
+chat_dist_config = {
     # attributes
     'src': 'twitter',
 
@@ -58,6 +58,6 @@ twitter_config = {
     'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
     # components
-    'chat_conn_config': twitter_chat_conn_config,
-    'chat_dist_config': twitter_chat_dist_config
+    'chat_conn_config': chat_conn_config,
+    'chat_dist_config': chat_dist_config
 }

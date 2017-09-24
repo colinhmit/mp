@@ -4,7 +4,7 @@ from src.config.socket_config import *
 # Chat
 ##############################################################################
 
-reddit_chat_conn_config = {
+chat_conn_config = {
     # attributes
     'src': 'reddit',
 
@@ -13,7 +13,7 @@ reddit_chat_conn_config = {
     'input_port': INPUT_PORT_REDDIT
 }
 
-reddit_chat_dist_config = {
+chat_dist_config = {
     # attributes
     'src': 'reddit',
 
@@ -39,6 +39,6 @@ reddit_config = {
     'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)',
 
     # components
-    'chat_conn_config': reddit_chat_conn_config,
-    'chat_dist_config': reddit_chat_dist_config
+    'chat_conn_config': chat_conn_config,
+    'chat_dist_config': chat_dist_config
 }

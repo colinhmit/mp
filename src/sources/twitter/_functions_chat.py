@@ -12,6 +12,9 @@ def parse(data):
     try:
         data = json.loads(data)
 
+        if not data.get('text', False):
+            return {}
+
         if data.get('possibly_sensitive', False):
             return {}
 

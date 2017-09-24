@@ -2,12 +2,12 @@ import multiprocessing
 
 # import utils
 from src.utils._functions_general import *
-from nlp import NLPParser
-from worker import InputWorker
-from distributor import InputDistributor
+from src.inputs.chat.nlp import NLPParser
+from src.inputs.chat.worker import Worker
+from src.inputs.chat.distributor import Distributor
 
 
-class InputServer:
+class InputChatMaster:
     def __init__(self, config):
         pp('Initializing Input Server...')
         self.config = config
@@ -21,7 +21,7 @@ class InputServer:
 
     def start_dists(self):
         for src in self.config['dist_config'].keys():
-            self.dists.append(multiprocessing.Process(target=InputDistributor,
+            self.dists.append(multiprocessing.Process(target=Distributor,
                                                       args=(self.config['dist_config'][src],)
                                                      ).start())
 
@@ -31,13 +31,13 @@ class InputServer:
                 dist.terminate()
         self.dists = []
         for src in self.config['dist_config'].keys():
-            self.dists.append(multiprocessing.Process(target=InputDistributor,
+            self.dists.append(multiprocessing.Process(target=Distributor,
                                                       args=(self.config['dist_config'][src],)
                                                      ).start())
 
     def start_workers(self):
         for _ in xrange(self.config['num_workers']):
-            self.workers.append(multiprocessing.Process(target=InputWorker,
+            self.workers.append(multiprocessing.Process(target=Worker,
                                                         args=(self.config['worker_config'],
                                                               self.nlp_parser,)
                                                        ).start())
@@ -48,7 +48,7 @@ class InputServer:
                 worker.terminate()
         self.workers = []    
         for _ in xrange(self.config['num_workers']):
-            self.workers.append(multiprocessing.Process(target=InputWorker,
+            self.workers.append(multiprocessing.Process(target=Worker,
                                                         args=(self.config['worker_config'],
                                                               self.nlp_parser,)
                                                        ).start())

@@ -53,7 +53,7 @@ dist_config = {
 # Server
 ##############################################################################
 
-input_config = {
+input_chat_config = {
     # worker setup
     'num_workers': 2,
     'worker_config': worker_config,

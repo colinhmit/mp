@@ -11,7 +11,7 @@ import multiprocessing
 from src.utils._functions_general import *
 
 
-class InputWorker:
+class Worker:
     def __init__(self, config, nlp):
         self.config = config
         self.nlp_parser = nlp

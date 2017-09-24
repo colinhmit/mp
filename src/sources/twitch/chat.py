@@ -6,40 +6,44 @@ import multiprocessing
 from functools import partial
 
 from src.utils._functions_general import *
-from src.sources.template.chat_base import ChatBase
-
-# 1. Twitch Input Handler
-# 2. Twitch Parser
+from src.sources._template.chat_base import ChatBase
 
 
-class TwitchChat(ChatBase):
+class Chat(ChatBase):
     def __init__(self, config, streams):
         ChatBase.__init__(self, config, streams)
         self.config = config
 
         self.conn = multiprocessing.Process(target=self.chat_connection)
-        if len(self.streams) > 0:
-            self.conn.start()
-
+        self.conn.start()
 
     def chat_connection(self):
-        self.context = zmq.Context()
-        self.set_sock()
-        self.set_pipe()
+        chat_streams = [k for k, v in self.streams.items() if v['chat']]
+        if len(chat_streams) > 0:        
+            self.context = zmq.Context()
+            self.set_sock(chat_streams)
+            self.set_pipe()
 
-        for data in iter(partial(self.sock.recv, self.config['socket_buffer_size']), '*STOP*'):
-            data = data.rstrip()
-            if len(data) == 0:
-                self.set_sock()
-            self.check_for_ping(data)
-            if self.check_for_message(data):
-                packet = {
-                    'src':      self.config['src'],
-                    'data':     data.decode('utf-8', errors='ignore')
-                }
-                self.pipe.send_string(json.dumps(packet))
-
-    def set_sock(self):
+            connected = True
+            while connected:
+                try:
+                    data = self.sock.recv(self.config['socket_buffer_size']).rstrip()
+                    if data == '*STOP*':
+                        connected = False
+                    if len(data) == 0:
+                        self.set_sock()
+                    self.check_for_ping(data)
+                    if self.check_for_message(data):
+                        packet = {
+                            'src':      self.config['src'],
+                            'data':     data.decode('utf-8', errors='ignore')
+                        }
+                        self.pipe.send_string(json.dumps(packet))
+                except Exception, e:
+                    pp('EINTR?', 'error')
+                    pp(e, 'error')
+            
+    def set_sock(self,streams):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(10)
         # try: connection might fail.
@@ -60,7 +64,7 @@ class TwitchChat(ChatBase):
         else:
             pp('Login unsuccessful.', 'error')
 
-        for stream in self.streams:
+        for stream in streams:
             self.sock.send('JOIN #%s\r\n' % stream)
 
     def set_pipe(self):

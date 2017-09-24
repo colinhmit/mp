@@ -5,34 +5,35 @@ import multiprocessing
 import threading
 
 from src.utils._functions_general import *
-from src.sources.template.chat_base import ChatBase
+from src.sources._template.chat_base import ChatBase
 
 
-class RedditChat(ChatBase):
+class Chat(ChatBase):
     def __init__(self, config, streams, api):
         ChatBase.__init__(self, config, streams)
         self.config = config
         self.api = api
 
         self.conn = multiprocessing.Process(target=self.chat_connection)
-        if len(self.streams) > 0:
-            self.conn.start()
+        self.conn.start()
 
     def chat_connection(self):
-        self.context = zmq.Context()
-        self.set_sock()
-        self.set_pipe()
+        chat_streams = [k for k, v in self.streams.items() if v['chat']]
+        if len(chat_streams) > 0:
+            self.context = zmq.Context()
+            self.set_sock(chat_streams)
+            self.set_pipe()
 
-        for data in iter(self.sock.get, '*STOP*'):
-            packet = {
-                'src':      self.config['src'],
-                'data':     data.decode('utf-8', errors='ignore')
-            }
-            self.pipe.send_string(json.dumps(packet))
+            for data in iter(self.sock.get, '*STOP*'):
+                packet = {
+                    'src':      self.config['src'],
+                    'data':     data.decode('utf-8', errors='ignore')
+                }
+                self.pipe.send_string(json.dumps(packet))
 
-    def set_sock(self):
+    def set_sock(self, streams):
         self.sock = Queue.Queue()
-        for stream in self.streams:
+        for stream in streams:
             threading.Thread(target=self.subreddit_monitor,
                              args=(stream,)).start()
 

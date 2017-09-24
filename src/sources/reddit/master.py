@@ -1,16 +1,16 @@
 import praw
 
 from src.utils._functions_general import *
-from chat import RedditChat
+from src.sources.reddit.chat import Chat
 
 
 class RedditMaster:
-    def __init__(self, config):
+    def __init__(self, config, streams):
         self.config = config
-        self.streams = []
+        self.streams = streams
         
         self.connect()
-        self.chat = RedditChat(self.config['chat_conn_config'], self.streams, self.api)
+        self.chat = Chat(self.config['chat_conn_config'], self.streams, self.api)
 
     def connect(self):
         self.api = praw.Reddit(client_id=self.config['client_token'],

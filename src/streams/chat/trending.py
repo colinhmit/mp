@@ -1,18 +1,18 @@
 import datetime
 import threading
 
-from _functions_general import *
-from _functions_matching import *
+from src.utils._functions_general import *
+from src.streams.chat._functions_matching import *
 
 
-class Consolidator:
+class Trending:
     def __init__(self, config, stream):
         self.config = config
         self.stream = stream
         self.last_rcv_time = datetime.datetime.now()
 
         self.trending = {}
-        self.clean_trending = {}
+        self.data = {}
         self.svo_match = self.config['base_svo_match']
 
         self.init_threads()
@@ -53,7 +53,7 @@ class Consolidator:
             try:
                 if len(self.trending) > 0:
                     temp_trending = dict(self.trending)
-                    self.clean_trending = {
+                    self.data = {
                         msg_k: {
                                 'src':              msg_v['src'],
                                 'username':         msg_v['username'],
@@ -257,3 +257,5 @@ class Consolidator:
         else:
             self.handle_new(msgdata, msgtime)
         self.decay(msgdata, msgtime)
+        self.freq_count += 1
+

@@ -1,17 +1,17 @@
 import datetime
 import threading
 
-from _functions_general import *
-from _functions_matching import *
+from src.utils._functions_general import *
+from src.streams.chat._functions_matching import *
 
 
-class Aggregator:
+class Content:
     def __init__(self, config, stream):
         self.config = config
         self.stream = stream
 
         self.passed_trending = {}
-        self.content = {}
+        self.data = {}
         self.content_image = {'image': '', 'score': 0}
 
         self.init_threads()
@@ -34,20 +34,20 @@ class Aggregator:
         if len(self.passed_trending)>0:
             # Clean content
             curr_time = datetime.datetime.now()
-            for item in self.content.keys():
-                item_life = (curr_time - self.content[item]['last_mtch_time']).total_seconds()
+            for item in self.data.keys():
+                item_life = (curr_time - self.data[item]['last_mtch_time']).total_seconds()
                 if item_life > self.config['content_max_time']:
-                    del self.content[item]
+                    del self.data[item]
 
             temp_trending = dict(self.passed_trending)
             for msg in temp_trending:
                 matched = fweb_compare(msg,
-                                       self.content.keys(),
+                                       self.data.keys(),
                                        self.config['fo_compare_threshold'])
 
                 if len(matched) == 0:
-                    if len(self.content) < self.config['content_max_size']:
-                        self.content[msg] = {
+                    if len(self.data) < self.config['content_max_size']:
+                        self.data[msg] = {
                             'src':              self.config['src'],
                             'score':            temp_trending[msg]['score'],
                             'last_mtch_time':   temp_trending[msg]['last_mtch_time'],
@@ -57,10 +57,10 @@ class Aggregator:
                             'src_id':           temp_trending[msg]['src_id']
                         }
                     else:
-                        min_msg = min(self.content, key=lambda x: self.content[x]['score'])
-                        if temp_trending[msg]['score'] > self.content[min_msg]['score']:
-                            del self.content[min_msg]
-                            self.content[msg] = {
+                        min_msg = min(self.data, key=lambda x: self.data[x]['score'])
+                        if temp_trending[msg]['score'] > self.data[min_msg]['score']:
+                            del self.data[min_msg]
+                            self.data[msg] = {
                                 'src':              self.config['src'],
                                 'score':            temp_trending[msg]['score'],
                                 'last_mtch_time':   temp_trending[msg]['last_mtch_time'],
@@ -72,21 +72,21 @@ class Aggregator:
 
                 elif len(matched) == 1:
                     matched_msg = matched[0][0]
-                    self.content[matched_msg]['score'] = max(self.content[matched_msg]['score'],
-                                                             temp_trending[msg]['score'])
+                    self.data[matched_msg]['score'] = max(self.data[matched_msg]['score'],
+                                                          temp_trending[msg]['score'])
 
                 else:
                     matched_msgs = [x[0] for x in matched]
                     (matched_msg, score) = fweo_tsort_compare(msg, matched_msgs)
-                    self.content[matched_msg]['score'] = max(self.content[matched_msg]['score'],
-                                                             temp_trending[msg]['score'])
+                    self.data[matched_msg]['score'] = max(self.data[matched_msg]['score'],
+                                                          temp_trending[msg]['score'])
 
-            image_key = max(self.content, key=lambda x: self.content[x]['score']
-                                          if len(self.content[x]['media_urls']) > 0 else 0)
-            if len(self.content[image_key]['media_urls']) > 0:
+            image_key = max(self.data, key=lambda x: self.data[x]['score']
+                                          if len(self.data[x]['media_urls']) > 0 else 0)
+            if len(self.data[image_key]['media_urls']) > 0:
                 self.content_image = {
-                    'image':    self.content[image_key]['media_url'][0],
-                    'score':    self.content[image_key]['score']
+                    'image':    self.data[image_key]['media_url'][0],
+                    'score':    self.data[image_key]['score']
                 }
 
     def process(self, trending):

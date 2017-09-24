@@ -4,7 +4,7 @@ from src.config.socket_config import *
 # Chat
 ##############################################################################
 
-twitch_chat_conn_config = {
+chat_conn_config = {
     # attributes
     'src': 'twitch',
     'socket_buffer_size': 4096,
@@ -20,7 +20,7 @@ twitch_chat_conn_config = {
     'oauth_password': 'oauth:1a6qgh8wz0b0lb2ue5zenht2lrkcdx'
 }
 
-twitch_chat_dist_config = {
+chat_dist_config = {
     # attributes
     'src': 'twitch',
 
@@ -44,6 +44,6 @@ twitch_config = {
     'client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
 
     # components
-    'chat_conn_config': twitch_chat_conn_config,
-    'chat_dist_config': twitch_chat_dist_config
+    'chat_conn_config': chat_conn_config,
+    'chat_dist_config': chat_dist_config
 }

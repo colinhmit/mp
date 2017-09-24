@@ -2,10 +2,10 @@ import datetime
 import uuid
 import threading
 
-from _functions_general import *
+from src.utils._functions_general import *
 
 
-class Enricher:
+class Enrich:
     def __init__(self, config, stream):
         self.config = config
         self.stream = stream

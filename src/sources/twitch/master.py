@@ -1,9 +1,10 @@
 from src.utils._functions_general import *
-from chat import TwitchChat
+from src.sources.twitch.chat import Chat
+
 
 class TwitchMaster:
-    def __init__(self, config):
+    def __init__(self, config, streams):
         self.config = config
-        self.streams = []
+        self.streams = streams
         
-        self.chat = TwitchChat(self.config['chat_conn_config'], self.streams)
+        self.chat = Chat(self.config['chat_conn_config'], self.streams)

@@ -6,10 +6,10 @@ from tweepy.streaming import StreamListener
 from tweepy import Stream
 
 from src.utils._functions_general import *
-from src.sources.template.chat_base import ChatBase
+from src.sources._template.chat_base import ChatBase
 
 
-class TwitterChat(ChatBase):
+class Chat(ChatBase):
     def __init__(self, config, streams, auth):
         ChatBase.__init__(self, config, streams)
         self.config = config
@@ -17,19 +17,20 @@ class TwitterChat(ChatBase):
         self.set_sock()
 
         self.conn = multiprocessing.Process(target=self.chat_connection)
-        if len(self.streams) > 0:
-            self.conn.start()
+        self.conn.start()
 
     def chat_connection(self):
-        self.context = zmq.Context()
-        self.set_pipe()
-        # try: connection dies occasionally
-        try:
-            self.sock.filter(track=self.streams)
-            gc.collect()
-        except Exception, e:
-            pp('////Twitter Connection Died, Restarting////', 'error')
-            pp(e, 'error')
+        chat_streams = [k for k, v in self.streams.items() if v['chat']]
+        if len(chat_streams) > 0:      
+            self.context = zmq.Context()
+            self.set_pipe()
+            # try: connection dies occasionally
+            try:
+                self.sock.filter(track=chat_streams)
+                gc.collect()
+            except Exception, e:
+                pp('////Twitter Connection Died, Restarting////', 'error')
+                pp(e, 'error')
 
     def set_sock(self):
         self.l = Listener(self.config)
