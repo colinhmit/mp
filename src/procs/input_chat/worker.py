@@ -68,7 +68,7 @@ class Worker:
                 try:
                     data['nlp'] = self.nlp_parser.parse_text(clean_text)
                 except Exception, e:
-                    data['nlp'] = {}
+                    data['nlp'] = {'svos': [], 'subjects': []}
 
                 if nlpcounter > nlprefresh:
                     self.nlp_parser.flush()

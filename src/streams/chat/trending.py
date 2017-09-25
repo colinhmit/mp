@@ -59,39 +59,18 @@ class Trending:
                                 'username':         msg_v['username'],
                                 'score':            msg_v['score'],
                                 'first_rcv_time':   msg_v['first_rcv_time'].isoformat(),
-                                'media_url':        msg_v['media_url'],
+                                'media_urls':       msg_v['media_urls'],
                                 'mp4_url':          msg_v['mp4_url'],
                                 'id':               msg_v['id'],
                                 'src_id':           msg_v['src_id']
                                }
                         for msg_k, msg_v in temp_trending.items() if msg_v['visible']
                     }
+                    pp('|||| TRENDING : ' + self.config['src'] + ': ' + self.stream + ': ' + str(len(self.data)) + ' ||||')
             except Exception, e:
                 pp(self.config['src'] + ":" + self.stream + ': failed render_trending', 'error')
                 pp(e, 'error')
-            time.sleep(self.config['render_trending_timeout'])
-
-    # nlp comparison
-    def set_svo_match(self):
-        self.set_svo_match_loop = True
-        self.freq_mavgs = []
-        self.freq_count = 0
-        while self.set_svo_match_loop:
-            # try: reset subjs could break?
-            try:
-                self.freq_mavgs.append(self.freq_count)
-                if len(self.freq_mavgs) >= 5:
-                    self.freq_mavgs.pop(0)
-                    if (float(sum(self.freq_mavgs)) /
-                            max(len(self.freq_mavgs), 1)) < self.config['svo_match_threshold']:
-                        self.svo_match = False
-                    else:
-                        self.svo_match = True
-                self.freq_count = 0
-            except Exception, e:
-                pp(self.config['src'] + ":" + self.stream + ': failed set_nlp_match', 'error')
-                pp(e, 'error')
-            time.sleep(self.config['set_svo_match_refresh'])
+            time.sleep(self.config['render_trending_refresh'])
 
     def nlp_svo_compare(self, msgdata):
         temp_trending = dict(self.trending)
@@ -175,9 +154,9 @@ class Trending:
                         'score':            submatch_score + self.config['matched_add_base'],
                         'last_mtch_time':   msgtime,
                         'first_rcv_time':   msgtime,
-                        'media_url':        msgdata['media_url'],
+                        'media_urls':       msgdata['media_urls'],
                         'mp4_url':          msgdata['mp4_url'],
-                        'svos':             msgdata['svos'],
+                        'svos':             msgdata['nlp']['svos'],
                         'username':         msgdata['username'],
                         'users':            [msgdata['username']],
                         'msgs':             dict(self.trending[matched_msg]['msgs']),
@@ -199,15 +178,15 @@ class Trending:
     def handle_new(self, msgdata, msgtime):
         if len(msgdata['message']) > 0:
             vis_bool = ((msgtime - self.last_rcv_time).total_seconds() >
-                        self.config['filter_trending_timeout'])
+                        self.config['filter_trending_refresh'])
             self.trending[msgdata['message']] = {
                 'src':              self.config['src'],
                 'score':            self.config['matched_init_base'],
                 'last_mtch_time':   msgtime,
                 'first_rcv_time':   msgtime,
-                'media_url':        msgdata['media_url'],
+                'media_urls':       msgdata['media_urls'],
                 'mp4_url':          msgdata['mp4_url'],
-                'svos':             msgdata['svos'],
+                'svos':             msgdata['nlp']['svos'],
                 'username':         msgdata['username'],
                 'users':            [msgdata['username']],
                 'msgs':             {msgdata['message']: 1.0},
@@ -257,5 +236,3 @@ class Trending:
         else:
             self.handle_new(msgdata, msgtime)
         self.decay(msgdata, msgtime)
-        self.freq_count += 1
-

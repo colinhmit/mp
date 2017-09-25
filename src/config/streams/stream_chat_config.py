@@ -1,5 +1,3 @@
-from hostport_config import *
-
 ##############################################################################
 # Components
 ##############################################################################
@@ -37,21 +35,26 @@ trending_config = {
     'decay_time_base': 0.2
 }
 
+enrich_config = {
+    # advertising
+    'ad_trigger': False,
+    'ad_timer': 180,
+    'ad_refresh': 5,
+
+    # timing
+    'enrich_timer': False,
+    'decay_oldest': False,
+    'enrich_refresh': 1.0,
+    'last_rcv_enrich_timer': 5,
+    'last_enrch_enrich_timer': 45,
+
+    #length
+    'enrich_min_len': 5
+}
+
 nlp_config = {
     # timing
     'reset_subjs_refresh': 600
-}
-
-content_config = {
-    # matching
-    'fo_compare_threshold': 65,
-
-    # timing
-    'filter_content_refresh': 5,
-
-    # length
-    'content_max_time': 7200,
-    'content_max_size': 20
 }
 
 ##############################################################################
@@ -60,26 +63,18 @@ content_config = {
 
 stream_chat_config = {
     # attr
-    'src': 'DEFAULT'
+    'src': 'DEFAULT',
 
     # settings
     'trending': False,
-    'content': False,
+    'enrich': False,
     'nlp': False,
 
     # timing
     'send_stream_refresh': 0.3,
 
-    # parsers
-    'modules': {
-        'internal':     'src.sources.internal._functions_chat',
-        'twitch':       'src.sources.twitch._functions_chat',
-        'twitter':      'src.sources.twitter._functions_chat',
-        'reddit':       'src.sources.reddit._functions_chat'
-    },
-
     # components
     'trending_config': trending_config,
-    'content_config': content_config,
+    'enrich_config': enrich_config,
     'nlp_config': nlp_config
 }

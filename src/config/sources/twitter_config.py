@@ -1,7 +1,7 @@
 from src.config.socket_config import *
 
 ##############################################################################
-# Chat
+# Chat Input
 ##############################################################################
 
 chat_conn_config = {
@@ -20,6 +20,46 @@ chat_dist_config = {
     # distributor settings
     'dist_host': DIST_HOST,
     'dist_port': DIST_PORT_TWITTER,
+    'stream_host': STREAM_HOST,
+    'stream_port': STREAM_PORT_TWITTER
+}
+
+##############################################################################
+# Stream
+##############################################################################
+
+trending_config = {
+    # attributes
+    'src': 'twitter',
+
+    # thread timings
+    'render_trending_refresh': 0.7
+}
+
+enrich_config = {
+    # attributes
+    'src': 'twitter'
+}
+
+nlp_config = {
+    # attributes
+    'src': 'twitter'
+}
+
+stream_chat_config = {
+    # attributes
+    'src': 'twitter',
+    'trending': True,
+    'enrich': False,
+    'nlp': True,
+
+    # timing
+    'send_stream_refresh': 0.7,
+
+    # module
+    'module': 'src.sources.twitter._functions_chat',
+
+    # messaging
     'stream_host': STREAM_HOST,
     'stream_port': STREAM_PORT_TWITTER
 }
@@ -57,7 +97,13 @@ twitter_config = {
     'access_token': '815322092627333121-W3OnWqcm8Mh4SGWJJc7OnmChwWump9m',
     'access_secret': 'MOMWd6pXkqlKxQQuSosa2fKK4sXqx58w2MhgA9G7OWGUq',
 
-    # components
+    # input components
     'chat_conn_config': chat_conn_config,
-    'chat_dist_config': chat_dist_config
+    'chat_dist_config': chat_dist_config,
+
+    # stream chat components
+    'trending_config': trending_config,
+    'enrich_config': enrich_config,
+    'nlp_config': nlp_config,
+    'stream_chat_config': stream_chat_config
 }

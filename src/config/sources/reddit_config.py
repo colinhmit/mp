@@ -1,7 +1,7 @@
 from src.config.socket_config import *
 
 ##############################################################################
-# Chat
+# Chat Input
 ##############################################################################
 
 chat_conn_config = {
@@ -25,6 +25,40 @@ chat_dist_config = {
 }
 
 ##############################################################################
+# Stream
+##############################################################################
+
+trending_config = {
+    # attributes
+    'src': 'reddit'
+}
+
+enrich_config = {
+    # attributes
+    'src': 'reddit'
+}
+
+nlp_config = {
+    # attributes
+    'src': 'reddit'
+}
+
+stream_chat_config = {
+    # attributes
+    'src': 'reddit',
+    'trending': True,
+    'enrich': False,
+    'nlp': False,
+
+    # module
+    'module': 'src.sources.reddit._functions_chat',
+
+    # messaging
+    'stream_host': STREAM_HOST,
+    'stream_port': STREAM_PORT_REDDIT
+}
+
+##############################################################################
 # Master
 ##############################################################################
 
@@ -38,7 +72,13 @@ reddit_config = {
     'client_secret': '5l9swqgf2tAY2je0i61pNklgOCg',
     'user_agent': 'ISS:staycurrents.com:v0.1.9 (by /u/staycurrents)',
 
-    # components
+    # input components
     'chat_conn_config': chat_conn_config,
-    'chat_dist_config': chat_dist_config
+    'chat_dist_config': chat_dist_config,
+
+    # stream chat components
+    'trending_config': trending_config,
+    'enrich_config': enrich_config,
+    'nlp_config': nlp_config,
+    'stream_chat_config': stream_chat_config
 }

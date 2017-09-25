@@ -1,7 +1,7 @@
 from src.config.socket_config import *
 
 ##############################################################################
-# Chat
+# Chat Input
 ##############################################################################
 
 chat_conn_config = {
@@ -32,6 +32,43 @@ chat_dist_config = {
 }
 
 ##############################################################################
+# Stream
+##############################################################################
+
+trending_config = {
+    # attributes
+    'src': 'twitch',
+
+    # matching logic
+    'base_svo_match': False
+}
+
+enrich_config = {
+    # attributes
+    'src': 'twitch'
+}
+
+nlp_config = {
+    # attributes
+    'src': 'twitch'
+}
+
+stream_chat_config = {
+    # attributes
+    'src': 'twitch',
+    'trending': True,
+    'enrich': False,
+    'nlp': True,
+
+    # module
+    'module': 'src.sources.twitch._functions_chat',
+
+    # messaging
+    'stream_host': STREAM_HOST,
+    'stream_port': STREAM_PORT_TWITCH
+}
+
+##############################################################################
 # Master
 ##############################################################################
 
@@ -43,7 +80,13 @@ twitch_config = {
     # prod creds
     'client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz',
 
-    # components
+    # input components
     'chat_conn_config': chat_conn_config,
-    'chat_dist_config': chat_dist_config
+    'chat_dist_config': chat_dist_config,
+
+    # stream chat components
+    'trending_config': trending_config,
+    'enrich_config': enrich_config,
+    'nlp_config': nlp_config,
+    'stream_chat_config': stream_chat_config
 }

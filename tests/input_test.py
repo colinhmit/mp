@@ -5,7 +5,7 @@ import threading
 #import utils
 from src.utils._functions_general import *
 from src.inputs.chat.master import InputChatMaster
-from src.config.inputs.chat_config import input_chat_config
+from src.config.inputs.input_chat_config import input_chat_config
 
 input_server = InputChatMaster(input_chat_config)
 

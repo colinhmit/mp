@@ -2,14 +2,14 @@ import multiprocessing
 
 # import utils
 from src.utils._functions_general import *
-from src.inputs.chat.nlp import NLPParser
-from src.inputs.chat.worker import Worker
-from src.inputs.chat.distributor import Distributor
+from src.procs.input_chat.nlp import NLPParser
+from src.procs.input_chat.worker import Worker
+from src.procs.input_chat.distributor import Distributor
 
 
 class InputChatMaster:
     def __init__(self, config):
-        pp('Initializing Input Server...')
+        pp('Initializing Input Chat Master...')
         self.config = config
         self.nlp_parser = NLPParser()
 

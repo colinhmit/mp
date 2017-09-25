@@ -5,7 +5,7 @@ from src.utils._functions_general import *
 from src.sources.twitter.chat import Chat
 
 
-class TwitterMaster:
+class Master:
     def __init__(self, config, streams):
         self.config = config
         self.streams = streams

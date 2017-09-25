@@ -6,7 +6,7 @@ import importlib
 
 from src.utils._functions_general import *
 from src.streams.chat.trending import Trending
-from src.streams.chat.content import Content
+# from src.streams.chat.enrich import Enrich
 from src.streams.chat.nlp import NLP
 
 
@@ -34,11 +34,13 @@ class StreamChatMaster:
 
     def init_components(self):
         self.trending = Trending(self.config['trending_config'], self.stream)
-        #self.content = Content(self.config['content_config'], self.stream)
-        self.components = NLP(self.config['nlp_config'], self.stream)
+        #self.enrich = Trending(self.config['enrich_config'], self.stream)
+        self.nlp = NLP(self.config['nlp_config'], self.stream)
 
-    def init_threads():
+    def init_threads(self):
         pass
+        # zmq connections
+        #threading.Thread(target = self.send_stream).start()
 
     # ZMQ Processes
     # def send_stream(self):
@@ -61,7 +63,7 @@ class StreamChatMaster:
 
     #Main func
     def run(self):
-        module = importlib.import_module(self.config['modules'][self.config['src']])
+        module = importlib.import_module(self.config['module'])
         check_stream = getattr(module, 'check_stream')
         for data in iter(self.input_socket.recv, 'STOP'):
             #try: msg_data may be unpickleable?
@@ -72,7 +74,7 @@ class StreamChatMaster:
                 if check_stream(self.stream, msg_data):
                     messagetime = datetime.datetime.now()
                     self.trending.process(msg_data, messagetime)
-                    #self.content.process(self.trending.data)
                     self.nlp.process(msg_data)
             except Exception, e:
-                pp(e)
+                pp(self.config['src'] + ":" + self.stream + ': failed run!', 'error')
+                pp(e, 'error')
