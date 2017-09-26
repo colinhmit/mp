@@ -1,0 +1,30 @@
+import psycopg2
+
+db_str = 'testdb'
+host_str = 'currentsdb.clocpkfrofip.us-west-2.rds.amazonaws.com'
+port_str = '5432'
+user_str = 'currentsdev'
+pw_str = 'AndrewColinEben!'
+
+con = psycopg2.connect(dbname = db_str, host=host_str, port=port_str, user=user_str, password=pw_str)
+cur = con.cursor()
+
+try:
+    cur.execute("DROP TABLE input_chat;")
+except Exception, e:
+    cur.execute("rollback;")
+    print 'failed dropping input_chat'
+
+cur.execute("CREATE TABLE input_chat (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, username varchar, message varchar, uuid varchar, src_id varchar);")
+
+try:
+    cur.execute("DROP TABLE stream_chat;")
+except Exception, e:
+    cur.execute("rollback;")
+    print 'failed dropping stream_chat'
+
+cur.execute("CREATE TABLE stream_chat (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, username varchar, score double precision, message varchar, first_rcv_time timestamp, uuid varchar, src_id varchar);")
+
+con.commit()
+cur.close()
+con.close()

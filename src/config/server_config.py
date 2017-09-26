@@ -12,6 +12,14 @@ from src.config.streams.stream_config import stream_config
 ##############################################################################
 
 server_config = {
+    # on?
+    'src_on': {
+        'internal':     False,
+        'twitch':       False,
+        'twitter':      True,
+        'reddit':       False
+    },
+
     # modules
     'src_modules': {
         'internal':     'src.sources.internal.master',

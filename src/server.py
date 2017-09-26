@@ -20,14 +20,16 @@ class Server:
     def init_streams(self):
         self.streams = {}
         for src in self.config['src_configs'].keys():
-            self.streams[src] = {}
+            if self.config['src_on'][src]:
+                self.streams[src] = {}
 
     def init_srcs(self):
         self.srcs = {}
         for src in self.config['src_modules'].keys():
-            module = importlib.import_module(self.config['src_modules'][src])
-            Master = getattr(module, 'Master')
-            self.srcs[src] = Master(self.config['src_configs'][src], self.streams[src])
+            if self.config['src_on'][src]:
+                module = importlib.import_module(self.config['src_modules'][src])
+                Master = getattr(module, 'Master')
+                self.srcs[src] = Master(self.config['src_configs'][src], self.streams[src])
 
     def init_procs(self):
         self.proc = ProcServer(self.config['proc_config'])
@@ -62,9 +64,10 @@ if __name__ == '__main__':
     #init
     server = Server(server_config)
 
-    server.add_stream('twitch', 'shroud')
+    # server.add_stream('twitch', 'shroud')
     server.add_stream('twitter', 'trump')
-    server.add_stream('reddit', 'soccer')
+    pp('added')
+    # server.add_stream('reddit', 'soccer')
 
-    server.add_stream('twitter', 'nfl')
-    server.add_stream('reddit', 'nfl')
+    # server.add_stream('twitter', 'nfl')
+    # server.add_stream('reddit', 'nfl')

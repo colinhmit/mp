@@ -76,4 +76,5 @@ class Worker:
 
                 pickled_data = pickle.dumps(data)
                 pipe.send(pickled_data)
+                pp('sent.')
                 nlpcounter += 1

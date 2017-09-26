@@ -20,6 +20,7 @@ def parse(data):
 
         msg = {
                'src':           'twitter',
+               'stream':        '',
                'username':      data['user']['name'],
                'message':       '',
                'media_urls':    [],

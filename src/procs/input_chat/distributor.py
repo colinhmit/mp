@@ -25,9 +25,9 @@ class Distributor:
     def distribute(self):
         distributing = True
         while distributing:
-            # zmq forwarder might die?
+            # zmq distributor might die?
             try:
                 zmq.device(zmq.FORWARDER, self.sock, self.pipe)
             except Exception, e:
-                pp('ZMQ Forwarder died!', 'error')
+                pp('ZMQ Distributor died!', 'error')
                 pp(e, 'error')

@@ -66,7 +66,6 @@ class Trending:
                                }
                         for msg_k, msg_v in temp_trending.items() if msg_v['visible']
                     }
-                    pp('|||| TRENDING : ' + self.config['src'] + ': ' + self.stream + ': ' + str(len(self.data)) + ' ||||')
             except Exception, e:
                 pp(self.config['src'] + ":" + self.stream + ': failed render_trending', 'error')
                 pp(e, 'error')

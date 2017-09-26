@@ -1,3 +1,5 @@
+from src.config.socket_config import *
+
 ##############################################################################
 # Components
 ##############################################################################
@@ -72,6 +74,10 @@ stream_chat_config = {
 
     # timing
     'send_stream_refresh': 0.3,
+
+    # messaging
+    'fwd_host': FWD_HOST,
+    'fwd_port': FWD_PORT_INPUT,
 
     # components
     'trending_config': trending_config,

@@ -55,7 +55,7 @@ dist_config = {
 
 input_chat_config = {
     # worker setup
-    'num_workers': 2,
+    'num_workers': 10,
     'worker_config': worker_config,
 
     # distributor setup
