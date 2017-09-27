@@ -64,8 +64,11 @@ if __name__ == '__main__':
     #init
     server = Server(server_config)
 
-    server.add_stream('twitch', 'shroud')
-    server.add_stream('twitch', 'riotgames')
+    server.srcs['internal'].start_replay('skt_rox_g5', 'skt_rox', 0)
+    server.add_stream('internal', 'skt_rox')
+
+    #server.add_stream('twitch', 'shroud')
+    #server.add_stream('twitch', 'riotgames')
     #server.add_stream('twitter', 'trump')
     # server.add_stream('reddit', 'soccer')
 

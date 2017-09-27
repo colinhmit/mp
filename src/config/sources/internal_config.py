@@ -28,6 +28,15 @@ chat_dist_config = {
     'stream_port': STREAM_PORT_INTERNAL
 }
 
+replay_config = {
+    # path
+    'logpath': '/Users/colinh/Repositories/mp/src/analytics/logs/',
+
+    # connection
+    'host': INTERNAL_HOST,
+    'port': INTERNAL_PORT
+}
+
 ##############################################################################
 # Stream
 ##############################################################################
@@ -78,6 +87,7 @@ internal_config = {
     # input components
     'chat_conn_config': chat_conn_config,
     'chat_dist_config': chat_dist_config,
+    'replay_config': replay_config,
 
     # stream chat components
     'trending_config': trending_config,

@@ -14,10 +14,12 @@ class StreamChatMaster:
     def __init__(self, config, stream):
         self.config = config
         self.stream = stream
+        self.num = 0
         
         self.init_sockets()
         self.init_components()
         self.init_threads()
+
         self.run()
 
     def init_sockets(self):
@@ -51,12 +53,14 @@ class StreamChatMaster:
                 data = {
                     'type':     'stream_chat',
                     'time':     datetime.datetime.now().isoformat(),
+                    'num':      self.num,
                     'src':      self.config['src'],
                     'stream':   self.stream,
                     'data':     {k: dict(v.data) for k, v in self.components.items()}
                 }
                 pickled_data = pickle.dumps(data)
                 self.fwd_socket.send(pickled_data)
+                self.num += 1
             except Exception, e:
                 pp(self.config['src'] + ":" + self.stream + ': failed send_stream', 'error')
                 pp(e)
@@ -75,6 +79,7 @@ class StreamChatMaster:
                 if check_stream(self.stream, msg_data):
                     messagetime = datetime.datetime.now()
                     self.components['trending'].process(msg_data, messagetime)
+                    #self.components['enrich'].process(msg_data)
                     self.components['nlp'].process(msg_data)
             except Exception, e:
                 pp(self.config['src'] + ":" + self.stream + ': failed run!', 'error')

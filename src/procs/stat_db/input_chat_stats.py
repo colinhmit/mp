@@ -10,6 +10,8 @@ class InputChatStats:
         self.time = datetime.datetime.now()
 
         self.init_db()
+
+        self.num = 0
         self.monitor()
 
     def init_db(self):
@@ -27,7 +29,8 @@ class InputChatStats:
             self.cur.execute("SELECT src, stream, COUNT (*), COUNT (DISTINCT username) FROM input_chat WHERE time BETWEEN %s and %s GROUP BY src, stream;", (self.time - datetime.timedelta(seconds=self.config['interval']), self.time))
             data = self.cur.fetchall()
             if len(data) > 0:
-                args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s)", (self.time.replace(microsecond=0).isoformat(), x[0], x[1], x[2], x[3])) for x in data)
-                self.cur.execute("INSERT INTO input_chat_stats (time, src, stream, num_comments, num_commenters) VALUES " + args_str)
+                args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s)", (self.time.replace(microsecond=0).isoformat(), x[0], x[1], self.num, x[2], x[3])) for x in data)
+                self.cur.execute("INSERT INTO input_chat_stats (time, src, stream, num, num_comments, num_commenters) VALUES " + args_str)
                 self.con.commit()
+                self.num += 1
                 time.sleep(self.config['interval']-(datetime.datetime.now()-self.time).total_seconds())

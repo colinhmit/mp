@@ -42,14 +42,12 @@ class Worker:
                 self.write_stream_chat(data)
 
     def write_input_chat(self, data):
-        pp('writing input_chat')
         self.cur.execute("INSERT INTO input_chat (time, src, stream, username, message, uuid, src_id) VALUES (%s, %s, %s, %s, %s, %s, %s)", (data['time'],data['src'],data['stream'],data['username'],data['message'],data['id'],data['src_id']))
         self.con.commit()
 
     def write_stream_chat(self, data):
-        pp('writing stream_chat')
         if 'trending' in  data['data'] and len(data['data'].get('trending',{})) > 0:
             trending = data['data']['trending']
-            args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s,%s,%s,%s)", (data['time'], data['src'], data['stream'], trending[k]['username'], trending[k]['score'], k, trending[k]['first_rcv_time'], trending[k]['id'], trending[k]['src_id'])) for k in trending.keys())
-            self.cur.execute("INSERT INTO stream_chat (time, src, stream, username, score, message, first_rcv_time, uuid, src_id) VALUES " + args_str)
+            args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (data['time'], data['src'], data['stream'], data['num'], trending[k]['username'], trending[k]['score'], k, trending[k]['first_rcv_time'], trending[k]['id'], trending[k]['src_id'])) for k in trending.keys())
+            self.cur.execute("INSERT INTO stream_chat (time, src, stream, num, username, score, message, first_rcv_time, uuid, src_id) VALUES " + args_str)
             self.con.commit()

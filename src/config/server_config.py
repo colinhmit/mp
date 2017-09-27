@@ -14,8 +14,8 @@ from src.config.streams.stream_config import stream_config
 server_config = {
     # on?
     'src_on': {
-        'internal':     False,
-        'twitch':       True,
+        'internal':     True,
+        'twitch':       False,
         'twitter':      False,
         'reddit':       False
     },
@@ -35,6 +35,7 @@ server_config = {
         'twitter':      twitter_config,
         'reddit':       reddit_config,
     },
+
     'proc_config': proc_config,
     'stream_config': stream_config
 }
