@@ -1,5 +1,6 @@
 import json
 import uuid
+import datetime
 
 from src.utils._functions_general import *
 
@@ -19,6 +20,8 @@ def parse(data):
             return {}
 
         msg = {
+               'type':          'input_chat',
+               'time':          datetime.datetime.now().isoformat(),
                'src':           'twitter',
                'stream':        '',
                'username':      data['user']['name'],

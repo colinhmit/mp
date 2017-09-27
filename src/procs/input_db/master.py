@@ -8,7 +8,7 @@ from src.procs.input_db.funnel import Funnel
 
 class InputDBMaster:
     def __init__(self, config):
-        pp('Initializing Input Chat Master...')
+        pp('Initializing Input DB Master...')
         self.config = config
 
         self.funnels = []

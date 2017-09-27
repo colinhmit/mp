@@ -11,3 +11,6 @@ cur = con.cursor()
 
 #cur.execute("SELECT COUNT(*) FROM input_chat;")
 #cur.fetchone()
+
+
+#cur.execute("SELECT src, stream, COUNT (*) FROM input_chat GROUP BY src, stream;")

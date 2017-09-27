@@ -64,9 +64,9 @@ if __name__ == '__main__':
     #init
     server = Server(server_config)
 
-    # server.add_stream('twitch', 'shroud')
-    server.add_stream('twitter', 'trump')
-    pp('added')
+    server.add_stream('twitch', 'shroud')
+    server.add_stream('twitch', 'riotgames')
+    #server.add_stream('twitter', 'trump')
     # server.add_stream('reddit', 'soccer')
 
     # server.add_stream('twitter', 'nfl')

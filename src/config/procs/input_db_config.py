@@ -53,7 +53,7 @@ stream_chat_funnel_config = {
 
 input_db_config = {
     # worker setup
-    'num_workers': 10,
+    'num_workers': 34,
     'worker_config': worker_config,
 
     # distributor setup

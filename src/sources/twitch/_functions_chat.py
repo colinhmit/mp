@@ -1,6 +1,7 @@
 import json
 import uuid
 import re
+import datetime
 
 from src.utils._functions_general import *
 
@@ -12,6 +13,8 @@ def parse(data):
     # try: data may be corrupt
     try:
         msg = {
+               'type':          'input_chat',
+               'time':          datetime.datetime.now().isoformat(),
                'src':           'twitch',
                'stream':        re.findall(r'^:.+\![a-zA-Z0-9_]'
                                            r'+@[a-zA-Z0-9_]'

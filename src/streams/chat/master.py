@@ -49,7 +49,8 @@ class StreamChatMaster:
             # try: send stream could break?
             try:
                 data = {
-                    'type':     'stream',
+                    'type':     'stream_chat',
+                    'time':     datetime.datetime.now().isoformat(),
                     'src':      self.config['src'],
                     'stream':   self.stream,
                     'data':     {k: dict(v.data) for k, v in self.components.items()}

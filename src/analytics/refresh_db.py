@@ -25,6 +25,14 @@ except Exception, e:
 
 cur.execute("CREATE TABLE stream_chat (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, username varchar, score double precision, message varchar, first_rcv_time timestamp, uuid varchar, src_id varchar);")
 
+try:
+    cur.execute("DROP TABLE input_chat_stats;")
+except Exception, e:
+    cur.execute("rollback;")
+    print 'failed dropping input_chat_stats'
+
+cur.execute("CREATE TABLE input_chat_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num_comments varchar, num_commenters varchar);")
+
 con.commit()
 cur.close()
 con.close()

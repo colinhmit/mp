@@ -1,5 +1,6 @@
 import json
 import uuid
+import datetime
 
 from src.utils._functions_general import *
 
@@ -12,6 +13,8 @@ def parse(data):
     try:
         data = json.loads(data)
         msg = {
+               'type':          'input_chat',
+               'time':          datetime.datetime.now().isoformat(),
                'src':           'reddit',
                'stream':        data.get('stream', ''),
                'username':      data.get('username', ''),

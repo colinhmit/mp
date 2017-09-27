@@ -10,6 +10,9 @@ from src.procs.forwarder.forwarder import Forwarder
 # import inputdb
 from src.procs.input_db.master import InputDBMaster
 
+# import statdb
+from src.procs.stat_db.master import StatDBMaster
+
 class ProcServer:
     def __init__(self, config):
         pp('Initializing Proc Server...')
@@ -20,4 +23,6 @@ class ProcServer:
         self.forwarder = Forwarder(self.config['forwarder_config'])
 
         self.input_db = InputDBMaster(self.config['input_db_config'])
+
+        self.input_db = StatDBMaster(self.config['stat_db_config'])
 
