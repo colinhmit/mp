@@ -24,6 +24,12 @@ chat_dist_config = {
     'stream_port': STREAM_PORT_REDDIT
 }
 
+replay_config = {
+    # connection
+    'host': INTERNAL_HOST,
+    'port': INTERNAL_PORT
+}
+
 ##############################################################################
 # Stream
 ##############################################################################
@@ -48,7 +54,7 @@ stream_chat_config = {
     'src': 'reddit',
     'trending': True,
     'enrich': False,
-    'nlp': False,
+    'nlp': True,
 
     # module
     'module': 'src.sources.reddit._functions_chat',
@@ -75,6 +81,7 @@ reddit_config = {
     # input components
     'chat_conn_config': chat_conn_config,
     'chat_dist_config': chat_dist_config,
+    'replay_config': replay_config,
 
     # stream chat components
     'trending_config': trending_config,

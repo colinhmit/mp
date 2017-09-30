@@ -55,5 +55,8 @@ class Replay:
         while (len(timekeys) > 0):
             timekey = timekeys[0]
             if (time.time() - ts_start) > (timekey-self.timestart):
-                self.pipe.send_string(json.dumps(strmdict[timekey]))
+                packet = {}
+                packet['data'] = json.dumps(strmdict[timekey]).decode('utf-8', errors='ignore')
+                packet['src'] = 'twitch'
+                self.pipe.send(json.dumps(packet))
                 timekeys.pop(0)

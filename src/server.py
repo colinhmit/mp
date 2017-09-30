@@ -34,11 +34,11 @@ class Server:
     def init_procs(self):
         self.proc = ProcServer(self.config['proc_config'])
 
-    def add_stream(self, src, stream):
+    def add_stream(self, src, stream, stream_config):
         try:
             if stream not in self.streams[src]:
                 self.streams[src][stream] = {
-                    'chat':     True,
+                    'chat':     stream_config['chat'],
                     'stream':   multiprocessing.Process(target=Stream,
                                                         args=(self.config['stream_config'],
                                                               self.config['src_configs'][src],
@@ -64,8 +64,11 @@ if __name__ == '__main__':
     #init
     server = Server(server_config)
 
-    server.srcs['internal'].start_replay('skt_rox_g5', 'skt_rox', 0)
-    server.add_stream('internal', 'skt_rox')
+    # server.srcs['internal'].start_replay('skt_rox_g5', 'skt_rox', 0)
+    # server.add_stream('internal', 'skt_rox')
+
+    server.srcs['reddit'].start_replay('58pj7j', 'skt_rox', 10, 600)
+    server.add_stream('reddit', 'skt_rox', {'chat': False})
 
     #server.add_stream('twitch', 'shroud')
     #server.add_stream('twitch', 'riotgames')

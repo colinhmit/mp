@@ -11,7 +11,8 @@ input_chat_stats_config = {
     'pw_str': 'AndrewColinEben!',
 
     #settings
-    'interval': 10
+    'interval': 5,
+    'lookback': 60
 }
 
 ##############################################################################

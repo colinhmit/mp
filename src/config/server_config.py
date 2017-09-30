@@ -17,7 +17,7 @@ server_config = {
         'internal':     True,
         'twitch':       False,
         'twitter':      False,
-        'reddit':       False
+        'reddit':       True
     },
 
     # modules

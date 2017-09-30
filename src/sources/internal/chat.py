@@ -15,18 +15,12 @@ class Chat(ChatBase):
         self.conn.start()
 
     def chat_connection(self):
-        chat_streams = [k for k, v in self.streams.items() if v['chat']]
-        if len(chat_streams) > 0:
-            self.context = zmq.Context()
-            self.set_sock()
-            self.set_pipe()
+        self.context = zmq.Context()
+        self.set_sock()
+        self.set_pipe()
 
-            for data in iter(self.sock.recv, '*STOP*'):
-                packet = {
-                    'src':      self.config['src'],
-                    'data':     data.decode('utf-8', errors='ignore')
-                }
-                self.pipe.send_string(json.dumps(packet))
+        for packet in iter(self.sock.recv, '*STOP*'):
+            self.pipe.send_string(packet)
 
     def set_sock(self):
         self.sock = self.context.socket(zmq.SUB)
