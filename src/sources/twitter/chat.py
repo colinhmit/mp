@@ -20,7 +20,7 @@ class Chat(ChatBase):
         self.conn.start()
 
     def chat_connection(self):
-        chat_streams = [k for k, v in self.streams.items() if v['chat']]
+        chat_streams = [k for k, v in self.streams.items() if v['chat_con']]
         if len(chat_streams) > 0:      
             self.context = zmq.Context()
             self.set_pipe()

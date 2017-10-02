@@ -1,8 +1,8 @@
 ##############################################################################
-# INPUT CHAT Worker
+# Chat Velocity
 ##############################################################################
 
-input_chat_stats_config = {
+chat_velocity_config = {
     # db connect
     'db_str': 'testdb',
     'host_str': 'currentsdb.clocpkfrofip.us-west-2.rds.amazonaws.com',
@@ -16,10 +16,29 @@ input_chat_stats_config = {
 }
 
 ##############################################################################
+# INPUT CHAT Worker
+##############################################################################
+
+chat_sentiment_config = {
+    # db connect
+    'db_str': 'testdb',
+    'host_str': 'currentsdb.clocpkfrofip.us-west-2.rds.amazonaws.com',
+    'port_str': '5432',
+    'user_str': 'currentsdev',
+    'pw_str': 'AndrewColinEben!',
+
+    #settings
+    'interval': 5,
+    'lookback': 5
+}
+
+
+##############################################################################
 # Server
 ##############################################################################
 
 stat_db_config = {
     # worker setup
-    'input_chat_stats_config': input_chat_stats_config
+    'chat_velocity_config': chat_velocity_config,
+    'chat_sentiment_config': chat_sentiment_config
 }

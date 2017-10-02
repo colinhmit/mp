@@ -2,7 +2,8 @@ import multiprocessing
 
 # import utils
 from src.utils._functions_general import *
-from src.procs.stat_db.input_chat_stats import InputChatStats
+from src.procs.stat_db.chat_velocity_stats import ChatVelocityStats
+from src.procs.stat_db.chat_sentiment_stats import ChatSentimentStats
 
 
 class StatDBMaster:
@@ -10,6 +11,5 @@ class StatDBMaster:
         pp('Initializing Stat DB Master...')
         self.config = config
 
-        self.input_chat_stats = multiprocessing.Process(target=InputChatStats,
-                                  args=(self.config['input_chat_stats_config'],))
-        self.input_chat_stats.start()
+        self.chat_velocity_stats = ChatVelocityStats(self.config['chat_velocity_config'])
+        self.chat_sentiment_stats = ChatSentimentStats(self.config['chat_sentiment_config'])

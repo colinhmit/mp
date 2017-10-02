@@ -12,7 +12,7 @@ from src.config.server_config import server_config
 class Server:
     def __init__(self, config):
         self.config = config
-        
+
         self.init_streams()
         self.init_srcs()
         self.init_procs()
@@ -38,7 +38,7 @@ class Server:
         try:
             if stream not in self.streams[src]:
                 self.streams[src][stream] = {
-                    'chat':     stream_config['chat'],
+                    'chat_con':     stream_config['chat_con'],
                     'stream':   multiprocessing.Process(target=Stream,
                                                         args=(self.config['stream_config'],
                                                               self.config['src_configs'][src],
@@ -64,11 +64,12 @@ if __name__ == '__main__':
     #init
     server = Server(server_config)
 
-    # server.srcs['internal'].start_replay('skt_rox_g5', 'skt_rox', 0)
-    # server.add_stream('internal', 'skt_rox')
+    skt_replay = {'logfile': 'skt_rox_g5', 'stream': 'skt_rox', 'timestart': 0, 'src': 'internal'}
+    server.srcs['internal'].start_replay(skt_replay)
+    server.add_stream('internal', 'skt_rox', {'chat_con': False})
 
-    server.srcs['reddit'].start_replay('58pj7j', 'skt_rox', 10, 600)
-    server.add_stream('reddit', 'skt_rox', {'chat': False})
+    #server.srcs['reddit'].start_replay('58pj7j', 'skt_rox', 10, 600)
+    #server.add_stream('reddit', 'skt_rox', {'chat_con': False})
 
     #server.add_stream('twitch', 'shroud')
     #server.add_stream('twitch', 'riotgames')

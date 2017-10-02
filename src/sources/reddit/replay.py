@@ -6,13 +6,13 @@ from src.utils._functions_general import *
 
 
 class Replay:
-    def __init__(self, config, threadid, stream, mod, timestart, api):
+    def __init__(self, config, params, api):
         pp('Initializing Replay...')
         self.config = config
-        self.threadid = threadid
-        self.stream = stream
-        self.timestart = timestart
-        self.mod = mod
+        self.threadid = params['thread_id']
+        self.stream = params['stream']
+        self.timestart = params['timestart']
+        self.mod = params['mod']
         self.api = api
 
         self.context = zmq.Context()

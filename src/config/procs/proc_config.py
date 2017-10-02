@@ -30,6 +30,5 @@ proc_config = {
     'input_chat_config': input_chat_config,
     'forwarder_config': forwarder_config,
     'input_db_config': input_db_config,
-
     'stat_db_config': stat_db_config
 }

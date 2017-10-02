@@ -14,10 +14,8 @@ class Master:
 
         self.replays = {}
 
-    def start_replay(self, logfile, stream, time_start):
+    def start_replay(self, params):
         self.replays['stream'] = multiprocessing.Process(target=Replay,
                                                          args=(self.config['replay_config'],
-                                                               logfile,
-                                                               stream,
-                                                               time_start))
+                                                               params))
         self.replays['stream'].start()

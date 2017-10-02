@@ -21,12 +21,9 @@ class Master:
                                client_secret=self.config['client_secret'],
                                user_agent=self.config['user_agent'])
 
-    def start_replay(self, threadid, stream, mod, time_start):
+    def start_replay(self, params):
         self.replays['stream'] = multiprocessing.Process(target=Replay,
                                                          args=(self.config['replay_config'],
-                                                               threadid,
-                                                               stream,
-                                                               mod,
-                                                               time_start,
+                                                               params,
                                                                self.api))
         self.replays['stream'].start()

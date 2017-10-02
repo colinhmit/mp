@@ -33,14 +33,26 @@ cur = con.cursor()
 
 # cur.execute("CREATE TABLE input_chat_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, num_comments integer, num_commenters integer, tot_comments integer, tot_commenters integer);")
 
+# try:
+#     cur.execute("DROP TABLE view_stats;")
+# except Exception, e:
+#     cur.execute("rollback;")
+#     print 'failed dropping view_stats'
+
+# cur.execute("CREATE TABLE view_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, num_viewers integer, tot_viewers integer);")
+
 try:
-    cur.execute("DROP TABLE view_stats;")
+    cur.execute("DROP TABLE sentiment_stats;")
 except Exception, e:
     cur.execute("rollback;")
-    print 'failed dropping view_stats'
+    print 'failed dropping sentiment_stats'
 
-cur.execute("CREATE TABLE view_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, num_viewers integer, tot_viewers integer);")
+cur.execute("CREATE TABLE sentiment_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, type varchar, num integer, sentiment double precision);")
 
+cur.execute("DELETE FROM input_chat WHERE src='internal'")
+cur.execute("DELETE FROM stream_chat WHERE src='internal'")
+cur.execute("DELETE FROM input_chat_stats WHERE src='internal'")
+cur.execute("DELETE FROM sentiment_stats WHERE src='internal'")
 
 con.commit()
 cur.close()

@@ -6,12 +6,13 @@ from src.utils._functions_general import *
 
 
 class Replay:
-    def __init__(self, config, logfile, stream, timestart):
+    def __init__(self, config, params):
         pp('Initializing Replay...')
         self.config = config
-        self.logfile = logfile
-        self.stream = stream
-        self.timestart = timestart
+        self.logfile = params['logfile']
+        self.stream = params['stream']
+        self.timestart = params['timestart']
+        self.src = params['src']
 
         self.context = zmq.Context()
         self.set_pipe()
@@ -57,6 +58,6 @@ class Replay:
             if (time.time() - ts_start) > (timekey-self.timestart):
                 packet = {}
                 packet['data'] = json.dumps(strmdict[timekey]).decode('utf-8', errors='ignore')
-                packet['src'] = 'twitch'
+                packet['src'] = self.src
                 self.pipe.send(json.dumps(packet))
                 timekeys.pop(0)
