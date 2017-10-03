@@ -36,11 +36,6 @@ trending_config = {
     'render_trending_refresh': 0.7
 }
 
-enrich_config = {
-    # attributes
-    'src': 'twitter'
-}
-
 nlp_config = {
     # attributes
     'src': 'twitter'
@@ -50,11 +45,10 @@ stream_chat_config = {
     # attributes
     'src': 'twitter',
     'trending': True,
-    'enrich': False,
     'nlp': True,
 
     # timing
-    'send_stream_refresh': 0.7,
+    'send_trending_refresh': 0.7,
 
     # module
     'module': 'src.sources.twitter._functions_chat',
@@ -103,7 +97,6 @@ twitter_config = {
 
     # stream chat components
     'trending_config': trending_config,
-    'enrich_config': enrich_config,
     'nlp_config': nlp_config,
     'stream_chat_config': stream_chat_config
 }

@@ -24,5 +24,5 @@ class ProcServer:
 
         self.input_db = InputDBMaster(self.config['input_db_config'])
 
-        self.stat_db = StatDBMaster(self.config['stat_db_config'])
+        #self.stat_db = StatDBMaster(self.config['stat_db_config'])
 

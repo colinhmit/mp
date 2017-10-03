@@ -8,6 +8,7 @@ class NLPParser:
         self.SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
         self.OBJECTS = ["dobj", "dative", "attr", "oprd"]
         self.ADJECTIVES = ["amod", "acomp"]
+        self.NOUNS = ["NOUN", "PROPN"]
         self.parser = spacy.load('en')
         self.parser.vocab.strings.set_frozen(True)
         pp('nlp: Initialized.')
@@ -174,9 +175,7 @@ class NLPParser:
         return svos
 
     def parse_subjs(self, tokens):
-        adjs = [tok.lower_ for tok in tokens if tok.dep_ in self.ADJECTIVES]
         subs = [{'lower':   tok.lower_,
-                 'vector':  tok.vector,
-                 'adjs':    adjs}
-                for tok in tokens if tok.dep_ in self.SUBJECTS]
+                 'vector':  tok.vector}
+                for tok in tokens if tok.pos_ in self.NOUNS]
         return subs

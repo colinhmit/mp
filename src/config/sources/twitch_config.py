@@ -43,11 +43,6 @@ trending_config = {
     'base_svo_match': False
 }
 
-enrich_config = {
-    # attributes
-    'src': 'twitch'
-}
-
 nlp_config = {
     # attributes
     'src': 'twitch'
@@ -57,7 +52,6 @@ stream_chat_config = {
     # attributes
     'src': 'twitch',
     'trending': True,
-    'enrich': False,
     'nlp': True,
 
     # module
@@ -86,7 +80,6 @@ twitch_config = {
 
     # stream chat components
     'trending_config': trending_config,
-    'enrich_config': enrich_config,
     'nlp_config': nlp_config,
     'stream_chat_config': stream_chat_config
 }

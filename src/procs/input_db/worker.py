@@ -2,14 +2,18 @@ import zmq
 import pickle
 import datetime
 import psycopg2
+import numpy
+from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 
 # import utils
 from src.utils._functions_general import *
+
 
 class Worker:
     def __init__(self, config):
         self.config = config
 
+        self.SIA = SIA()
         self.init_db()
 
         self.context = zmq.Context()
@@ -38,16 +42,48 @@ class Worker:
 
             if data.get('type', '') == 'input_chat':
                 self.write_input_chat(data)
-            elif data.get('type', '') == 'stream_chat':
-                self.write_stream_chat(data)
+            elif data.get('type', '') == 'stream_trending':
+                self.write_stream_trending(data)
+            elif data.get('type', '') == 'stream_nlp':
+                self.write_stream_nlp(data)
+
+            #WRITING DEMO
+            # if data.get('type', '') == 'stream_nlp':
+            #     self.write_stream_nlp(data)
 
     def write_input_chat(self, data):
         self.cur.execute("INSERT INTO input_chat (time, src, stream, username, message, uuid, src_id) VALUES (%s, %s, %s, %s, %s, %s, %s)", (data['time'],data['src'],data['stream'],data['username'],data['message'],data['id'],data['src_id']))
         self.con.commit()
 
-    def write_stream_chat(self, data):
-        if 'trending' in  data['data'] and len(data['data'].get('trending',{})) > 0:
-            trending = data['data']['trending']
+    def write_stream_trending(self, data):
+        if len(data['data']) > 0:
+            trending = data['data']
             args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (data['time'], data['src'], data['stream'], data['num'], trending[k]['username'], trending[k]['score'], k, trending[k]['first_rcv_time'], trending[k]['id'], trending[k]['src_id'])) for k in trending.keys())
             self.cur.execute("INSERT INTO stream_chat (time, src, stream, num, username, score, message, first_rcv_time, uuid, src_id) VALUES " + args_str)
+            self.con.commit()
+
+    def write_stream_nlp(self, data):
+        if len(data['data']) > 0:
+            nlp = data['data']
+            result = []
+            for subj in nlp:
+                dp_scores = {}
+                scores = []
+                for message in nlp[subj]['messages']:
+                    if message in dp_scores:
+                        if dp_scores[message] != 0.0:
+                            scores.append(dp_scores[message])
+                    else:
+                        score = self.SIA.polarity_scores(message)['compound']
+                        dp_scores[message] = score
+                        if score != 0.0:
+                            scores.append(score)
+
+                if len(scores) > 0:
+                    result.append((subj, nlp[subj]['score'], numpy.mean(scores)))
+                else:
+                    result.append((subj, nlp[subj]['score'], 0.0))
+
+            args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s,%s)", (data['time'], data['src'], data['stream'], data['num'], x[0], x[1], x[2])) for x in result)
+            self.cur.execute("INSERT INTO subject_stats (time, src, stream, num, subject, score, sentiment) VALUES " + args_str)
             self.con.commit()

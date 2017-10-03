@@ -37,26 +37,18 @@ trending_config = {
     'decay_time_base': 0.2
 }
 
-enrich_config = {
-    # advertising
-    'ad_trigger': False,
-    'ad_timer': 180,
-    'ad_refresh': 5,
-
-    # timing
-    'enrich_timer': False,
-    'decay_oldest': False,
-    'enrich_refresh': 1.0,
-    'last_rcv_enrich_timer': 5,
-    'last_enrch_enrich_timer': 45,
-
-    #length
-    'enrich_min_len': 5
-}
-
 nlp_config = {
-    # timing
-    'reset_subjs_refresh': 600
+    # nlp size
+    'render_nlp_limit': 5,
+
+    # thread timing
+    'render_nlp_refresh': 5,
+
+    #algo params
+    'init_base': 11,
+    'add_base': 11,
+    'decay_perc': 0.98,
+    'decay_base': 0.1
 }
 
 ##############################################################################
@@ -73,7 +65,8 @@ stream_chat_config = {
     'nlp': False,
 
     # timing
-    'send_stream_refresh': 0.3,
+    'send_trending_refresh': 0.3,
+    'send_nlp_refresh': 5.0,
 
     # messaging
     'fwd_host': FWD_HOST,
@@ -81,6 +74,5 @@ stream_chat_config = {
 
     # components
     'trending_config': trending_config,
-    'enrich_config': enrich_config,
     'nlp_config': nlp_config
 }

@@ -41,18 +41,26 @@ cur = con.cursor()
 
 # cur.execute("CREATE TABLE view_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, num_viewers integer, tot_viewers integer);")
 
+# try:
+#     cur.execute("DROP TABLE sentiment_stats;")
+# except Exception, e:
+#     cur.execute("rollback;")
+#     print 'failed dropping sentiment_stats'
+
+# cur.execute("CREATE TABLE sentiment_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, type varchar, num integer, sentiment double precision);")
+
 try:
-    cur.execute("DROP TABLE sentiment_stats;")
+    cur.execute("DROP TABLE subject_stats;")
 except Exception, e:
     cur.execute("rollback;")
-    print 'failed dropping sentiment_stats'
+    print 'failed dropping subject_stats'
 
-cur.execute("CREATE TABLE sentiment_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, type varchar, num integer, sentiment double precision);")
+cur.execute("CREATE TABLE subject_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, subject varchar, score double precision, sentiment double precision);")
 
-cur.execute("DELETE FROM input_chat WHERE src='internal'")
-cur.execute("DELETE FROM stream_chat WHERE src='internal'")
-cur.execute("DELETE FROM input_chat_stats WHERE src='internal'")
-cur.execute("DELETE FROM sentiment_stats WHERE src='internal'")
+# cur.execute("DELETE FROM input_chat WHERE src='internal'")
+# cur.execute("DELETE FROM stream_chat WHERE src='internal'")
+# cur.execute("DELETE FROM input_chat_stats WHERE src='internal'")
+# cur.execute("DELETE FROM sentiment_stats WHERE src='internal'")
 
 con.commit()
 cur.close()

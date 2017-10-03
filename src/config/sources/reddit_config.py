@@ -39,11 +39,6 @@ trending_config = {
     'src': 'reddit'
 }
 
-enrich_config = {
-    # attributes
-    'src': 'reddit'
-}
-
 nlp_config = {
     # attributes
     'src': 'reddit'
@@ -53,7 +48,6 @@ stream_chat_config = {
     # attributes
     'src': 'reddit',
     'trending': True,
-    'enrich': False,
     'nlp': True,
 
     # module
@@ -85,7 +79,6 @@ reddit_config = {
 
     # stream chat components
     'trending_config': trending_config,
-    'enrich_config': enrich_config,
     'nlp_config': nlp_config,
     'stream_chat_config': stream_chat_config
 }

@@ -13,6 +13,5 @@ class Stream:
     def set_config(self, config, src_config):
         config['stream_chat_config'].update(src_config['stream_chat_config'])
         config['stream_chat_config']['trending_config'].update(src_config['trending_config'])
-        config['stream_chat_config']['enrich_config'].update(src_config['enrich_config'])
         config['stream_chat_config']['nlp_config'].update(src_config['nlp_config'])
         self.config = config
