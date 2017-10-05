@@ -38,40 +38,49 @@ class CacheDBMaster:
         self.cache = {}
 
         for init in self.config['init_cache']:
-            if init['table'] not in self.cache:
-                self.cache[init['table']] = {}
+            if 'num' in init['columns']:
+                pp('Getting: ' + init['table']+':'+init['src']+':'+init['stream'])
 
-            if init['src'] not in self.cache[init['table']]:
-                self.cache[init['table']][init['src']] = {}
+                if init['table'] not in self.cache:
+                    self.cache[init['table']] = {}
 
-            if init['stream'] not in self.cache[init['table']][init['src']]:
-                self.cache[init['table']][init['src']][init['stream']] = {}
+                if init['src'] not in self.cache[init['table']]:
+                    self.cache[init['table']][init['src']] = {}
 
-            for num in range(init['start_num'], init['end_num'] + 1):
-                pp('Getting: ' + init['table']+':'+init['src']+':'+init['stream']+':'+str(num))
-                self.cache[init['table']][init['src']][init['stream']][num] = []
+                if init['stream'] not in self.cache[init['table']][init['src']]:
+                    self.cache[init['table']][init['src']][init['stream']] = {}
 
                 col_str = ""
                 for col in init['columns']:
                     col_str += " " + col + ","
-                param_str = "src='" + init['src'] + "' AND " + "stream='" + init['stream'] + "' AND " + "num=" + str(num)
+                param_str = "src='" + init['src'] + "' AND stream='" + init['stream'] + "' AND num BETWEEN " + str(init['start_num']) + " and " + str(init['end_num'])
                 execute_str = "SELECT " + col_str[:-1] + " FROM " + init['table'] + " WHERE " + param_str + ";"
                 self.cur.execute(execute_str)
                 fetchs = self.cur.fetchall()
 
+                num_index = init['columns'].index('num')
+
                 for fetch in fetchs:
-                    result = {}
                     if len(fetch) != len(init['columns']):
                         pp('Result did not match length of colums!', 'error')
                         pp(result, 'error')
                         pp(init, 'error')
                     else:
+                        result = {}
                         for i in range(0, len(fetch)):
                             if isinstance(fetch[i], datetime.date):
                                 result[init['columns'][i]] = fetch[i].isoformat()
                             else:
                                 result[init['columns'][i]] = fetch[i]
-                        self.cache[init['table']][init['src']][init['stream']][num].append(result)
+
+                        num = fetch[num_index]
+                        if num in self.cache[init['table']][init['src']][init['stream']]:
+                            self.cache[init['table']][init['src']][init['stream']][num].append(result)
+                        else:
+                            self.cache[init['table']][init['src']][init['stream']][num] = [result]
+            else:
+                pp('num not in init[columns]!')
+                pp(init)
         self.cur.close()
         self.con.close()
 
