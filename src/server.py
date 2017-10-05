@@ -64,9 +64,9 @@ if __name__ == '__main__':
     #init
     server = Server(server_config)
 
-    skt_replay = {'logfile': 'skt_rox_g5', 'stream': 'skt_rox', 'timestart': 0, 'src': 'internal'}
-    server.srcs['internal'].start_replay(skt_replay)
-    server.add_stream('internal', 'skt_rox', {'chat_con': False})
+    # skt_replay = {'logfile': 'skt_rox_g5', 'stream': 'skt_rox', 'timestart': 0, 'src': 'internal'}
+    # server.srcs['internal'].start_replay(skt_replay)
+    # server.add_stream('internal', 'skt_rox', {'chat_con': False})
 
     #server.srcs['reddit'].start_replay('58pj7j', 'skt_rox', 10, 600)
     #server.add_stream('reddit', 'skt_rox', {'chat_con': False})

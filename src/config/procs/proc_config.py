@@ -23,6 +23,12 @@ from src.config.procs.input_db_config import input_db_config
 from src.config.procs.stat_db_config import stat_db_config
 
 ##############################################################################
+# CACHE DB
+##############################################################################
+
+from src.config.procs.cache_db_config import cache_db_config
+
+##############################################################################
 # Server
 ##############################################################################
 
@@ -30,5 +36,6 @@ proc_config = {
     'input_chat_config': input_chat_config,
     'forwarder_config': forwarder_config,
     'input_db_config': input_db_config,
-    'stat_db_config': stat_db_config
+    'stat_db_config': stat_db_config,
+    'cache_db_config': cache_db_config
 }

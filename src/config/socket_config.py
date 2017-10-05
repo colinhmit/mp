@@ -17,6 +17,7 @@
 
 
 
+# SERVER SETTINGS
 LOCAL_HOST = '0.0.0.0' #/ '0.0.0.0'
 INTERNAL_HOST = '0.0.0.0' #/ '172.31.13.182'
 INPUT_HOST = '0.0.0.0' #/ '172.31.13.182'
@@ -24,10 +25,9 @@ DIST_HOST = '0.0.0.0' #/ '172.31.13.182'
 STREAM_HOST = '0.0.0.0' #/ '172.31.13.182'
 FWD_HOST = '0.0.0.0' #/ '172.31.13.182'
 DB_HOST = '0.0.0.0' #/ '172.31.13.182'
+CACHE_HOST = '0.0.0.0' #/ '172.31.13.182'
 
 INTERNAL_PORT = 8000
-FWD_PORT_INPUT = 8079
-FWD_PORT_OUTPUT = 8080
 
 INPUT_PORT_INTERNAL = 8010
 INPUT_PORT_TWITCH = 8011
@@ -47,47 +47,8 @@ STREAM_PORT_REDDIT = 8033
 DB_PORT_INPUT_CHAT = 8040
 DB_PORT_STREAM_CHAT = 8041
 
-# internal_port = 8000
-# http_port = 8001
+CACHE_PORT = 8050
+CACHE_WORKER_PORT = 8051
 
-# irc_input_port = 8002
-# irc_proc_port = 8012
-# irc_stream_port = 8022
-
-# twtr_input_port = 8003
-# twtr_proc_port = 8013
-# twtr_stream_port = 8023
-
-# rddt_input_port = 8004
-# rddt_proc_port = 8014
-# rddt_stream_port = 8024
-
-# internal_input_port = 8005
-
-# http_input_port = 8006
-
-
-
-# ntv_proc_port = 8015
-# ntv_stream_port = 8025
-
-# http_port = 8081
-# http_data_port = 8085
-# data_port = 8082
-# data_proc_port = 8050
-# server_port = 8083
-
-# http_config = {
-#     # attributes
-#     'self': 'http',
-
-#     # messaging
-#     'http_port': http_port,
-#     'input_host': local_host,
-#     'input_port': http_input_port,
-    
-#     # prod log path
-#     #'log_path': '/home/ec2-user/mp/src/logs/'
-#     # dev log path
-#     'log_path': '/Users/colinh/Repositories/mp/src/logs/'
-# }
+FWD_PORT_INPUT = 8079
+FWD_PORT_OUTPUT = 8080
