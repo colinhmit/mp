@@ -40,6 +40,51 @@ cache_db_config = {
             'start_num': 38,
             'end_num': 4000,
             'columns': ['time', 'src', 'stream', 'num', 'username', 'score', 'message', 'first_rcv_time']
+        },
+
+        {
+            'table': 'input_chat_stats',
+            'src': 'reddit',
+            'stream': 'skt_rox',
+            'start_num': 0,
+            'end_num': 174,
+            'columns': ['time', 'src', 'stream', 'num', 'num_comments', 'num_commenters', 'tot_comments', 'tot_commenters']
+        },
+
+        {
+            'table': 'input_chat_stats',
+            'src': 'internal',
+            'stream': 'skt_rox',
+            'start_num': 175,
+            'end_num': 455,
+            'columns': ['time', 'src', 'stream', 'num', 'num_comments', 'num_commenters', 'tot_comments', 'tot_commenters']
+        },
+
+        {
+            'table': 'view_stats',
+            'src': 'internal',
+            'stream': 'skt_rox',
+            'start_num': 0,
+            'end_num': 588,
+            'columns': ['time', 'src', 'stream', 'num', 'num_viewers', 'tot_viewers']
+        },
+
+        {
+            'table': 'sentiment_stats',
+            'src': 'internal',
+            'stream': 'skt_rox',
+            'start_num': 0,
+            'end_num': 280,
+            'columns': ['time', 'src', 'stream', 'type', 'num', 'sentiment']
+        },
+
+        {
+            'table': 'subject_stats',
+            'src': 'internal',
+            'stream': 'skt_rox',
+            'start_num': 1,
+            'end_num': 283,
+            'columns': ['time', 'src', 'stream', 'num', 'subject', 'score', 'sentiment']
         }
     ],
 
