@@ -19,3 +19,6 @@ class Master:
                                                          args=(self.config['replay_config'],
                                                                params))
         self.replays['stream'].start()
+
+    def refresh(self):
+        self.chat.refresh_streams()

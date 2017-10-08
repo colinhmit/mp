@@ -2,6 +2,7 @@ import datetime
 import zmq
 import pickle
 import threading
+import psycopg2
 import importlib
 
 from src.utils._functions_general import *
@@ -14,6 +15,7 @@ class StreamChatMaster:
         self.config = config
         self.stream = stream
         
+        self.init_db()
         self.init_sockets()
         self.init_components()
         self.init_threads()
@@ -21,12 +23,12 @@ class StreamChatMaster:
         self.run()
 
     def init_sockets(self):
-        context = zmq.Context()
-        self.input_socket = context.socket(zmq.SUB)
+        self.context = zmq.Context()
+        self.input_socket = self.context.socket(zmq.SUB)
         self.input_socket.connect('tcp://'+self.config['stream_host']+':'+str(self.config['stream_port']))
         self.input_socket.setsockopt(zmq.SUBSCRIBE, "")
 
-        self.fwd_socket = context.socket(zmq.PUB)
+        self.fwd_socket = self.context.socket(zmq.PUB)
         self.fwd_socket.connect('tcp://'+self.config['fwd_host']+':'+str(self.config['fwd_port']))
 
     def init_components(self):
@@ -35,6 +37,14 @@ class StreamChatMaster:
             self.components['trending'] = Trending(self.config['trending_config'], self.stream)
         if self.config['nlp']:
             self.components['nlp'] = NLP(self.config['nlp_config'], self.stream)
+
+    def init_db(self):
+        self.con = psycopg2.connect(dbname=self.config['db_str'],
+                                    host=self.config['host_str'],
+                                    port=self.config['port_str'],
+                                    user=self.config['user_str'],
+                                    password=self.config['pw_str'])
+        self.cur = self.con.cursor()
 
     def init_threads(self):
         # zmq connections
@@ -45,7 +55,19 @@ class StreamChatMaster:
 
     # ZMQ Processes
     def send_trending(self):
-        self.trending_num = 0
+        query = "SELECT max(num) FROM trending WHERE src='%s' AND stream='%s';" % (self.config['src'], self.stream)
+        num_set = False
+        while not num_set:
+            try:
+                self.cur.execute(query)
+                max_num = self.cur.fetchall()
+                if max_num[0][0]:
+                    self.trending_num = max_num[0][0] + 1
+                else:
+                    self.trending_num = 0
+                num_set = True
+            except Exception, e:
+                pp('error setting num trending', 'error')
 
         self.send_trending_loop = True
         while self.send_trending_loop:
@@ -69,7 +91,20 @@ class StreamChatMaster:
 
     # ZMQ Processes
     def send_nlp(self):
-        self.nlp_num = 0
+        query = "SELECT max(num) FROM subjects WHERE src='%s' AND stream='%s';" % (self.config['src'], self.stream)
+        num_set = False
+        while not num_set:
+            try:
+                self.cur.execute(query)
+                max_num = self.cur.fetchall()
+                if max_num[0][0]:
+                    self.nlp_num = max_num[0][0] + 1
+                else:
+                    self.nlp_num = 0
+                num_set = True
+            except Exception, e:
+                pp('error setting num nlp', 'error')
+        
 
         self.send_nlp_loop = True
         while self.send_nlp_loop:

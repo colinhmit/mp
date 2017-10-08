@@ -24,12 +24,18 @@ class ChatVelocityStats:
         self.init_db()
         self.time = datetime.datetime.now()
 
-        self.cur.execute("SELECT max(num) FROM input_chat_stats;")
-        max_num = self.cur.fetchall()
-        if max_num[0][0]:
-            self.num = max_num[0][0] + 1
-        else:
-            self.num = 0
+        num_set = False
+        while not num_set:
+            try:
+                self.cur.execute("SELECT max(num) FROM input_chat_stats;")
+                max_num = self.cur.fetchall()
+                if max_num[0][0]:
+                    self.num = max_num[0][0] + 1
+                else:
+                    self.num = 0
+                num_set = True
+            except Exception, e:
+                pp('error setting num velocity', 'error')
 
         velocity_monitor = True
         while velocity_monitor:

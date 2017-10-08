@@ -32,6 +32,32 @@ chat_dist_config = {
 }
 
 ##############################################################################
+# View Input
+##############################################################################
+
+view_conn_config = {
+    # attributes
+    'src': 'twitch',
+
+    # db connect
+    'db_str': 'testdb',
+    'host_str': 'currentsdb.clocpkfrofip.us-west-2.rds.amazonaws.com',
+    'port_str': '5432',
+    'user_str': 'currentsdev',
+    'pw_str': 'AndrewColinEben!',
+
+    # messaging
+    'fwd_host': FWD_HOST,
+    'fwd_port': FWD_PORT_INPUT,
+
+    # timing
+    'view_refresh': 5,
+
+    # connection creds
+    'client_id': 'r4jy4y7lwnzoez92z29zlgjlqggdyz'
+}
+
+##############################################################################
 # Stream
 ##############################################################################
 
@@ -62,6 +88,8 @@ stream_chat_config = {
     'stream_port': STREAM_PORT_TWITCH
 }
 
+
+
 ##############################################################################
 # Master
 ##############################################################################
@@ -77,6 +105,7 @@ twitch_config = {
     # input components
     'chat_conn_config': chat_conn_config,
     'chat_dist_config': chat_dist_config,
+    'view_conn_config': view_conn_config,
 
     # stream chat components
     'trending_config': trending_config,

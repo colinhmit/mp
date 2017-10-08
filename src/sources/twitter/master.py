@@ -17,3 +17,6 @@ class Master:
         self.auth = OAuthHandler(self.config['consumer_token'], self.config['consumer_secret'])
         self.auth.set_access_token(self.config['access_token'], self.config['access_secret'])
         self.api = API(self.auth)
+
+    def refresh(self):
+        self.chat.refresh_streams()

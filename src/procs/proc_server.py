@@ -21,13 +21,13 @@ class ProcServer:
         pp('Initializing Proc Server...')
         self.config = config
 
-        #self.input_chat = InputChatMaster(self.config['input_chat_config'])
+        self.input_chat = InputChatMaster(self.config['input_chat_config'])
 
-        #self.forwarder = Forwarder(self.config['forwarder_config'])
+        self.forwarder = Forwarder(self.config['forwarder_config'])
 
-        #self.input_db = InputDBMaster(self.config['input_db_config'])
+        self.input_db = InputDBMaster(self.config['input_db_config'])
 
-        #self.stat_db = StatDBMaster(self.config['stat_db_config'])
+        self.stat_db = StatDBMaster(self.config['stat_db_config'])
 
-        self.cache_db = CacheDBMaster(self.config['cache_db_config'])
+        #self.cache_db = CacheDBMaster(self.config['cache_db_config'])
 

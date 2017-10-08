@@ -59,6 +59,13 @@ stream_chat_config = {
     # attr
     'src': 'DEFAULT',
 
+    # db connect
+    'db_str': 'testdb',
+    'host_str': 'currentsdb.clocpkfrofip.us-west-2.rds.amazonaws.com',
+    'port_str': '5432',
+    'user_str': 'currentsdev',
+    'pw_str': 'AndrewColinEben!',
+
     # settings
     'trending': False,
     'enrich': False,

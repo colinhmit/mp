@@ -38,13 +38,14 @@ class Server:
         try:
             if stream not in self.streams[src]:
                 self.streams[src][stream] = {
-                    'chat_con':     stream_config['chat_con'],
+                    'chat_con': stream_config['chat_con'],
+                    'view_con': stream_config['view_con'],
                     'stream':   multiprocessing.Process(target=Stream,
                                                         args=(self.config['stream_config'],
                                                               self.config['src_configs'][src],
                                                               stream))
                 }
-                self.srcs[src].chat.refresh_streams()
+                self.srcs[src].refresh()
                 self.streams[src][stream]['stream'].start()
         except Exception, e:
             pp(src + ":" + stream + ': failed adding stream', 'error')
@@ -71,7 +72,7 @@ if __name__ == '__main__':
     #server.srcs['reddit'].start_replay('58pj7j', 'skt_rox', 10, 600)
     #server.add_stream('reddit', 'skt_rox', {'chat_con': False})
 
-    #server.add_stream('twitch', 'shroud')
+    server.add_stream('twitch', 'riotgames', {'chat_con': True, 'view_con': True})
     #server.add_stream('twitch', 'riotgames')
     #server.add_stream('twitter', 'trump')
     # server.add_stream('reddit', 'soccer')

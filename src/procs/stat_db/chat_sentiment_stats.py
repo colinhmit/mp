@@ -31,12 +31,18 @@ class ChatSentimentStats:
         self.init_db()
         self.time = datetime.datetime.now()
 
-        self.cur.execute("SELECT max(num) FROM sentiment_stats WHERE type='input';")
-        max_num = self.cur.fetchall()
-        if max_num[0][0]:
-            self.num = max_num[0][0] + 1
-        else:
-            self.num = 0
+        num_set = False
+        while not num_set:
+            try:
+                self.cur.execute("SELECT max(num) FROM sentiment WHERE type='input';")
+                max_num = self.cur.fetchall()
+                if max_num[0][0]:
+                    self.num = max_num[0][0] + 1
+                else:
+                    self.num = 0
+                num_set = True
+            except Exception, e:
+                pp('error setting num input sent', 'error')
 
         input_sentiment_monitor = True
         while input_sentiment_monitor:
@@ -53,7 +59,7 @@ class ChatSentimentStats:
                         if text in dp_scores:
                             scores.append(dp_scores[text])
                         else:
-                            score = self.SIA.polarity_scores(text)['compound']
+                            score = self.SIA.polarity_scores(text)['compound']*100.0
                             dp_scores[text] = score
                             scores.append(score)
 
@@ -61,7 +67,7 @@ class ChatSentimentStats:
                     result.append((data[1], data[2], numpy.mean(scores)))
 
                 args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s)", (self.time.replace(microsecond=0).isoformat(), x[0], x[1], 'input', self.num, x[2])) for x in result)
-                self.cur.execute("INSERT INTO sentiment_stats (time, src, stream, type, num, sentiment) VALUES " + args_str)
+                self.cur.execute("INSERT INTO sentiment (time, src, stream, type, num, sentiment) VALUES " + args_str)
                 self.con.commit()
                 self.num += 1
                 time.sleep(self.config['interval']-(datetime.datetime.now()-self.time).total_seconds())
@@ -70,17 +76,23 @@ class ChatSentimentStats:
         self.init_db()
         self.time = datetime.datetime.now()
 
-        self.cur.execute("SELECT max(num) FROM sentiment_stats WHERE type='stream';")
-        max_num = self.cur.fetchall()
-        if max_num[0][0]:
-            self.num = max_num[0][0] + 1
-        else:
-            self.num = 0
+        num_set = False
+        while not num_set:
+            try:
+                self.cur.execute("SELECT max(num) FROM sentiment WHERE type='stream';")
+                max_num = self.cur.fetchall()
+                if max_num[0][0]:
+                    self.num = max_num[0][0] + 1
+                else:
+                    self.num = 0
+                num_set = True
+            except Exception, e:
+                pp('error setting num stream sent', 'error')
 
         input_sentiment_monitor = True
         while input_sentiment_monitor:
             self.time = datetime.datetime.now()
-            self.cur.execute("SELECT array_agg(message), array_agg(score), src, stream FROM stream_chat WHERE time BETWEEN %s and %s GROUP BY src, stream;", (self.time - datetime.timedelta(seconds=self.config['lookback']), self.time))
+            self.cur.execute("SELECT array_agg(message), array_agg(score), src, stream FROM trending WHERE time BETWEEN %s and %s GROUP BY src, stream;", (self.time - datetime.timedelta(seconds=self.config['lookback']), self.time))
             datas = self.cur.fetchall()
 
             if len(datas) > 0:
@@ -92,7 +104,7 @@ class ChatSentimentStats:
                         if text in dp_scores:
                             scores.append(dp_scores[text])
                         else:
-                            score = self.SIA.polarity_scores(text)['compound']
+                            score = self.SIA.polarity_scores(text)['compound']*100.0
                             dp_scores[text] = score
                             scores.append(score)
 
@@ -100,7 +112,7 @@ class ChatSentimentStats:
                     result.append((data[2], data[3], numpy.dot(scores, data[1])/sum(data[1])))
 
                 args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s)", (self.time.replace(microsecond=0).isoformat(), x[0], x[1], 'stream', self.num, x[2])) for x in result)
-                self.cur.execute("INSERT INTO sentiment_stats (time, src, stream, type, num, sentiment) VALUES " + args_str)
+                self.cur.execute("INSERT INTO sentiment (time, src, stream, type, num, sentiment) VALUES " + args_str)
                 self.con.commit()
                 self.num += 1
                 time.sleep(self.config['interval']-(datetime.datetime.now()-self.time).total_seconds())
