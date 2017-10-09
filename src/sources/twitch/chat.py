@@ -31,7 +31,7 @@ class Chat(ChatBase):
                     if data == '*STOP*':
                         connected = False
                     if len(data) == 0:
-                        self.set_sock()
+                        self.set_sock(chat_streams)
                     self.check_for_ping(data)
                     if self.check_for_message(data):
                         packet = {
@@ -42,6 +42,8 @@ class Chat(ChatBase):
                 except Exception, e:
                     pp('EINTR?', 'error')
                     pp(e, 'error')
+                    pp('Resetting socket...', 'error')
+                    self.set_sock(chat_streams)
             
     def set_sock(self,streams):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

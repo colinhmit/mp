@@ -16,7 +16,7 @@ server_config = {
     'src_on': {
         'internal':     False,
         'twitch':       True,
-        'twitter':      False,
+        'twitter':      True,
         'reddit':       False
     },
 

@@ -72,7 +72,8 @@ if __name__ == '__main__':
     #server.srcs['reddit'].start_replay('58pj7j', 'skt_rox', 10, 600)
     #server.add_stream('reddit', 'skt_rox', {'chat_con': False})
 
-    server.add_stream('twitch', 'riotgames', {'chat_con': True, 'view_con': True})
+    #server.add_stream('twitch', 'riotgames', {'chat_con': True, 'view_con': True})
+    server.add_stream('twitter', 'giants', {'chat_con': True, 'view_con': False})
     #server.add_stream('twitch', 'riotgames')
     #server.add_stream('twitter', 'trump')
     # server.add_stream('reddit', 'soccer')
