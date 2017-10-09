@@ -40,7 +40,7 @@ class ChatVelocityStats:
         velocity_monitor = True
         while velocity_monitor:
             self.vel_time = datetime.datetime.now()
-            self.cur.execute("SELECT s.src as src, s.stream as stream, s.num_comments as num_comments, s.num_commenters as num_commenters, t.tot_comments as tot_comments, t.tot_commenters as tot_commenters from (SELECT src, stream, COUNT (*) as num_comments, COUNT (DISTINCT username) as num_commenters FROM input_chat WHERE time BETWEEN %s and %s GROUP BY src, stream) as s INNER JOIN (SELECT src, stream, COUNT (*) as tot_comments, COUNT (DISTINCT username) as tot_commenters FROM input_chat GROUP BY src, stream) as t ON s.src=t.src AND s.stream=t.stream;", (self.time - datetime.timedelta(seconds=self.config['lookback']), self.time))
+            self.cur.execute("SELECT s.src as src, s.stream as stream, s.num_comments as num_comments, s.num_commenters as num_commenters, t.tot_comments as tot_comments, t.tot_commenters as tot_commenters from (SELECT src, stream, COUNT (*) as num_comments, COUNT (DISTINCT username) as num_commenters FROM input_chat WHERE time BETWEEN %s and %s GROUP BY src, stream) as s INNER JOIN (SELECT src, stream, COUNT (*) as tot_comments, COUNT (DISTINCT username) as tot_commenters FROM input_chat GROUP BY src, stream) as t ON s.src=t.src AND s.stream=t.stream;", (self.vel_time - datetime.timedelta(seconds=self.config['lookback']), self.vel_time))
             data = self.cur.fetchall()
             if len(data) > 0:
                 args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s,%s,%s)", (self.vel_time.replace(microsecond=0).isoformat(), x[0], x[1], self.num, x[2], x[3], x[4], x[5])) for x in data)
