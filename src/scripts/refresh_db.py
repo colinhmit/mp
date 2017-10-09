@@ -17,50 +17,52 @@ cur = con.cursor()
 
 # cur.execute("CREATE TABLE input_chat (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, username varchar, message varchar, uuid varchar, src_id varchar);")
 
-try:
-    cur.execute("DROP TABLE trending;")
-except Exception, e:
-    cur.execute("rollback;")
-    print 'failed dropping trending'
+# try:
+#     cur.execute("DROP TABLE trending;")
+# except Exception, e:
+#     cur.execute("rollback;")
+#     print 'failed dropping trending'
 
-cur.execute("CREATE TABLE trending (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, username varchar, score double precision, message varchar, first_rcv_time timestamp, uuid varchar, src_id varchar);")
+# cur.execute("CREATE TABLE trending (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, username varchar, score double precision, message varchar, first_rcv_time timestamp, uuid varchar, src_id varchar);")
 
-try:
-    cur.execute("DROP TABLE input_chat_stats;")
-except Exception, e:
-    cur.execute("rollback;")
-    print 'failed dropping input_chat_stats'
+# try:
+#     cur.execute("DROP TABLE input_chat_stats;")
+# except Exception, e:
+#     cur.execute("rollback;")
+#     print 'failed dropping input_chat_stats'
 
-cur.execute("CREATE TABLE input_chat_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, num_comments integer, num_commenters integer, tot_comments integer, tot_commenters integer);")
+# cur.execute("CREATE TABLE input_chat_stats (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, num_comments integer, num_commenters integer, tot_comments integer, tot_commenters integer);")
 
-try:
-    cur.execute("DROP TABLE input_view;")
-except Exception, e:
-    cur.execute("rollback;")
-    print 'failed dropping input_view'
+# try:
+#     cur.execute("DROP TABLE input_view;")
+# except Exception, e:
+#     cur.execute("rollback;")
+#     print 'failed dropping input_view'
 
-cur.execute("CREATE TABLE input_view (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, num_viewers integer);")
+# cur.execute("CREATE TABLE input_view (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, num_viewers integer);")
 
-try:
-    cur.execute("DROP TABLE sentiment;")
-except Exception, e:
-    cur.execute("rollback;")
-    print 'failed dropping sentiment'
+# try:
+#     cur.execute("DROP TABLE sentiment;")
+# except Exception, e:
+#     cur.execute("rollback;")
+#     print 'failed dropping sentiment'
 
-cur.execute("CREATE TABLE sentiment (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, type varchar, num integer, sentiment double precision);")
+# cur.execute("CREATE TABLE sentiment (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, type varchar, num integer, sentiment double precision);")
 
-try:
-    cur.execute("DROP TABLE subjects;")
-except Exception, e:
-    cur.execute("rollback;")
-    print 'failed dropping subjects'
+# try:
+#     cur.execute("DROP TABLE subjects;")
+# except Exception, e:
+#     cur.execute("rollback;")
+#     print 'failed dropping subjects'
 
-cur.execute("CREATE TABLE subjects (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, subject varchar, score double precision, sentiment double precision);")
+# cur.execute("CREATE TABLE subjects (id serial PRIMARY KEY, time timestamp, src varchar, stream varchar, num integer, subject varchar, score double precision, sentiment double precision);")
 
-cur.execute("DELETE FROM input_chat WHERE stream='shroud'")
-# cur.execute("DELETE FROM stream_chat WHERE src='internal'")
-# cur.execute("DELETE FROM input_chat_stats WHERE src='internal'")
-# cur.execute("DELETE FROM sentiment_stats WHERE src='internal'")
+cur.execute("DELETE FROM input_chat WHERE src='twitter'")
+cur.execute("DELETE FROM trending WHERE src='twitter'")
+cur.execute("DELETE FROM input_chat_stats WHERE src='twitter'")
+cur.execute("DELETE FROM input_view WHERE src='twitter'")
+cur.execute("DELETE FROM sentiment WHERE src='twitter'")
+cur.execute("DELETE FROM subjects WHERE src='twitter'")
 
 con.commit()
 cur.close()

@@ -29,7 +29,7 @@ class ChatSentimentStats:
 
     def input_sentiment(self):
         self.init_db()
-        self.time = datetime.datetime.now()
+        self.input_time = datetime.datetime.now()
 
         num_set = False
         while not num_set:
@@ -46,8 +46,8 @@ class ChatSentimentStats:
 
         input_sentiment_monitor = True
         while input_sentiment_monitor:
-            self.time = datetime.datetime.now()
-            self.cur.execute("SELECT array_agg(message), src, stream FROM input_chat WHERE time BETWEEN %s and %s GROUP BY src, stream;", (self.time - datetime.timedelta(seconds=self.config['lookback']), self.time))
+            self.input_time = datetime.datetime.now()
+            self.cur.execute("SELECT array_agg(message), src, stream FROM input_chat WHERE time BETWEEN %s and %s GROUP BY src, stream;", (self.input_time - datetime.timedelta(seconds=self.config['lookback']), self.input_time))
             datas = self.cur.fetchall()
 
             if len(datas) > 0:
@@ -66,15 +66,15 @@ class ChatSentimentStats:
                     #scores = [self.SIA.polarity_scores(x)['compound'] for x in data[0]]
                     result.append((data[1], data[2], numpy.mean(scores)))
 
-                args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s)", (self.time.replace(microsecond=0).isoformat(), x[0], x[1], 'input', self.num, x[2])) for x in result)
+                args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s)", (self.input_time.replace(microsecond=0).isoformat(), x[0], x[1], 'input', self.num, x[2])) for x in result)
                 self.cur.execute("INSERT INTO sentiment (time, src, stream, type, num, sentiment) VALUES " + args_str)
                 self.con.commit()
                 self.num += 1
-                time.sleep(self.config['interval']-(datetime.datetime.now()-self.time).total_seconds())
+                time.sleep(max(0,self.config['interval']-(datetime.datetime.now()-self.input_time).total_seconds()))
 
     def stream_sentiment(self):
         self.init_db()
-        self.time = datetime.datetime.now()
+        self.stream_time = datetime.datetime.now()
 
         num_set = False
         while not num_set:
@@ -91,8 +91,8 @@ class ChatSentimentStats:
 
         input_sentiment_monitor = True
         while input_sentiment_monitor:
-            self.time = datetime.datetime.now()
-            self.cur.execute("SELECT array_agg(message), array_agg(score), src, stream FROM trending WHERE time BETWEEN %s and %s GROUP BY src, stream;", (self.time - datetime.timedelta(seconds=self.config['lookback']), self.time))
+            self.stream_time = datetime.datetime.now()
+            self.cur.execute("SELECT array_agg(message), array_agg(score), src, stream FROM trending WHERE time BETWEEN %s and %s GROUP BY src, stream;", (self.stream_time - datetime.timedelta(seconds=self.config['lookback']), self.stream_time))
             datas = self.cur.fetchall()
 
             if len(datas) > 0:
@@ -111,8 +111,8 @@ class ChatSentimentStats:
                     #scores = [self.SIA.polarity_scores(x)['compound'] for x in data[0]]
                     result.append((data[2], data[3], numpy.dot(scores, data[1])/sum(data[1])))
 
-                args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s)", (self.time.replace(microsecond=0).isoformat(), x[0], x[1], 'stream', self.num, x[2])) for x in result)
+                args_str = ','.join(self.cur.mogrify("(%s,%s,%s,%s,%s,%s)", (self.stream_time.replace(microsecond=0).isoformat(), x[0], x[1], 'stream', self.num, x[2])) for x in result)
                 self.cur.execute("INSERT INTO sentiment (time, src, stream, type, num, sentiment) VALUES " + args_str)
                 self.con.commit()
                 self.num += 1
-                time.sleep(self.config['interval']-(datetime.datetime.now()-self.time).total_seconds())
+                time.sleep(max(0,self.config['interval']-(datetime.datetime.now()-self.stream_time).total_seconds()))
