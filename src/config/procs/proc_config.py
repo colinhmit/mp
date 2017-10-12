@@ -29,6 +29,12 @@ from src.config.procs.stat_db_config import stat_db_config
 from src.config.procs.cache_db_config import cache_db_config
 
 ##############################################################################
+# SCHEDULER
+##############################################################################
+
+from src.config.procs.scheduler_config import scheduler_config
+
+##############################################################################
 # Server
 ##############################################################################
 
@@ -37,5 +43,6 @@ proc_config = {
     'forwarder_config': forwarder_config,
     'input_db_config': input_db_config,
     'stat_db_config': stat_db_config,
-    'cache_db_config': cache_db_config
+    'cache_db_config': cache_db_config,
+    'scheduler_config': scheduler_config
 }

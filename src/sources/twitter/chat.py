@@ -26,6 +26,7 @@ class Chat(ChatBase):
             self.set_pipe()
             # try: connection dies occasionally
             try:
+                pp(chat_streams)
                 self.sock.filter(track=chat_streams)
                 gc.collect()
             except Exception, e:

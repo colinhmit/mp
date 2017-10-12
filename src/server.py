@@ -32,7 +32,7 @@ class Server:
                 self.srcs[src] = Master(self.config['src_configs'][src], self.streams[src])
 
     def init_procs(self):
-        self.proc = ProcServer(self.config['proc_config'])
+        self.proc = ProcServer(self.config['proc_config'], self.srcs, self.streams)
 
     def add_stream(self, src, stream, stream_config):
         try:
@@ -56,7 +56,7 @@ class Server:
             if stream in self.streams[src]:
                 self.streams[src][stream]['stream'].terminate()
                 del self.streams[src][stream]
-                self.srcs[src].chat.refresh_streams()
+                self.srcs[src].refresh()
         except Exception, e:
             pp(src + ":" + stream + ': failed deleting stream', 'error')
             pp(e, 'error')
@@ -73,7 +73,10 @@ if __name__ == '__main__':
     #server.add_stream('reddit', 'skt_rox', {'chat_con': False})
 
     #server.add_stream('twitch', 'riotgames', {'chat_con': True, 'view_con': True})
-    server.add_stream('twitter', 'giants', {'chat_con': True, 'view_con': False})
+    #server.add_stream('twitter', 'worlds2017', {'chat_con': True, 'view_con': False})
+   # server.add_stream('twitter', 'tsmwin', {'chat_con': True, 'view_con': False})
+    server.add_stream('twitter', 'trump', {'chat_con': True, 'view_con': False})
+    #server.add_stream('twitter', 'tsmwin', {'chat_con': True, 'view_con': False})
     #server.add_stream('twitch', 'riotgames')
     #server.add_stream('twitter', 'trump')
     # server.add_stream('reddit', 'soccer')

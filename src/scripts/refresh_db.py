@@ -64,6 +64,13 @@ cur.execute("DELETE FROM input_view WHERE src='twitter'")
 cur.execute("DELETE FROM sentiment WHERE src='twitter'")
 cur.execute("DELETE FROM subjects WHERE src='twitter'")
 
+cur.execute("DELETE FROM input_chat WHERE stream='shroud'")
+cur.execute("DELETE FROM trending WHERE stream='shroud'")
+cur.execute("DELETE FROM input_chat_stats WHERE stream='shroud'")
+cur.execute("DELETE FROM input_view WHERE stream='shroud'")
+cur.execute("DELETE FROM sentiment WHERE stream='shroud'")
+cur.execute("DELETE FROM subjects WHERE stream='shroud'")
+
 con.commit()
 cur.close()
 con.close()
