@@ -6,17 +6,17 @@ from src.config.streams.stream_config import stream_config
 
 scheduler_config = {
     # AWS Google API Key
-    #'sheets_key': '/home/ec2-user/mp/src/config/keys/sheets_key.json',
+    'sheets_key': '/home/ec2-user/mp/src/config/keys/sheets_key.json',
     # DEV Google API Key
-    'sheets_key': '/Users/colinh/Repositories/mp/src/config/keys/sheets_key.json',
+    #'sheets_key': '/Users/colinh/Repositories/mp/src/config/keys/sheets_key.json',
     
     # credentials
     'scopes': ['https://www.googleapis.com/auth/spreadsheets.readonly'],
     'spreadsheetID': '1lz4g3-WvT8EjVc2hogalhnGQmkMb1d1fIvatpLUsano',
     
     # range
-    'live_range': 'Schedule!I2',
-    'data_range': 'Schedule!A2:G',
+    'live_range': 'Schedule!J2',
+    'data_range': 'Schedule!A2:H',
 
     # configs
     'src_configs': {

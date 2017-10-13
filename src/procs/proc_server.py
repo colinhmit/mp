@@ -11,7 +11,7 @@ from src.procs.stat_db.master import StatDBMaster
 # import cachedb
 from src.procs.cache_db.master import CacheDBMaster
 # import scheduler
-#from src.procs.scheduler.master import SchedulerMaster
+from src.procs.scheduler.master import SchedulerMaster
 
 
 class ProcServer:
@@ -29,4 +29,4 @@ class ProcServer:
 
         #self.cache_db = CacheDBMaster(self.config['cache_db_config'])
 
-       # self.scheduler = SchedulerMaster(self.config['scheduler_config'], srcs, streams)
+        self.scheduler = SchedulerMaster(self.config['scheduler_config'], srcs, streams)

@@ -41,7 +41,7 @@ class SchedulerMaster:
                     schedule = []
                     for row in values:
                         try:
-                            event = {'src': row[0], 'stream':row[1], 'date': row[2], 'start_time':row[3], 'end_time':row[4], 'chat_con': row[5], 'view_con': row[6]}
+                            event = {'src': row[0], 'stream':row[1], 'start_date': row[2], 'start_time':row[3], 'end_date': row[4], 'end_time':row[5], 'chat_con': row[6], 'view_con': row[7]}
                             schedule.append(event)
                         except Exception, e:
                             pp('row length wrong', 'error')
@@ -62,12 +62,12 @@ class SchedulerMaster:
 
             for event in schedule:
                 try:
-                    start_time = datetime.datetime.strptime(event['date']+" "+event['start_time'],"%m/%d/%y %I:%M:%S %p")
-                    end_time = datetime.datetime.strptime(event['date']+" "+event['end_time'],"%m/%d/%y %I:%M:%S %p")
+                    start_time = datetime.datetime.strptime(event['start_date']+" "+event['start_time'],"%m/%d/%y %I:%M:%S %p")
+                    end_time = datetime.datetime.strptime(event['end_date']+" "+event['end_time'],"%m/%d/%y %I:%M:%S %p")
                     curr_time = datetime.datetime.now(tz)
                     if (curr_time > tz.localize(start_time)) & (curr_time < tz.localize(end_time)):
                         if event['stream'] not in self.streams[event['src']]:
-                            pp('Scheduler: Adding stream')
+                            pp('Scheduler: Adding stream!')
                             pp(event)
                             self.streams[event['src']][event['stream']] = {
                                 'chat_con': event['chat_con'],
@@ -90,5 +90,3 @@ class SchedulerMaster:
                     pp(e, 'error')
 
             time.sleep(self.config['set_streams_refresh'])
-                
-

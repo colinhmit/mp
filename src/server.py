@@ -75,7 +75,7 @@ if __name__ == '__main__':
     #server.add_stream('twitch', 'riotgames', {'chat_con': True, 'view_con': True})
     #server.add_stream('twitter', 'worlds2017', {'chat_con': True, 'view_con': False})
    # server.add_stream('twitter', 'tsmwin', {'chat_con': True, 'view_con': False})
-    server.add_stream('twitter', 'trump', {'chat_con': True, 'view_con': False})
+   # server.add_stream('twitter', 'trump', {'chat_con': True, 'view_con': False})
     #server.add_stream('twitter', 'tsmwin', {'chat_con': True, 'view_con': False})
     #server.add_stream('twitch', 'riotgames')
     #server.add_stream('twitter', 'trump')
