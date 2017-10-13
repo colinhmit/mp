@@ -45,6 +45,8 @@ view_conn_config = {
     'port_str': '5432',
     'user_str': 'currentsdev',
     'pw_str': 'AndrewColinEben!',
+    'db_connect_timeout': 2.0,
+
 
     # messaging
     'fwd_host': FWD_HOST,

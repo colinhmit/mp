@@ -20,12 +20,20 @@ class ChatSentimentStats:
         self.stream_sentiment_monitor.start()
 
     def init_db(self):
-        self.con = psycopg2.connect(dbname=self.config['db_str'],
-                                    host=self.config['host_str'],
-                                    port=self.config['port_str'],
-                                    user=self.config['user_str'],
-                                    password=self.config['pw_str'])
-        self.cur = self.con.cursor()
+        db_connect = False
+
+        while not db_connect:
+            try:
+                self.con = psycopg2.connect(dbname=self.config['db_str'],
+                                            host=self.config['host_str'],
+                                            port=self.config['port_str'],
+                                            user=self.config['user_str'],
+                                            password=self.config['pw_str'])
+                self.cur = self.con.cursor()
+                db_connect = True
+            except Exception, e:
+                pp(e, 'error')
+                time.sleep(self.config['db_connect_timeout'])
 
     def input_sentiment(self):
         self.init_db()

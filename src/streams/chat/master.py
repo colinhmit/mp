@@ -39,12 +39,20 @@ class StreamChatMaster:
             self.components['nlp'] = NLP(self.config['nlp_config'], self.stream)
 
     def init_db(self):
-        self.con = psycopg2.connect(dbname=self.config['db_str'],
-                                    host=self.config['host_str'],
-                                    port=self.config['port_str'],
-                                    user=self.config['user_str'],
-                                    password=self.config['pw_str'])
-        self.cur = self.con.cursor()
+        db_connect = False
+
+        while not db_connect:
+            try:
+                self.con = psycopg2.connect(dbname=self.config['db_str'],
+                                            host=self.config['host_str'],
+                                            port=self.config['port_str'],
+                                            user=self.config['user_str'],
+                                            password=self.config['pw_str'])
+                self.cur = self.con.cursor()
+                db_connect = True
+            except Exception, e:
+                pp(e, 'error')
+                time.sleep(self.config['db_connect_timeout'])
 
     def init_threads(self):
         # zmq connections
@@ -71,7 +79,7 @@ class StreamChatMaster:
             except Exception, e:
                 pp('error setting num trending', 'error')
                 pp(self.config['src'] + ":" + self.stream + ': failed!', 'error')
-                time.sleep(self.config['set_num_refresh'])
+                time.sleep(self.config['db_connect_timeout'])
 
         self.send_trending_loop = True
         while self.send_trending_loop:
@@ -109,7 +117,7 @@ class StreamChatMaster:
             except Exception, e:
                 pp('error setting num nlp', 'error')
                 pp(self.config['src'] + ":" + self.stream + ': failed!', 'error')
-                time.sleep(self.config['set_num_refresh'])
+                time.sleep(self.config['db_connect_timeout'])
         
 
         self.send_nlp_loop = True

@@ -9,6 +9,7 @@ chat_velocity_config = {
     'port_str': '5432',
     'user_str': 'currentsdev',
     'pw_str': 'AndrewColinEben!',
+    'db_connect_timeout': 2.0,
 
     #settings
     'interval': 5,
@@ -26,6 +27,7 @@ chat_sentiment_config = {
     'port_str': '5432',
     'user_str': 'currentsdev',
     'pw_str': 'AndrewColinEben!',
+    'db_connect_timeout': 2.0,
 
     #settings
     'interval': 5,
