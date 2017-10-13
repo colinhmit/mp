@@ -58,10 +58,10 @@ class StreamChatMaster:
         # zmq connections
         if self.config['trending']:
             threading.Thread(target = self.send_trending).start()
-            time.sleep(self.config['set_num_refresh'])
+            time.sleep(self.config['db_connect_timeout'])
         if self.config['nlp']:
             threading.Thread(target = self.send_nlp).start()
-            time.sleep(self.config['set_num_refresh'])
+            time.sleep(self.config['db_connect_timeout'])
         
     # ZMQ Processes
     def send_trending(self):
