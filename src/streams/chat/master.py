@@ -50,9 +50,11 @@ class StreamChatMaster:
         # zmq connections
         if self.config['trending']:
             threading.Thread(target = self.send_trending).start()
+            time.sleep(self.config['set_num_refresh'])
         if self.config['nlp']:
             threading.Thread(target = self.send_nlp).start()
-
+            time.sleep(self.config['set_num_refresh'])
+        
     # ZMQ Processes
     def send_trending(self):
         query = "SELECT max(num) FROM trending WHERE src='%s' AND stream='%s';" % (self.config['src'], self.stream)
@@ -68,6 +70,7 @@ class StreamChatMaster:
                 num_set = True
             except Exception, e:
                 pp('error setting num trending', 'error')
+                pp(self.config['src'] + ":" + self.stream + ': failed!', 'error')
                 time.sleep(self.config['set_num_refresh'])
 
         self.send_trending_loop = True
@@ -105,6 +108,7 @@ class StreamChatMaster:
                 num_set = True
             except Exception, e:
                 pp('error setting num nlp', 'error')
+                pp(self.config['src'] + ":" + self.stream + ': failed!', 'error')
                 time.sleep(self.config['set_num_refresh'])
         
 
