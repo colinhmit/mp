@@ -68,6 +68,7 @@ class StreamChatMaster:
                 num_set = True
             except Exception, e:
                 pp('error setting num trending', 'error')
+                time.sleep(self.config['set_num_refresh'])
 
         self.send_trending_loop = True
         while self.send_trending_loop:
@@ -104,6 +105,7 @@ class StreamChatMaster:
                 num_set = True
             except Exception, e:
                 pp('error setting num nlp', 'error')
+                time.sleep(self.config['set_num_refresh'])
         
 
         self.send_nlp_loop = True

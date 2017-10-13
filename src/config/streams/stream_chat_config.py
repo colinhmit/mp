@@ -74,6 +74,7 @@ stream_chat_config = {
     # timing
     'send_trending_refresh': 0.3,
     'send_nlp_refresh': 5.0,
+    'set_num_refresh': 2.0,
 
     # messaging
     'fwd_host': FWD_HOST,
