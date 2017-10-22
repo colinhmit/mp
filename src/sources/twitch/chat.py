@@ -28,10 +28,10 @@ class Chat(ChatBase):
             while connected:
                 try:
                     data = self.sock.recv(self.config['socket_buffer_size']).rstrip()
-                    if data == '*STOP*':
-                        connected = False
                     if len(data) == 0:
                         self.set_sock(chat_streams)
+                    if data == '*STOP*':
+                        connected = False
                     self.check_for_ping(data)
                     if self.check_for_message(data):
                         packet = {
